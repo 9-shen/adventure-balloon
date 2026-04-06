@@ -1,5 +1,5 @@
 # Booklix — Development Progress Tracker
-> **Last Updated:** 2026-04-06 (Phase 4 complete)  
+> **Last Updated:** 2026-04-06 (Phase 5 complete)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -14,8 +14,8 @@
 | 2 | [Settings & Config](#phase-2--settings--config) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
 | 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
 | 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ✅ **COMPLETE** |
-| 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | ⏳ **NEXT** |
-| 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | 🔲 Pending |
+| 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | ✅ **COMPLETE** |
+| 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | ⏳ **NEXT** |
 | 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | 🔲 Pending |
 | 8 | [Partner Booking System](#phase-8--partner-booking-system) | 🟡 MEDIUM | 3–4 | 🔲 Pending |
 | 9 | [Dispatch System](#phase-9--dispatch-system) | 🟠 MED-HIGH | 5–7 | 🔲 Pending |
@@ -135,17 +135,28 @@
 
 ## Phase 5 — Partner Management
 📁 Details: [`docs/phases/phase-05-partners.md`](phases/phase-05-partners.md)  
-**Status: ⏳ NEXT**
+**Status: ✅ COMPLETE** — Completed 2026-04-06
 
-### To Do
-- [ ] `partners` table migration (company info, KYC, banking)
-- [ ] `partner_products` pivot table (custom adult + child pricing per product per partner)
-- [ ] `PartnerResource` Filament CRUD (mirrors Phase 3/4 modular structure)
-- [ ] KYC document upload (Spatie Media Library, collection `'kyc-documents'`)
-- [ ] Partner status workflow (pending → approved → rejected) with `SelectAction`
-- [ ] Custom pricing tab — per-product adult/child price overrides
-- [ ] Link partner users to partner company
-- [ ] `SoftDeletes` on `Partner` model (global rule)
+### Completed ✅
+- [x] `partners` migration — `company_name`, `trade_name`, `registration_number`, `tax_number`, `email`, `phone`, `address`, `city`, `country`, `bank_name`, `bank_account`, `bank_iban`, `bank_swift`, `payment_terms_days`, `status` (enum: pending/approved/rejected), `approved_at`, `is_active`, `notes`, `deleted_at` (soft deletes)
+- [x] `partner_products` pivot migration — `partner_id`, `product_id`, `partner_adult_price`, `partner_child_price`, `is_active`, unique `(partner_id, product_id)`
+- [x] `Partner` model — `HasMedia`, `SoftDeletes`, `belongsToMany(Product)` via `PartnerProduct` pivot, media collections: `'kyc-documents'` (PDF+images) + `'partner-logo'` (single file)
+- [x] `PartnerProduct` pivot model — `Pivot` class with `partner_adult_price`, `partner_child_price`, `is_active`, `belongsTo(Partner)` + `belongsTo(Product)`
+- [x] `Product` model updated — `partners()` reverse `belongsToMany` relationship added
+- [x] `PartnerResource` — modular structure: `Partners/Schemas/`, `Tables/`, `Pages/`, `RelationManagers/`, navigation group "Partner Management", access: `super_admin` + `admin` + `manager`
+- [x] `PartnerForm` — 5 sections: Company Information (name, trade name, reg no., email, phone, city, country, address), Tax & Legal (collapsed), Banking Details (collapsed — bank name, account, IBAN, SWIFT, payment terms), Status & Account (status dropdown, is_active toggle, approved_at), KYC Documents (multi-upload PDF/images)
+- [x] `PartnerInfolist` — read-only view with status badges (green=approved, red=rejected, orange=pending)
+- [x] `PartnersTable` — status badge column, product count (`counts('products')`), `TrashedFilter`, full soft delete actions
+- [x] `PartnerProductsRelationManager` — `AttachAction` (NOT `CreateAction`) inserts pivot rows with adult/child prices, `$recordTitleAttribute = 'name'` so dropdown shows product titles, `EditAction` for updating prices, `DetachAction` to remove
+- [x] Pricing table columns: Product name, Base Adult (gray), Partner Adult, Base Child (gray), Partner Child, Active icon
+- [x] Status workflow: `pending` → `approved` (sets `approved_at`) → `rejected`
+- [x] Pushed to GitHub: `9-shen/adventure-balloon`
+
+### Architecture Decisions
+- `AttachAction` used on the pivot relation manager (not `CreateAction`) — avoids Eloquent trying to create a Product instead of a pivot row
+- `$recordTitleAttribute = 'name'` on the RelationManager tells Filament's `AttachAction` which column to display as the dropdown label
+- Partner pricing columns show **both** base price (gray, from `products` table) and partner override price side by side for quick reference
+- `PartnerProduct` extends `Pivot` (not `Model`) with `$incrementing = true` since the pivot table has an `id` column
 
 ---
 
@@ -313,7 +324,7 @@ Phase 3: User Management ✅
     ↓
 Phase 4: Product Management ✅
     ↓               ↓
-Phase 5: Partners ← NEXT  Phase 6: Transport
+Phase 5: Partners ✅  Phase 6: Transport ← NEXT
     ↓               ↓
 Phase 7: Regular Bookings
     ↓
