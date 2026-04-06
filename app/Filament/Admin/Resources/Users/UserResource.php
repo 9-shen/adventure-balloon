@@ -15,6 +15,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class UserResource extends Resource
 {
@@ -37,7 +39,42 @@ class UserResource extends Resource
 
     public static function canAccess(): bool
     {
-        return auth()->user()?->hasRole('super_admin') || auth()->user()?->hasRole('admin');
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+
+        return $user?->hasRole('super_admin') || $user?->hasRole('admin');
+    }
+
+    /**
+     * A user cannot delete themselves.
+     * A super_admin cannot be deleted if it is the last one.
+     */
+    public static function canDelete($record): bool
+    {
+        if ($record->id === Auth::id()) {
+            return false;
+        }
+
+        if ($record->hasRole('super_admin') && User::role('super_admin')->count() <= 1) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static function canForceDelete($record): bool
+    {
+        return $record->id !== Auth::id();
+    }
+
+    /**
+     * Include soft-deleted records so the trashed filter works
+     */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->withoutGlobalScope(
+            \Illuminate\Database\Eloquent\SoftDeletingScope::class
+        );
     }
 
     public static function form(Schema $schema): Schema
