@@ -1,5 +1,5 @@
 # Booklix — Development Progress Tracker
-> **Last Updated:** 2026-04-05  
+> **Last Updated:** 2026-04-06  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -12,8 +12,8 @@
 |---|-------|----------|-----------|--------|
 | 1 | [Foundation](#phase-1--foundation) | — | 2–3 | ✅ **COMPLETE** |
 | 2 | [Settings & Config](#phase-2--settings--config) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
-| 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ⏳ **NEXT** |
-| 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | 🔲 Pending |
+| 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
+| 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ⏳ **NEXT** |
 | 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | 🔲 Pending |
 | 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | 🔲 Pending |
 | 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | 🔲 Pending |
@@ -87,15 +87,24 @@
 
 ## Phase 3 — User Management
 📁 Details: [`docs/phases/phase-03-users.md`](phases/phase-03-users.md)  
-**Status: ⏳ NEXT**
+**Status: ✅ COMPLETE** — Completed 2026-04-06
 
-### To Do
-- [ ] Add KYC columns migration to `users` table (`phone`, `national_id`, `nationality`, `dob`, `address`, `is_active`, `last_login_at`)
-- [ ] `UserResource` Filament CRUD
-- [ ] Role assignment dropdown in user form
-- [ ] Avatar upload (Spatie Media Library)
-- [ ] Permission viewer per user
-- [ ] User activity log viewer
+### Completed ✅
+- [x] KYC migration: `phone`, `national_id`, `nationality`, `date_of_birth`, `address`, `is_active`, `last_login_at` added to `users` table
+- [x] `User` model updated: `HasMedia` + `InteractsWithMedia` traits, KYC `$fillable` + casts, `getFilamentAvatarUrl()`, `canAccessPanel()` blocks inactive users
+- [x] `UpdateLastLogin` listener — tracks `last_login_at` on every `Auth\Login` event
+- [x] `filament/spatie-laravel-media-library-plugin` installed for avatar UI components
+- [x] `UserResource` — full CRUD with navigation group "User Management", restricted to `super_admin` + `admin`
+- [x] `UserForm` — Profile section (avatar upload, name, email, password), KYC section (phone, national_id, nationality, DOB, address), Access Control section (is_active toggle, roles multi-select with `super_admin` masked from admins)
+- [x] `UsersTable` — circular avatar column, role badges, `is_active` toggle, searchable columns
+- [x] `UserInfolist` — sectioned view page with: Profile, KYC Data, System Variables, and **Computed Permissions** (reads `getAllPermissions()` dynamically)
+- [x] Fixed `.env`: `APP_URL=http://127.0.0.1:8000`, `FILESYSTEM_DISK=public`, `MEDIA_DISK=public` to resolve avatar CORS issue
+- [x] `php artisan storage:link` verified — media files served via `public/storage`
+- [x] Pushed to GitHub: `https://github.com/9-shen/adventure-balloon`
+
+### Known Limitations
+- User activity log viewer (Spatie Activitylog) deferred to Phase 15
+- Avatar upload tested visually; automated upload test skipped (browser file picker restriction)
 
 ---
 
@@ -289,9 +298,9 @@ Phase 1: Foundation ✅
     ↓
 Phase 2: Settings & Config ✅
     ↓
-Phase 3: User Management ← NEXT
+Phase 3: User Management ✅
     ↓
-Phase 4: Product Management
+Phase 4: Product Management ← NEXT
     ↓               ↓
 Phase 5: Partners  Phase 6: Transport
     ↓               ↓
