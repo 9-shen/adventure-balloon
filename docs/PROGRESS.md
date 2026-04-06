@@ -176,6 +176,11 @@
 - [x] `VehicleResource` — standalone resource (sort 2), shows company name, plate badge, type badge with colors, seats, price/trip, driver count
 - [x] `DriverResource` — standalone resource (sort 3), shows company, WhatsApp phone, license expiry (red if soon ≤30 days), vehicle count, license doc upload
 - [x] All resources: soft delete support, `TrashedFilter`, role-based access (`super_admin`, `admin`, `manager`)
+- [x] **Phase 6.1 — Driver-Vehicle Assignment:**
+  - [x] `Vehicles/RelationManagers/DriversRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Driver" column
+  - [x] `Drivers/RelationManagers/VehiclesRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Vehicle" column
+  - [x] Registered `getRelations()` in both `VehicleResource` and `DriverResource`
+  - [x] Green checkmark appears on both sides when `is_default = true`
 - [x] Pushed to GitHub: `9-shen/adventure-balloon`
 
 ### Architecture Decisions

@@ -29,6 +29,14 @@ Manage transport companies, their vehicles, and drivers. The dispatch system (Ph
 - [x] `VehicleResource` (standalone, Transport Management nav group sort 2)
 - [x] `DriverResource` (standalone, license document upload, sort 3)
 
+### Driver-Vehicle Assignment (Phase 6.1)
+- [x] `Vehicles/RelationManagers/DriversRelationManager` — `AttachAction` filtered by same `transport_company_id`, `is_default` pivot toggle, license expiry warning in table
+- [x] `Drivers/RelationManagers/VehiclesRelationManager` — `AttachAction` filtered by same `transport_company_id`, `is_default` pivot toggle, vehicle type badges
+- [x] `VehicleResource::getRelations()` — registered `DriversRelationManager`
+- [x] `DriverResource::getRelations()` — registered `VehiclesRelationManager`
+- [x] Both show "Default Driver / Default Vehicle" green checkmark from pivot `is_default` flag
+- [x] "Set as Default" inline action on both relation manager tables via `EditAction`
+
 ---
 
 ## Actual Schema (as migrated)
