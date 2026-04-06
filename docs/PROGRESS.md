@@ -1,5 +1,5 @@
 # Booklix — Development Progress Tracker
-> **Last Updated:** 2026-04-06  
+> **Last Updated:** 2026-04-06 (Phase 4 complete)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -13,8 +13,8 @@
 | 1 | [Foundation](#phase-1--foundation) | — | 2–3 | ✅ **COMPLETE** |
 | 2 | [Settings & Config](#phase-2--settings--config) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
 | 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
-| 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ⏳ **NEXT** |
-| 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | 🔲 Pending |
+| 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ✅ **COMPLETE** |
+| 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | ⏳ **NEXT** |
 | 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | 🔲 Pending |
 | 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | 🔲 Pending |
 | 8 | [Partner Booking System](#phase-8--partner-booking-system) | 🟡 MEDIUM | 3–4 | 🔲 Pending |
@@ -110,31 +110,42 @@
 
 ## Phase 4 — Product Management
 📁 Details: [`docs/phases/phase-04-products.md`](phases/phase-04-products.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-06
 
-### To Do
-- [ ] `products` table migration (`name`, `description`, `base_adult_price`, `base_child_price`, `max_pax`, `duration_minutes`, `is_active`)
-- [ ] `blackout_dates` table migration
-- [ ] `ProductResource` Filament CRUD
-- [ ] Multiple product images (Spatie Media Library)
-- [ ] Availability calendar widget
-- [ ] Blackout date management
-- [ ] `ProductAvailabilityService`
+### Completed ✅
+- [x] `products` migration — `name`, `description`, `base_adult_price`, `base_child_price`, `duration_minutes` (nullable), `is_active`, `deleted_at` (soft deletes). **No `max_pax`** — capacity is global via `PaxSettings::daily_pax_capacity`
+- [x] `blackout_dates` migration — `product_id` nullable (NULL = global blackout), `date`, `reason`, unique constraint on `(product_id, date)`
+- [x] `Product` model — `HasMedia`, `InteractsWithMedia`, `SoftDeletes`, `hasMany(BlackoutDate)`, media collection `'product-images'` with `thumb` conversion
+- [x] `BlackoutDate` model — nullable `belongsTo(Product)`, query scopes: `scopeForDate()`, `scopeForProduct()`
+- [x] `ProductAvailabilityService` — `isDateBlocked(?int $productId, Carbon $date): bool`, `getBlockedDatesForMonth(): Collection`
+- [x] `ProductResource` — navigation group "Product Management", restricted to `super_admin` + `admin` + `manager`, soft delete with `getEloquentQuery()` scope
+- [x] `ProductForm` — 4 sections: Basic Info (name, description), Pricing (adult price MAD, child price MAD side-by-side), Details (duration, is_active toggle), Product Images (multi-upload, reorderable, 10 max)
+- [x] `ProductsTable` — thumbnail column, name, adult/child prices, active toggle, `TrashedFilter`, all soft delete actions
+- [x] `ProductInfolist` — Basic Info, Pricing (money formatted), Details, Images, System sections
+- [x] `BlackoutDatesRelationManager` — inline inside ProductResource edit/view page, `Add Blackout Date` button, date + reason fields
+- [x] `ListProducts`, `CreateProduct`, `EditProduct`, `ViewProduct` pages scaffolded
+- [x] Pushed to GitHub
+
+### Architecture Decisions
+- `max_pax` is intentionally **NOT** on the product — global cap lives in `PaxSettings::daily_pax_capacity`
+- `ProductAvailabilityService` in Phase 4 = blackout dates ONLY; booking-based PAX check extended in Phase 7
+- Folder structure: `Products/Schemas/`, `Tables/`, `Pages/`, `RelationManagers/` (mirrors Phase 3 User Management)
 
 ---
 
 ## Phase 5 — Partner Management
 📁 Details: [`docs/phases/phase-05-partners.md`](phases/phase-05-partners.md)  
-**Status: 🔲 Pending**
+**Status: ⏳ NEXT**
 
 ### To Do
 - [ ] `partners` table migration (company info, KYC, banking)
-- [ ] `partner_products` pivot table (custom adult + child pricing)
-- [ ] `PartnerResource` Filament CRUD
-- [ ] KYC document upload
-- [ ] Partner status workflow (pending → approved → rejected)
-- [ ] Custom pricing per product per partner
+- [ ] `partner_products` pivot table (custom adult + child pricing per product per partner)
+- [ ] `PartnerResource` Filament CRUD (mirrors Phase 3/4 modular structure)
+- [ ] KYC document upload (Spatie Media Library, collection `'kyc-documents'`)
+- [ ] Partner status workflow (pending → approved → rejected) with `SelectAction`
+- [ ] Custom pricing tab — per-product adult/child price overrides
 - [ ] Link partner users to partner company
+- [ ] `SoftDeletes` on `Partner` model (global rule)
 
 ---
 
@@ -300,9 +311,9 @@ Phase 2: Settings & Config ✅
     ↓
 Phase 3: User Management ✅
     ↓
-Phase 4: Product Management ← NEXT
+Phase 4: Product Management ✅
     ↓               ↓
-Phase 5: Partners  Phase 6: Transport
+Phase 5: Partners ← NEXT  Phase 6: Transport
     ↓               ↓
 Phase 7: Regular Bookings
     ↓
