@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
@@ -39,8 +40,16 @@ class Product extends Model implements HasMedia
         return $this->hasMany(BlackoutDate::class);
     }
 
-    // Partner pricing pivot is set up in Phase 5
-    // public function partners(): BelongsToMany { ... }
+    /**
+     * Partners that have custom pricing for this product.
+     */
+    public function partners(): BelongsToMany
+    {
+        return $this->belongsToMany(Partner::class, 'partner_products')
+                    ->withPivot(['partner_adult_price', 'partner_child_price', 'is_active'])
+                    ->withTimestamps()
+                    ->using(PartnerProduct::class);
+    }
 
     // ─── Media ───────────────────────────────────────────────────────────────
 
