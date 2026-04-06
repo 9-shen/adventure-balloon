@@ -1,5 +1,5 @@
 # Booklix — Development Progress Tracker
-> **Last Updated:** 2026-04-06 (Phase 5 complete)  
+> **Last Updated:** 2026-04-06 (Phase 6 complete)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -15,8 +15,8 @@
 | 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
 | 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ✅ **COMPLETE** |
 | 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | ✅ **COMPLETE** |
-| 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | ⏳ **NEXT** |
-| 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | 🔲 Pending |
+| 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | ✅ **COMPLETE** |
+| 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | ⏳ **NEXT** |
 | 8 | [Partner Booking System](#phase-8--partner-booking-system) | 🟡 MEDIUM | 3–4 | 🔲 Pending |
 | 9 | [Dispatch System](#phase-9--dispatch-system) | 🟠 MED-HIGH | 5–7 | 🔲 Pending |
 | 10 | [Greeter Module](#phase-10--greeter-module) | 🟡 MEDIUM | 2–3 | 🔲 Pending |
@@ -162,17 +162,31 @@
 
 ## Phase 6 — Transport Management
 📁 Details: [`docs/phases/phase-06-transport.md`](phases/phase-06-transport.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-06
 
-### To Do
-- [ ] `transport_companies` table migration
-- [ ] `vehicles` table migration (make, model, plate, capacity, type, price)
-- [ ] `drivers` table migration (personal info, license, WhatsApp)
-- [ ] `driver_vehicle` pivot (with `is_default` flag)
-- [ ] Filament resources for all three models
-- [ ] Transport user account linking
+### Completed ✅
+- [x] `transport_companies` migration — company name, contact, email, phone, address, bank details (name/account/IBAN), is_active, soft deletes
+- [x] `vehicles` migration — `transport_company_id` FK, make, model, plate_number (unique), capacity, vehicle_type (enum: van/minibus/bus/car), price_per_trip, is_active, soft deletes
+- [x] `drivers` migration — `transport_company_id` FK, name, phone (WhatsApp), national_id, license_number, license_expiry, is_active, soft deletes
+- [x] `driver_vehicle` pivot migration — driver_id, vehicle_id, `is_default` flag, unique constraint on (driver_id, vehicle_id)
+- [x] `TransportCompany` model — `HasMedia` (company-logo), `SoftDeletes`, `hasMany(Vehicle)`, `hasMany(Driver)`
+- [x] `Vehicle` model — `SoftDeletes`, `belongsTo(TransportCompany)`, `belongsToMany(Driver)` via driver_vehicle pivot
+- [x] `Driver` model — `HasMedia` (license-documents), `SoftDeletes`, `belongsTo(TransportCompany)`, `belongsToMany(Vehicle)`, `isLicenseExpiringSoon()` helper (red warning ≤30 days)
+- [x] `TransportCompanyResource` — "Transport Management" nav group (sort 1), with `VehiclesRelationManager` + `DriversRelationManager` for inline management within company edit page
+- [x] `VehicleResource` — standalone resource (sort 2), shows company name, plate badge, type badge with colors, seats, price/trip, driver count
+- [x] `DriverResource` — standalone resource (sort 3), shows company, WhatsApp phone, license expiry (red if soon ≤30 days), vehicle count, license doc upload
+- [x] All resources: soft delete support, `TrashedFilter`, role-based access (`super_admin`, `admin`, `manager`)
+- [x] Pushed to GitHub: `9-shen/adventure-balloon`
+
+### Architecture Decisions
+- Navigation uses **methods** (`getNavigationGroup()`, `getNavigationIcon()`) instead of static properties — PHP 8.2 strict type inheritance from Filament's `Resource` class forbids property overrides with incompatible types
+- Bulk actions all from `Filament\Actions` namespace (NOT `Filament\Tables\Actions`) in Filament v4
+- Vehicles and Drivers are accessible both as standalone resources AND inline via the TransportCompany edit page relation managers
+- `Driver::isLicenseExpiringSoon()` renders license_expiry cells in red when within 30 days — visible on both list and relation manager tables
+- `driver_vehicle` pivot has no custom Pivot model — `withPivot('is_default')` is sufficient since no extra logic needed
 
 ---
+
 
 ## Phase 7 — Regular Booking System
 📁 Details: [`docs/phases/phase-07-regular-booking.md`](phases/phase-07-regular-booking.md)  
@@ -324,9 +338,9 @@ Phase 3: User Management ✅
     ↓
 Phase 4: Product Management ✅
     ↓               ↓
-Phase 5: Partners ✅  Phase 6: Transport ← NEXT
+Phase 5: Partners ✅  Phase 6: Transport ✅
     ↓               ↓
-Phase 7: Regular Bookings
+Phase 7: Regular Bookings ← NEXT
     ↓
 Phase 8: Partner Bookings
     ↓
