@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\Drivers\Pages\CreateDriver;
 use App\Filament\Admin\Resources\Drivers\Pages\EditDriver;
 use App\Filament\Admin\Resources\Drivers\Pages\ListDrivers;
 use App\Filament\Admin\Resources\Drivers\Pages\ViewDriver;
+use App\Filament\Admin\Resources\Drivers\RelationManagers\VehiclesRelationManager;
 use App\Filament\Admin\Resources\Drivers\Schemas\DriverForm;
 use App\Filament\Admin\Resources\Drivers\Tables\DriversTable;
 use App\Models\Driver;
@@ -72,6 +73,15 @@ class DriverResource extends Resource
     {
         return parent::getEloquentQuery()
                      ->withoutGlobalScope(SoftDeletingScope::class);
+    }
+
+    // ─── Relation Managers ────────────────────────────────────────────────────
+
+    public static function getRelations(): array
+    {
+        return [
+            VehiclesRelationManager::class,
+        ];
     }
 
     // ─── Pages ────────────────────────────────────────────────────────────────
