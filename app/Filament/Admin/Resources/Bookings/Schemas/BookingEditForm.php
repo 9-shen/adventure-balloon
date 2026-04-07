@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Bookings\Schemas;
 
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -10,12 +11,30 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class BookingEditForm
 {
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
+
+            // ── Partner Info section (read-only, visible only for partner bookings) ──
+            Section::make('Partner Information')
+                ->collapsible()
+                ->visible(fn ($record): bool => $record && $record->type === 'partner')
+                ->columns(2)
+                ->components([
+                    Placeholder::make('partner_display')
+                        ->label('Partner')
+                        ->content(fn ($record): string => $record?->partner?->company_name ?? '—'),
+
+                    Placeholder::make('type_display')
+                        ->label('Booking Type')
+                        ->content(fn ($record): HtmlString => new HtmlString(
+                            '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">🤝 Partner</span>'
+                        )),
+                ]),
 
             Section::make('Flight Details')
                 ->components([

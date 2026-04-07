@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Bookings\Tables;
 
+use App\Models\Partner;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\ForceDeleteBulkAction;
@@ -10,7 +11,6 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -30,10 +30,27 @@ class BookingsTable
                     ->color('primary')
                     ->sortable(),
 
+                // ── Booking type badge (regular = blue, partner = purple) ──
+                TextColumn::make('type')
+                    ->label('Type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'partner' => 'purple',
+                        default   => 'info',
+                    })
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+
                 TextColumn::make('product.name')
                     ->label('Product')
                     ->searchable()
                     ->sortable(),
+
+                // ── Partner name (toggleable, blank for regular bookings) ──
+                TextColumn::make('partner.company_name')
+                    ->label('Partner')
+                    ->searchable()
+                    ->toggleable()
+                    ->placeholder('—'),
 
                 TextColumn::make('flight_date')
                     ->label('Flight Date')
@@ -93,6 +110,22 @@ class BookingsTable
             ])
             ->defaultSort('flight_date', 'desc')
             ->filters([
+                // ── Booking type filter ──
+                SelectFilter::make('type')
+                    ->label('Booking Type')
+                    ->options([
+                        'regular' => 'Regular',
+                        'partner' => 'Partner',
+                    ]),
+
+                // ── Partner filter ──
+                SelectFilter::make('partner_id')
+                    ->label('Partner')
+                    ->options(fn () => Partner::where('is_active', true)
+                        ->orderBy('company_name')
+                        ->pluck('company_name', 'id'))
+                    ->searchable(),
+
                 SelectFilter::make('booking_status')
                     ->label('Status')
                     ->options([

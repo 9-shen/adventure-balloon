@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-06 (Phase 6 complete)  
+> **Last Updated:** 2026-04-07 (Phase 8 complete + verified)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -18,7 +18,7 @@
 | 5   | [Partner Management](#phase-5--partner-management)                 | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
 | 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
 | 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
-| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ⏳ **NEXT**     |
+| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
 | 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔲 Pending      |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
 | 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | 🔲 Pending      |
@@ -259,56 +259,42 @@
 ## Phase 8 — Partner Booking System
 
 📁 Details: [`docs/phases/phase-08-partner-booking.md`](phases/phase-08-partner-booking.md)  
-**Status: ⏳ NEXT**
+**Status: ✅ COMPLETE** — Completed 2026-04-07
 
-### Goal
+### Completed ✅
 
-Allow admin to create bookings on behalf of partners (using the admin panel) with partner-specific pricing from the `partner_products` pivot. Partner booking refs use `PBX-YYYY-NNNN` format and are stored in the **same** `bookings` table with `type = 'partner'`.
+- [x] **BookingService** — `generateRef(string $prefix = 'BLX')` now prefix-agnostic; BLX and PBX maintain independent counters per year
+- [x] **BookingService** — `calculatePricing()` extended with optional `?int $partnerId`; private `resolvePrices()` looks up `partner_products` pivot and falls back to base product price
+- [x] **BookingService** — `getAvailablePax()` now counts ALL booking types (regular + partner) against the daily cap (removed Phase 8 TODO comment)
+- [x] **Booking model** — `partner_id` added to `$fillable`; `partner()` BelongsTo relationship added
+- [x] **BookingWizard** — Booking Type radio at top of Step 1 (Regular / Partner) with live reactivity
+- [x] **BookingWizard** — Partner `Select` field appears when type = partner (searchable, approved + active partners only)
+- [x] **BookingWizard** — Product dropdown filters to partner-assigned products when partner selected; shows all active products for regular bookings
+- [x] **BookingWizard** — Step 3 Pricing helpers use `partner_products` pivot prices reactively; `priceSourceInfo()` placeholder shows which price source is active
+- [x] **BookingWizard** — Step 5 Review shows booking type and partner name
+- [x] **CreateBooking** — `mutateFormDataBeforeCreate()` sets `type`, `partner_id`, calls `generateRef('PBX')` or `generateRef('BLX')` based on booking_type; uses `BookingService::calculatePricing()` with partnerId for snapshot
+- [x] **BookingsTable** — `type` badge column (regular = blue, partner = purple)
+- [x] **BookingsTable** — `partner.company_name` column (toggleable, placeholder '—' for regulars)
+- [x] **BookingsTable** — `SelectFilter` for `type` (Regular / Partner)
+- [x] **BookingsTable** — `SelectFilter` for `partner_id` (searchable)
+- [x] **BookingEditForm** — Partner Information section (collapsible, read-only) visible only when `type = 'partner'`; shows company_name + type
+- [x] **BookingResource infolist** — Type badge added to Booking Details section; Partner Information section visible only when `type = 'partner'`
 
-> **Note:** A dedicated `/partner` panel for self-service partner booking may be added in a future sub-phase. Phase 8 focuses on admin-side partner booking creation.
+### Bug Fixes Discovered During Verification 🐛→✅
 
-### To Do
+- [x] **Missing `partner_id` migration** — The original `create_bookings_table` migration was missing the `partner_id` FK column (referenced in blueprint but omitted). Added via `2026_04_07_190035_add_partner_id_to_bookings_table` — nullable FK with `nullOnDelete()`. Caused `SQLSTATE[42S22]: Column not found` on first create attempt.
 
-#### 1. Admin BookingResource — Partner Booking Mode
+- [x] **`TextInput::make()->default()` doesn't populate on Edit pages** — The Partner Information section originally used `TextInput::make('partner_name_display')->default(fn($record) => $record->partner->company_name)`. This was blank on the edit page because `->default()` only evaluates for **new records**. Fixed by replacing with `Placeholder::make()->content(fn($record) => ...)` which re-evaluates against the live `$record` on every render.
 
-- [ ] Extend existing `BookingWizard` — add a **Booking Type** toggle at the top of Step 1 (Regular / Partner)
-- [ ] When type = `partner`: show partner `Select` field (searchable), auto-populate product dropdown filtered to that partner's assigned products
-- [ ] Auto-load partner prices from `partner_products` pivot (`partner_adult_price`, `partner_child_price`) — override base product price in pricing calculation
-- [ ] Set `type = 'partner'` and `partner_id` in `mutateFormDataBeforeCreate()`
-- [ ] Reference: `PBX-YYYY-NNNN` (separate sequence from BLX) via `BookingService::generateRef('PBX')`
+- [x] **NULL constraint violation (`SQLSTATE[23000]`) on blank optional fields** — When users left `discount_amount`, `amount_paid`, etc. blank in the wizard, they arrived as `null` in `$data`. Even though the DB column has `DEFAULT 0`, an explicit `NULL` in the INSERT fails the NOT NULL constraint. Fixed by explicitly re-assigning all numeric fields with their coalesced values in `mutateFormDataBeforeCreate()` after the pricing calculation block.
 
-#### 2. BookingService Updates
+### Architecture Decisions
 
-- [ ] `generateRef(string $prefix = 'BLX')` — generalise prefix parameter so both `BLX` and `PBX` refs work
-- [ ] `calculatePricing()` — accept optional `partner_id`; if provided, look up `partner_products` pivot prices instead of base product prices
-
-#### 3. BookingsTable + Filters
-
-- [ ] Add `type` badge column to booking list (Regular = blue, Partner = purple)
-- [ ] Add `partner_id` filter (`SelectFilter`) to list page
-- [ ] Add `partner` column (partner name, toggleable)
-
-#### 4. BookingEditForm Updates
-
-- [ ] Show partner name (read-only) on edit page when `type = 'partner'`
-
-#### 5. BookingResource Infolist
-
-- [ ] Add Partner section to infolist (partner name, type badge) — visible only when `type = 'partner'`
-
-#### 6. Verification
-
-- [ ] Create a partner booking for an existing partner with a custom price — verify `PBX-YYYY-0001` ref generated
-- [ ] Verify pricing uses partner price (not base product price)
-- [ ] Verify booking list shows type badge correctly
-- [ ] Verify edit page shows partner name read-only
-
-### Architecture Notes
-
-- **Same `bookings` table** — `type` column distinguishes regular vs partner; `partner_id` is nullable (NULL for regular bookings)
-- **Partner prices** — live from `partner_products` pivot; bookings snapshot them at creation time into `base_adult_price` / `base_child_price`
-- **PAX counting** — `BookingService::getAvailablePax()` already counts ALL bookings (both types) against the 250/day cap
-- **Price source priority**: Partner booking → `partner_products.partner_adult_price` → fallback to `products.adult_price`
+- **Wizard-only field** — `booking_type` radio is unset in `mutateFormDataBeforeCreate()` before DB insert (not a DB column; `type` is the stored field)
+- **PBX sequence independence** — `generateRef('PBX')` queries `WHERE booking_ref LIKE 'PBX-YYYY-%'`; completely independent from BLX sequence
+- **Partner price snapshot** — `base_adult_price` / `base_child_price` on the booking row store the partner price at creation time, not the base product price, so historical pricing is preserved even if pivot changes
+- **Product filter** — uses `whereHas('partners', fn($q) => $q->where('partners.id', $partnerId))` — only shows products with an active pivot row for that partner
+- **Edit form read-only display** — Use `Placeholder` (not `TextInput`) for displaying existing record relationship data; `TextInput::default()` is create-only
 
 ---
 

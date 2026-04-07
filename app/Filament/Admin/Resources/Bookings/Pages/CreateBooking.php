@@ -63,31 +63,50 @@ class CreateBooking extends CreateRecord
 
     /**
      * Compute all calculated fields and generate booking reference.
+     * Handles both regular (BLX-YYYY-NNNN) and partner (PBX-YYYY-NNNN) bookings.
      */
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         /** @var Product $product */
         $product = Product::findOrFail($data['product_id']);
 
-        $adultPax    = (int) ($data['adult_pax'] ?? 0);
+        $isPartner   = ($data['booking_type'] ?? 'regular') === 'partner';
+        $partnerId   = $isPartner ? ((int) ($data['partner_id'] ?? 0) ?: null) : null;
+        $adultPax    = (int) ($data['adult_pax'] ?? 1);
         $childPax    = (int) ($data['child_pax'] ?? 0);
         $discount    = (float) ($data['discount_amount'] ?? 0);
         $amountPaid  = (float) ($data['amount_paid'] ?? 0);
 
-        $adultTotal  = round((float) $product->base_adult_price * $adultPax, 2);
-        $childTotal  = round((float) $product->base_child_price * $childPax, 2);
-        $finalAmount = max(0, round($adultTotal + $childTotal - $discount, 2));
-        $balanceDue  = max(0, round($finalAmount - $amountPaid, 2));
+        // Resolve prices — partner pivot if partner booking, else base product price
+        $service       = app(BookingService::class);
+        $pricing       = $service->calculatePricing($product, $adultPax, $childPax, $discount, $partnerId);
+        $balanceDue    = max(0, round($pricing['final_amount'] - $amountPaid, 2));
 
-        $data['base_adult_price'] = $product->base_adult_price;
-        $data['base_child_price'] = $product->base_child_price;
-        $data['adult_total']      = $adultTotal;
-        $data['child_total']      = $childTotal;
-        $data['final_amount']     = $finalAmount;
+        $data['base_adult_price'] = $pricing['base_adult_price'];
+        $data['base_child_price'] = $pricing['base_child_price'];
+        $data['adult_total']      = $pricing['adult_total'];
+        $data['child_total']      = $pricing['child_total'];
+        $data['final_amount']     = $pricing['final_amount'];
         $data['balance_due']      = $balanceDue;
         $data['created_by']       = Auth::id();
-        $data['type']             = 'regular';
-        $data['booking_ref']      = app(BookingService::class)->generateRef();
+        $data['type']             = $isPartner ? 'partner' : 'regular';
+        $data['partner_id']       = $partnerId;
+        $data['booking_ref']      = $service->generateRef($isPartner ? 'PBX' : 'BLX');
+
+        // ── Null-safe defaults for all NOT NULL / non-nullable columns ─────────
+        // Prevents SQL constraint violations when wizard fields are left blank.
+        $data['discount_amount']  = $discount;                       // decimal NOT NULL default 0
+        $data['amount_paid']      = $amountPaid;                     // decimal NOT NULL default 0
+        $data['adult_pax']        = $adultPax;                       // int NOT NULL
+        $data['child_pax']        = $childPax;                       // int NOT NULL
+        $data['flight_time']      = $data['flight_time'] ?: null;    // nullable time
+        $data['booking_source']   = $data['booking_source'] ?: null; // nullable string
+        $data['discount_reason']  = $data['discount_reason'] ?? null; // nullable string
+        $data['notes']            = $data['notes'] ?? null;          // nullable text
+        $data['cancelled_reason'] = $data['cancelled_reason'] ?? null; // nullable text
+
+        // Remove wizard-only fields not stored on the booking
+        unset($data['booking_type']);
 
         return $data;
     }

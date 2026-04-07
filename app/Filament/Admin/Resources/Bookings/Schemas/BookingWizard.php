@@ -2,11 +2,13 @@
 
 namespace App\Filament\Admin\Resources\Bookings\Schemas;
 
+use App\Models\Partner;
 use App\Models\Product;
 use App\Services\BookingService;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -19,6 +21,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\DB;
 
 class BookingWizard
 {
@@ -29,16 +32,59 @@ class BookingWizard
 
                 // ─── Step 1: Flight Details ───────────────────────────────
                 Step::make('Flight Details')
-                    ->description('Choose the product, date, and passenger count.')
+                    ->description('Choose the booking type, product, date, and passenger count.')
                     ->icon('heroicon-o-calendar-days')
                     ->schema([
+
+                        // ── Booking Type Toggle ──────────────────────────
+                        Radio::make('booking_type')
+                            ->label('Booking Type')
+                            ->options([
+                                'regular' => '✈️  Regular Booking',
+                                'partner' => '🤝  Partner Booking',
+                            ])
+                            ->default('regular')
+                            ->required()
+                            ->live()
+                            ->columnSpanFull(),
+
+                        // ── Partner Select (partner bookings only) ───────
+                        Select::make('partner_id')
+                            ->label('Partner')
+                            ->options(fn () => Partner::where('is_active', true)
+                                ->where('status', 'approved')
+                                ->orderBy('company_name')
+                                ->pluck('company_name', 'id'))
+                            ->searchable()
+                            ->native(false)
+                            ->live()
+                            ->required(fn (Get $get): bool => $get('booking_type') === 'partner')
+                            ->visible(fn (Get $get): bool => $get('booking_type') === 'partner')
+                            ->placeholder('Search for a partner…')
+                            ->columnSpanFull(),
+
                         Grid::make(2)->components([
 
+                            // ── Product Select — filters to partner when partner type ──
                             Select::make('product_id')
                                 ->label('Product / Experience')
-                                ->options(fn () => Product::where('is_active', true)
-                                    ->orderBy('name')
-                                    ->pluck('name', 'id'))
+                                ->options(function (Get $get) {
+                                    $type      = $get('booking_type');
+                                    $partnerId = $get('partner_id');
+
+                                    if ($type === 'partner' && $partnerId) {
+                                        // Only products assigned to this partner (via pivot)
+                                        return Product::where('is_active', true)
+                                            ->whereHas('partners', fn ($q) => $q->where('partners.id', $partnerId))
+                                            ->orderBy('name')
+                                            ->pluck('name', 'id');
+                                    }
+
+                                    // Default: all active products
+                                    return Product::where('is_active', true)
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id');
+                                })
                                 ->required()
                                 ->native(false)
                                 ->live()
@@ -187,6 +233,13 @@ class BookingWizard
                                     self::calcChildTotal($get)
                                 )),
 
+                            // Partner price info badge
+                            Placeholder::make('partner_price_info')
+                                ->label('Price Source')
+                                ->content(fn (Get $get): string => self::priceSourceInfo($get))
+                                ->visible(fn (Get $get): bool => $get('booking_type') === 'partner')
+                                ->columnSpan(2),
+
                             TextInput::make('discount_amount')
                                 ->label('Discount Amount (MAD)')
                                 ->numeric()
@@ -265,6 +318,20 @@ class BookingWizard
                             ->components([
                                 Grid::make(3)->components([
 
+                                    Placeholder::make('review_type')
+                                        ->label('Booking Type')
+                                        ->content(fn (Get $get): string =>
+                                            $get('booking_type') === 'partner' ? '🤝 Partner Booking' : '✈️ Regular Booking'
+                                        ),
+
+                                    Placeholder::make('review_partner')
+                                        ->label('Partner')
+                                        ->content(fn (Get $get): string =>
+                                            $get('booking_type') === 'partner'
+                                                ? (Partner::find($get('partner_id'))?->company_name ?? '—')
+                                                : '—'
+                                        ),
+
                                     Placeholder::make('review_product')
                                         ->label('Product')
                                         ->content(fn (Get $get): string =>
@@ -316,18 +383,68 @@ class BookingWizard
 
     // ─── Private Helpers ──────────────────────────────────────────────────────
 
+    /**
+     * Resolve the adult unit price for the currently selected product/partner combo.
+     */
+    private static function resolveAdultPrice(Get $get): float
+    {
+        $product   = Product::find($get('product_id'));
+        $partnerId = $get('booking_type') === 'partner' ? (int) $get('partner_id') : null;
+
+        if (!$product) {
+            return 0.0;
+        }
+
+        if ($partnerId) {
+            $pivot = DB::table('partner_products')
+                ->where('partner_id', $partnerId)
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($pivot) {
+                return (float) $pivot->partner_adult_price;
+            }
+        }
+
+        return (float) $product->base_adult_price;
+    }
+
+    /**
+     * Resolve the child unit price for the currently selected product/partner combo.
+     */
+    private static function resolveChildPrice(Get $get): float
+    {
+        $product   = Product::find($get('product_id'));
+        $partnerId = $get('booking_type') === 'partner' ? (int) $get('partner_id') : null;
+
+        if (!$product) {
+            return 0.0;
+        }
+
+        if ($partnerId) {
+            $pivot = DB::table('partner_products')
+                ->where('partner_id', $partnerId)
+                ->where('product_id', $product->id)
+                ->first();
+
+            if ($pivot) {
+                return (float) $pivot->partner_child_price;
+            }
+        }
+
+        return (float) $product->base_child_price;
+    }
+
     private static function calcAdultTotal(Get $get): float
     {
-        $product  = Product::find($get('product_id'));
         $adultPax = (int) ($get('adult_pax') ?? 0);
-        return $product ? round((float) $product->base_adult_price * $adultPax, 2) : 0.0;
+        return round(self::resolveAdultPrice($get) * $adultPax, 2);
     }
 
     private static function calcChildTotal(Get $get): float
     {
-        $product  = Product::find($get('product_id'));
         $childPax = (int) ($get('child_pax') ?? 0);
-        return $product ? round((float) $product->base_child_price * $childPax, 2) : 0.0;
+        return round(self::resolveChildPrice($get) * $childPax, 2);
     }
 
     private static function calcFinalAmount(Get $get): float
@@ -350,5 +467,31 @@ class BookingWizard
         $available = app(BookingService::class)->getAvailablePax(Carbon::parse($date));
         $color     = $available < 20 ? '⚠️ ' : '';
         return "{$color}{$available} PAX available on this date.";
+    }
+
+    private static function priceSourceInfo(Get $get): string
+    {
+        $productId = $get('product_id');
+        $partnerId = $get('partner_id');
+
+        if (!$productId || !$partnerId) {
+            return 'Select a partner and product to see pricing.';
+        }
+
+        $pivot = DB::table('partner_products')
+            ->where('partner_id', $partnerId)
+            ->where('product_id', $productId)
+            ->first();
+
+        if ($pivot) {
+            return "✅ Partner prices applied — Adult: MAD " . number_format((float) $pivot->partner_adult_price, 2)
+                . " | Child: MAD " . number_format((float) $pivot->partner_child_price, 2);
+        }
+
+        $product = Product::find($productId);
+        return "⚠️ No partner-specific price found. Using base price — Adult: MAD "
+            . number_format((float) ($product?->base_adult_price ?? 0), 2)
+            . " | Child: MAD "
+            . number_format((float) ($product?->base_child_price ?? 0), 2);
     }
 }

@@ -78,6 +78,15 @@ class BookingResource extends Resource
                         ->color('primary')
                         ->copyable(),
 
+                    TextEntry::make('type')
+                        ->label('Type')
+                        ->badge()
+                        ->color(fn (string $state): string => match ($state) {
+                            'partner' => 'purple',
+                            default   => 'info',
+                        })
+                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+
                     TextEntry::make('product.name')
                         ->label('Product'),
 
@@ -102,6 +111,22 @@ class BookingResource extends Resource
                     TextEntry::make('booking_source')
                         ->label('Source')
                         ->formatStateUsing(fn (?string $state): string => ucfirst($state ?? '—')),
+                ]),
+
+            // ── Partner Info section (visible only for partner bookings) ──
+            Section::make('Partner Information')
+                ->columns(2)
+                ->visible(fn (Booking $record): bool => $record->type === 'partner')
+                ->components([
+                    TextEntry::make('partner.company_name')
+                        ->label('Partner')
+                        ->placeholder('—'),
+
+                    TextEntry::make('type')
+                        ->label('Booking Type')
+                        ->badge()
+                        ->color('purple')
+                        ->formatStateUsing(fn (string $state): string => '🤝 ' . ucfirst($state)),
                 ]),
 
             Section::make('Passengers')

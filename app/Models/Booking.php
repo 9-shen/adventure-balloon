@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Partner;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Booking extends Model
@@ -15,6 +16,7 @@ class Booking extends Model
     protected $fillable = [
         'booking_ref',
         'type',
+        'partner_id',
         'product_id',
         'flight_date',
         'flight_time',
@@ -66,6 +68,11 @@ class Booking extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(Partner::class);
     }
 
     public function createdBy(): BelongsTo
