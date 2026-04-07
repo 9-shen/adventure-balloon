@@ -17,8 +17,8 @@
 | 4   | [Product Management](#phase-4--product-management)                 | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
 | 5   | [Partner Management](#phase-5--partner-management)                 | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
 | 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
-| 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ⏳ **NEXT**     |
-| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
+| 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
+| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ⏳ **NEXT**     |
 | 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔲 Pending      |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
 | 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | 🔲 Pending      |
@@ -215,35 +215,100 @@
 ## Phase 7 — Regular Booking System
 
 📁 Details: [`docs/phases/phase-07-regular-booking.md`](phases/phase-07-regular-booking.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-07
 
-### To Do
+### Completed ✅
 
-- [ ] `bookings` table migration (unified — see schema)
-- [ ] `customers` table migration (per-PAX details)
-- [ ] 5-step Filament wizard `CreateBooking`
-    - [ ] Step 1: Flight details (product, date, PAX count + PAX check)
-    - [ ] Step 2: Customer details (form per PAX)
-    - [ ] Step 3: Pricing & discounts
-    - [ ] Step 4: Payment info
-    - [ ] Step 5: Review & confirm
-- [ ] `BookingService` (create, confirm, cancel, calculateTotal, checkAvailability)
-- [ ] Booking reference generator (`BLX-YYYY-XXXX`)
-- [ ] `BookingResource` with status management
+- [x] `bookings` migration — booking_ref (unique, BLX-YYYY-NNNN), type (regular/partner), product_id FK, flight_date/time, adult_pax/child_pax, booking_source, price snapshot (base_adult_price, base_child_price), totals (adult_total, child_total, discount_amount, final_amount), payment (method/status/amount_paid/balance_due), booking_status (pending/confirmed/cancelled/completed), audit columns (created_by/confirmed_by/cancelled_by + timestamps), soft deletes
+- [x] `booking_customers` migration — booking_id FK (cascade delete), type (adult/child), full_name, email, phone, nationality, passport_number (optional), date_of_birth (optional), weight_kg (optional — balloon safety), is_primary flag
+- [x] `Booking` model — SoftDeletes, all fillable, decimal casts, relationships (product, createdBy, confirmedBy, cancelledBy, customers hasMany), helpers (getTotalPax(), isPending(), isConfirmed(), isCancelled(), isCompleted(), getStatusColor(), getPaymentStatusColor())
+- [x] `BookingCustomer` model — fillable, date/decimal casts, belongsTo(Booking)
+- [x] `BookingService` with:
+    - [x] `generateRef()` — BLX-YYYY-NNNN sequential per year, collision-safe
+    - [x] `getAvailablePax(Carbon $date)` — 250 cap minus pending+confirmed bookings on that date
+    - [x] `checkAvailability(Carbon $date, int $pax)` — returns bool
+    - [x] `calculatePricing(Product, adultPax, childPax, discount)` — returns price snapshot array
+    - [x] `createBooking(array $data)` — DB transaction: Booking::create() + customers loop
+- [x] **5-step Bookings Wizard (`BookingWizard.php`):**
+    - [x] Step 1 — Flight Details: product select (active only), date picker with live PAX availability hint (⚠️ warning if <20), time (optional), adult_pax/child_pax (live), booking source
+    - [x] Step 2 — Customer Details: Placeholder showing expected PAX count + freeform Repeater (full_name, type, email, phone, nationality, passport optional, DOB optional, weight optional, is_primary toggle), itemLabel shows name on collapse
+    - [x] Step 3 — Pricing & Discounts: live Placeholder for adult_total, child_total, final_amount (reads Product prices reactively via Get $get), discount_amount input, discount_reason
+    - [x] Step 4 — Payment: payment_method (cash/wire/online), payment_status (due/partial/paid/on_site), amount_paid, live balance_due Placeholder
+    - [x] Step 5 — Review & Confirm: summary Placeholders (product, date, PAX, source, method, final), notes Textarea
+- [x] `BookingEditForm.php` — flat section-based edit form for EditBooking page (flight details, payment, status & notes)
+- [x] `BookingsTable.php` — columns: ref badge (copyable), product, flight_date, adults, children, total (money), payment_status badge (colour-coded), booking_status badge (colour-coded), source; filters: status, payment_status, source, TrashedFilter; defaultSort: flight_date desc
+- [x] `CreateBooking` page — overrides `form()` with wizard, `beforeCreate()` PAX availability check (halt + danger notification if exceeded), `mutateFormDataBeforeCreate()` computes all calculated fields + generates ref + sets created_by + type='regular', `handleRecordCreation()` delegates to BookingService::createBooking(), `afterCreate()` success notification with booking ref
+- [x] `EditBooking` page — Confirm Booking header action (visible when pending, requires confirmation, sets confirmed_by/confirmed_at, redirects to view), Cancel Booking header action (modal with cancelled_reason field, sets cancelled_by/cancelled_at), DeleteAction, `mutateFormDataBeforeSave()` recalculates balance_due
+- [x] `ViewBooking` page — standard view with Edit header action
+- [x] `ListBookings` page — standard list with CreateAction header
+- [x] `BookingCustomersRelationManager` — inline CRUD table for passengers on Edit page; form modal: all passenger fields; table: name (bold), type badge, email, phone, nationality, weight (toggleable), is_primary boolean icon
+- [x] `BookingResource` — nav group 'Bookings', icon OutlinedCalendarDays, sort 1, getRecordTitleAttribute = 'booking_ref', role-based canAccess(), infolist with 5 sections (Booking Details, Passengers, Pricing, Payment, Notes & Audit), full soft-delete scope
+- [x] Pushed to GitHub: `9-shen/adventure-balloon`
+
+### Architecture Decisions
+
+- **Price snapshot on creation** — base_adult_price/base_child_price captured at booking time from Product; never recalculated even if product prices change later
+- **Filament v4 Get import** — must use `Filament\Schemas\Components\Utilities\Get` (NOT `Filament\Forms\Get`) for reactive form closures
+- **All record/toolbar actions** — use `Filament\Actions\*` namespace (EditAction, CreateAction, DeleteAction, etc.) — `Filament\Tables\Actions\*` does NOT exist in Filament v4
+- **Wizard on CreateBooking** — `form()` method overridden on the Page class itself (not the Resource), so Edit page sees the flat `BookingEditForm` while Create sees the wizard
+- **PAX availability hint** — shown as a `->hint()` on the flight_date field, updated live after date selection; shows ⚠️ prefix if <20 remaining
+- **booking_customers key** — table named `booking_customers` (not `customers`) — avoids collision with future CRM customer table
 
 ---
 
 ## Phase 8 — Partner Booking System
 
 📁 Details: [`docs/phases/phase-08-partner-booking.md`](phases/phase-08-partner-booking.md)  
-**Status: 🔲 Pending**
+**Status: ⏳ NEXT**
+
+### Goal
+
+Allow admin to create bookings on behalf of partners (using the admin panel) with partner-specific pricing from the `partner_products` pivot. Partner booking refs use `PBX-YYYY-NNNN` format and are stored in the **same** `bookings` table with `type = 'partner'`.
+
+> **Note:** A dedicated `/partner` panel for self-service partner booking may be added in a future sub-phase. Phase 8 focuses on admin-side partner booking creation.
 
 ### To Do
 
-- [ ] Partner Booking wizard (reuses Phase 7 wizard, partner prices auto-loaded)
-- [ ] Partner panel (`/partner`) Filament setup
-- [ ] `type = 'partner'` + `partner_id` stored in unified bookings table
-- [ ] Reference generator (`PBX-YYYY-XXXX`)
+#### 1. Admin BookingResource — Partner Booking Mode
+
+- [ ] Extend existing `BookingWizard` — add a **Booking Type** toggle at the top of Step 1 (Regular / Partner)
+- [ ] When type = `partner`: show partner `Select` field (searchable), auto-populate product dropdown filtered to that partner's assigned products
+- [ ] Auto-load partner prices from `partner_products` pivot (`partner_adult_price`, `partner_child_price`) — override base product price in pricing calculation
+- [ ] Set `type = 'partner'` and `partner_id` in `mutateFormDataBeforeCreate()`
+- [ ] Reference: `PBX-YYYY-NNNN` (separate sequence from BLX) via `BookingService::generateRef('PBX')`
+
+#### 2. BookingService Updates
+
+- [ ] `generateRef(string $prefix = 'BLX')` — generalise prefix parameter so both `BLX` and `PBX` refs work
+- [ ] `calculatePricing()` — accept optional `partner_id`; if provided, look up `partner_products` pivot prices instead of base product prices
+
+#### 3. BookingsTable + Filters
+
+- [ ] Add `type` badge column to booking list (Regular = blue, Partner = purple)
+- [ ] Add `partner_id` filter (`SelectFilter`) to list page
+- [ ] Add `partner` column (partner name, toggleable)
+
+#### 4. BookingEditForm Updates
+
+- [ ] Show partner name (read-only) on edit page when `type = 'partner'`
+
+#### 5. BookingResource Infolist
+
+- [ ] Add Partner section to infolist (partner name, type badge) — visible only when `type = 'partner'`
+
+#### 6. Verification
+
+- [ ] Create a partner booking for an existing partner with a custom price — verify `PBX-YYYY-0001` ref generated
+- [ ] Verify pricing uses partner price (not base product price)
+- [ ] Verify booking list shows type badge correctly
+- [ ] Verify edit page shows partner name read-only
+
+### Architecture Notes
+
+- **Same `bookings` table** — `type` column distinguishes regular vs partner; `partner_id` is nullable (NULL for regular bookings)
+- **Partner prices** — live from `partner_products` pivot; bookings snapshot them at creation time into `base_adult_price` / `base_child_price`
+- **PAX counting** — `BookingService::getAvailablePax()` already counts ALL bookings (both types) against the 250/day cap
+- **Price source priority**: Partner booking → `partner_products.partner_adult_price` → fallback to `products.adult_price`
 
 ---
 
