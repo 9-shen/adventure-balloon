@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Partner;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -93,6 +94,11 @@ class Booking extends Model
     public function customers(): HasMany
     {
         return $this->hasMany(BookingCustomer::class);
+    }
+
+    public function dispatch(): HasOne
+    {
+        return $this->hasOne(Dispatch::class);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

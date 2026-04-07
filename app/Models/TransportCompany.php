@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class TransportCompany extends Model implements \Spatie\MediaLibrary\HasMedia
 {
-    use HasFactory, SoftDeletes, \Spatie\MediaLibrary\InteractsWithMedia;
+    use HasFactory, SoftDeletes, Notifiable, \Spatie\MediaLibrary\InteractsWithMedia;
 
     protected $fillable = [
         'company_name',
@@ -41,6 +42,11 @@ class TransportCompany extends Model implements \Spatie\MediaLibrary\HasMedia
     public function drivers(): HasMany
     {
         return $this->hasMany(Driver::class);
+    }
+
+    public function dispatches(): HasMany
+    {
+        return $this->hasMany(Dispatch::class);
     }
 
     // ─── Media ───────────────────────────────────────────────────────────────

@@ -6,17 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
 class Driver extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, InteractsWithMedia;
+    use HasFactory, SoftDeletes, Notifiable, InteractsWithMedia;
 
     protected $fillable = [
         'transport_company_id',
         'name',
+        'email',
         'phone',
         'national_id',
         'license_number',
@@ -58,6 +61,11 @@ class Driver extends Model implements HasMedia
         return $this->vehicles()
                     ->wherePivot('is_default', true)
                     ->first();
+    }
+
+    public function dispatchDriverRows(): HasMany
+    {
+        return $this->hasMany(DispatchDriver::class);
     }
 
     // ─── Media ───────────────────────────────────────────────────────────────
