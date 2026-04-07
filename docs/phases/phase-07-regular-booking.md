@@ -1,4 +1,5 @@
 # Phase 7 — Regular Booking System
+
 **Status: 🔲 Pending**  
 **Priority:** 🔴 HIGH — Core revenue engine  
 **Depends On:** Phases 3, 4  
@@ -7,11 +8,13 @@
 ---
 
 ## Goal
+
 5-step Filament wizard to create a full booking with multiple customers, pricing, discounts, and payment tracking. Stored in unified `bookings` table with `type = 'regular'`.
 
 ---
 
 ## Booking Reference Format
+
 `BLX-2026-0001` (increment per year, reset January 1st)
 
 ---
@@ -43,10 +46,12 @@ app/Filament/Admin/Resources/
 ## Checklist
 
 ### Database
+
 - [ ] `bookings` table (unified — see schema below)
 - [ ] `customers` table (one row per PAX per booking)
 
 ### Wizard Steps
+
 - [ ] **Step 1 — Flight Details:** product select, flight date (PAX check on change), time, adult PAX, child PAX, booking source
 - [ ] **Step 2 — Customer Details:** dynamic form — one section per PAX (name, email, phone, nationality, passport, DOB, weight)
 - [ ] **Step 3 — Pricing & Discounts:** auto-calculate adult total + child total, optional discount, final amount
@@ -54,6 +59,7 @@ app/Filament/Admin/Resources/
 - [ ] **Step 5 — Review & Confirm:** full summary, notes field, submit → DB transaction
 
 ### Service Layer
+
 - [ ] `BookingService::createBooking(array $data): Booking`
 - [ ] `BookingService::confirmBooking(Booking $booking, User $by): void`
 - [ ] `BookingService::cancelBooking(Booking $booking, string $reason): void`
@@ -61,6 +67,7 @@ app/Filament/Admin/Resources/
 - [ ] `BookingService::checkAvailability(int $productId, Carbon $date, int $totalPax): bool`
 
 ### Booking Resource
+
 - [ ] List page with filters (status, date range, type, source)
 - [ ] Status management actions (Confirm, Cancel)
 - [ ] View page with all booking + customer details
@@ -126,6 +133,7 @@ CREATE TABLE customers (
 ---
 
 ## Notes
+
 - All booking creation happens inside a **DB transaction** — if customer insert fails, booking rolls back
 - PAX check at Step 1: `(used_pax + new_pax) <= 250`
 - `balance_due = final_amount - amount_paid` (computed on save)

@@ -1,4 +1,5 @@
 # Booklix — Development Progress Tracker
+
 > **Last Updated:** 2026-04-06 (Phase 6 complete)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
@@ -8,32 +9,34 @@
 
 ## 🗺️ Phase Overview
 
-| # | Phase | Priority | Est. Days | Status |
-|---|-------|----------|-----------|--------|
-| 1 | [Foundation](#phase-1--foundation) | — | 2–3 | ✅ **COMPLETE** |
-| 2 | [Settings & Config](#phase-2--settings--config) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
-| 3 | [User Management](#phase-3--user-management) | 🔴 HIGH | 2–3 | ✅ **COMPLETE** |
-| 4 | [Product Management](#phase-4--product-management) | 🔴 HIGH | 3–4 | ✅ **COMPLETE** |
-| 5 | [Partner Management](#phase-5--partner-management) | 🟠 MED-HIGH | 3–4 | ✅ **COMPLETE** |
-| 6 | [Transport Management](#phase-6--transport-management) | 🟠 MED-HIGH | 4–5 | ✅ **COMPLETE** |
-| 7 | [Regular Booking System](#phase-7--regular-booking-system) | 🔴 HIGH | 7–10 | ⏳ **NEXT** |
-| 8 | [Partner Booking System](#phase-8--partner-booking-system) | 🟡 MEDIUM | 3–4 | 🔲 Pending |
-| 9 | [Dispatch System](#phase-9--dispatch-system) | 🟠 MED-HIGH | 5–7 | 🔲 Pending |
-| 10 | [Greeter Module](#phase-10--greeter-module) | 🟡 MEDIUM | 2–3 | 🔲 Pending |
-| 11 | [Accountant Module](#phase-11--accountant-module) | 🔴 HIGH | 3–4 | 🔲 Pending |
-| 12 | [Invoicing System](#phase-12--invoicing-system) | 🟠 MED-HIGH | 4–5 | 🔲 Pending |
-| 13 | [Financial Reports](#phase-13--financial-reports--dashboard) | 🟡 MEDIUM | 4–5 | 🔲 Pending |
-| 14 | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM | 3–4 | 🔲 Pending |
-| 15 | [Polish & Advanced Features](#phase-15--polish--advanced-features) | 🟢 LOW | 3–5 | 🔲 Pending |
-| | **TOTAL** | | **~53–70 days** | |
+| #   | Phase                                                              | Priority    | Est. Days       | Status          |
+| --- | ------------------------------------------------------------------ | ----------- | --------------- | --------------- |
+| 1   | [Foundation](#phase-1--foundation)                                 | —           | 2–3             | ✅ **COMPLETE** |
+| 2   | [Settings & Config](#phase-2--settings--config)                    | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 3   | [User Management](#phase-3--user-management)                       | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 4   | [Product Management](#phase-4--product-management)                 | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
+| 5   | [Partner Management](#phase-5--partner-management)                 | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
+| 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
+| 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ⏳ **NEXT**     |
+| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
+| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔲 Pending      |
+| 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
+| 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | 🔲 Pending      |
+| 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🟠 MED-HIGH | 4–5             | 🔲 Pending      |
+| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | 🔲 Pending      |
+| 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
+| 15  | [Polish & Advanced Features](#phase-15--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
+|     | **TOTAL**                                                          |             | **~53–70 days** |                 |
 
 ---
 
 ## Phase 1 — Foundation
+
 📁 Details: [`docs/phases/phase-01-foundation.md`](phases/phase-01-foundation.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-05
 
 ### Completed ✅
+
 - [x] Laravel 12 installed
 - [x] `.env` configured (MySQL `booklix` DB, XAMPP)
 - [x] `booklix` database created
@@ -54,11 +57,13 @@
 ---
 
 ## Phase 2 — Settings & Config
+
 📁 Details: [`docs/phases/phase-02-settings.md`](phases/phase-02-settings.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-05
 **Est. Days:** 3–4
 
 ### Setting Groups (6 total)
+
 - [x] **`AppSettings`** — company name, email, phone, address, logo upload
 - [x] **`LegalSettings`** — IF (Identifiant Fiscal), CNSS, Patente, RC (Registre de Commerce), ICE
 - [x] **`PaxSettings`** — daily PAX capacity (default 250) + warning threshold (default 20)
@@ -67,6 +72,7 @@
 - [x] **`WhatsAppSettings`** — Twilio account_sid, auth_token, from_number, enabled flag
 
 ### Filament Pages
+
 - [x] `AppSettingsPage` — general info + logo upload (Spatie Media Library)
 - [x] `LegalSettingsPage` — all 5 Moroccan legal identifier fields
 - [x] `PaxSettingsPage` — capacity + warning threshold (number inputs)
@@ -75,9 +81,11 @@
 - [x] `WhatsAppSettingsPage` + "Send Test WhatsApp" action
 
 ### Dashboard Widget
+
 - [x] `PaxAlertWidget` — shows warning/critical when remaining PAX ≤ threshold
 
 ### Infrastructure
+
 - [x] Run `php artisan settings:discover`
 - [x] `ApplyEmailSettings` middleware (override `config('mail')` from DB)
 - [x] `SettingsSeeder` — seeds all 6 groups with defaults
@@ -86,10 +94,12 @@
 ---
 
 ## Phase 3 — User Management
+
 📁 Details: [`docs/phases/phase-03-users.md`](phases/phase-03-users.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-06
 
 ### Completed ✅
+
 - [x] KYC migration: `phone`, `national_id`, `nationality`, `date_of_birth`, `address`, `is_active`, `last_login_at` added to `users` table
 - [x] `User` model updated: `HasMedia` + `InteractsWithMedia` traits, KYC `$fillable` + casts, `getFilamentAvatarUrl()`, `canAccessPanel()` blocks inactive users
 - [x] `UpdateLastLogin` listener — tracks `last_login_at` on every `Auth\Login` event
@@ -103,16 +113,19 @@
 - [x] Pushed to GitHub: `https://github.com/9-shen/adventure-balloon`
 
 ### Known Limitations
+
 - User activity log viewer (Spatie Activitylog) deferred to Phase 15
 - Avatar upload tested visually; automated upload test skipped (browser file picker restriction)
 
 ---
 
 ## Phase 4 — Product Management
+
 📁 Details: [`docs/phases/phase-04-products.md`](phases/phase-04-products.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-06
 
 ### Completed ✅
+
 - [x] `products` migration — `name`, `description`, `base_adult_price`, `base_child_price`, `duration_minutes` (nullable), `is_active`, `deleted_at` (soft deletes). **No `max_pax`** — capacity is global via `PaxSettings::daily_pax_capacity`
 - [x] `blackout_dates` migration — `product_id` nullable (NULL = global blackout), `date`, `reason`, unique constraint on `(product_id, date)`
 - [x] `Product` model — `HasMedia`, `InteractsWithMedia`, `SoftDeletes`, `hasMany(BlackoutDate)`, media collection `'product-images'` with `thumb` conversion
@@ -127,6 +140,7 @@
 - [x] Pushed to GitHub
 
 ### Architecture Decisions
+
 - `max_pax` is intentionally **NOT** on the product — global cap lives in `PaxSettings::daily_pax_capacity`
 - `ProductAvailabilityService` in Phase 4 = blackout dates ONLY; booking-based PAX check extended in Phase 7
 - Folder structure: `Products/Schemas/`, `Tables/`, `Pages/`, `RelationManagers/` (mirrors Phase 3 User Management)
@@ -134,10 +148,12 @@
 ---
 
 ## Phase 5 — Partner Management
+
 📁 Details: [`docs/phases/phase-05-partners.md`](phases/phase-05-partners.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-06
 
 ### Completed ✅
+
 - [x] `partners` migration — `company_name`, `trade_name`, `registration_number`, `tax_number`, `email`, `phone`, `address`, `city`, `country`, `bank_name`, `bank_account`, `bank_iban`, `bank_swift`, `payment_terms_days`, `status` (enum: pending/approved/rejected), `approved_at`, `is_active`, `notes`, `deleted_at` (soft deletes)
 - [x] `partner_products` pivot migration — `partner_id`, `product_id`, `partner_adult_price`, `partner_child_price`, `is_active`, unique `(partner_id, product_id)`
 - [x] `Partner` model — `HasMedia`, `SoftDeletes`, `belongsToMany(Product)` via `PartnerProduct` pivot, media collections: `'kyc-documents'` (PDF+images) + `'partner-logo'` (single file)
@@ -153,6 +169,7 @@
 - [x] Pushed to GitHub: `9-shen/adventure-balloon`
 
 ### Architecture Decisions
+
 - `AttachAction` used on the pivot relation manager (not `CreateAction`) — avoids Eloquent trying to create a Product instead of a pivot row
 - `$recordTitleAttribute = 'name'` on the RelationManager tells Filament's `AttachAction` which column to display as the dropdown label
 - Partner pricing columns show **both** base price (gray, from `products` table) and partner override price side by side for quick reference
@@ -161,10 +178,12 @@
 ---
 
 ## Phase 6 — Transport Management
+
 📁 Details: [`docs/phases/phase-06-transport.md`](phases/phase-06-transport.md)  
 **Status: ✅ COMPLETE** — Completed 2026-04-06
 
 ### Completed ✅
+
 - [x] `transport_companies` migration — company name, contact, email, phone, address, bank details (name/account/IBAN), is_active, soft deletes
 - [x] `vehicles` migration — `transport_company_id` FK, make, model, plate_number (unique), capacity, vehicle_type (enum: van/minibus/bus/car), price_per_trip, is_active, soft deletes
 - [x] `drivers` migration — `transport_company_id` FK, name, phone (WhatsApp), national_id, license_number, license_expiry, is_active, soft deletes
@@ -177,13 +196,14 @@
 - [x] `DriverResource` — standalone resource (sort 3), shows company, WhatsApp phone, license expiry (red if soon ≤30 days), vehicle count, license doc upload
 - [x] All resources: soft delete support, `TrashedFilter`, role-based access (`super_admin`, `admin`, `manager`)
 - [x] **Phase 6.1 — Driver-Vehicle Assignment:**
-  - [x] `Vehicles/RelationManagers/DriversRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Driver" column
-  - [x] `Drivers/RelationManagers/VehiclesRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Vehicle" column
-  - [x] Registered `getRelations()` in both `VehicleResource` and `DriverResource`
-  - [x] Green checkmark appears on both sides when `is_default = true`
+    - [x] `Vehicles/RelationManagers/DriversRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Driver" column
+    - [x] `Drivers/RelationManagers/VehiclesRelationManager` — `AttachAction` with same-company filter, `is_default` pivot toggle shown as "Default Vehicle" column
+    - [x] Registered `getRelations()` in both `VehicleResource` and `DriverResource`
+    - [x] Green checkmark appears on both sides when `is_default = true`
 - [x] Pushed to GitHub: `9-shen/adventure-balloon`
 
 ### Architecture Decisions
+
 - Navigation uses **methods** (`getNavigationGroup()`, `getNavigationIcon()`) instead of static properties — PHP 8.2 strict type inheritance from Filament's `Resource` class forbids property overrides with incompatible types
 - Bulk actions all from `Filament\Actions` namespace (NOT `Filament\Tables\Actions`) in Filament v4
 - Vehicles and Drivers are accessible both as standalone resources AND inline via the TransportCompany edit page relation managers
@@ -192,20 +212,21 @@
 
 ---
 
-
 ## Phase 7 — Regular Booking System
+
 📁 Details: [`docs/phases/phase-07-regular-booking.md`](phases/phase-07-regular-booking.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] `bookings` table migration (unified — see schema)
 - [ ] `customers` table migration (per-PAX details)
 - [ ] 5-step Filament wizard `CreateBooking`
-  - [ ] Step 1: Flight details (product, date, PAX count + PAX check)
-  - [ ] Step 2: Customer details (form per PAX)
-  - [ ] Step 3: Pricing & discounts
-  - [ ] Step 4: Payment info
-  - [ ] Step 5: Review & confirm
+    - [ ] Step 1: Flight details (product, date, PAX count + PAX check)
+    - [ ] Step 2: Customer details (form per PAX)
+    - [ ] Step 3: Pricing & discounts
+    - [ ] Step 4: Payment info
+    - [ ] Step 5: Review & confirm
 - [ ] `BookingService` (create, confirm, cancel, calculateTotal, checkAvailability)
 - [ ] Booking reference generator (`BLX-YYYY-XXXX`)
 - [ ] `BookingResource` with status management
@@ -213,10 +234,12 @@
 ---
 
 ## Phase 8 — Partner Booking System
+
 📁 Details: [`docs/phases/phase-08-partner-booking.md`](phases/phase-08-partner-booking.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Partner Booking wizard (reuses Phase 7 wizard, partner prices auto-loaded)
 - [ ] Partner panel (`/partner`) Filament setup
 - [ ] `type = 'partner'` + `partner_id` stored in unified bookings table
@@ -225,10 +248,12 @@
 ---
 
 ## Phase 9 — Dispatch System
+
 📁 Details: [`docs/phases/phase-09-dispatch.md`](phases/phase-09-dispatch.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] `dispatches` table migration
 - [ ] `dispatch_drivers` pivot migration
 - [ ] `DispatchResource` Filament CRUD
@@ -242,10 +267,12 @@
 ---
 
 ## Phase 10 — Greeter Module
+
 📁 Details: [`docs/phases/phase-10-greeter.md`](phases/phase-10-greeter.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] `/greeter` Filament panel setup
 - [ ] Today's bookings list
 - [ ] 7-day calendar view
@@ -256,10 +283,12 @@
 ---
 
 ## Phase 11 — Accountant Module
+
 📁 Details: [`docs/phases/phase-11-accountant.md`](phases/phase-11-accountant.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Accountant access to `/admin` (scoped view)
 - [ ] Financial overview (all bookings + payment status)
 - [ ] Payment adjustment capability
@@ -271,10 +300,12 @@
 ---
 
 ## Phase 12 — Invoicing System
+
 📁 Details: [`docs/phases/phase-12-invoicing.md`](phases/phase-12-invoicing.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] `invoices` table migration
 - [ ] `invoice_items` table migration
 - [ ] `InvoiceResource` Filament CRUD
@@ -287,10 +318,12 @@
 ---
 
 ## Phase 13 — Financial Reports & Dashboard
+
 📁 Details: [`docs/phases/phase-13-reports.md`](phases/phase-13-reports.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Revenue report (Regular vs Partner, by date range)
 - [ ] Transport cost report
 - [ ] Due payments report
@@ -301,10 +334,12 @@
 ---
 
 ## Phase 14 — Notifications & Automation
+
 📁 Details: [`docs/phases/phase-14-notifications.md`](phases/phase-14-notifications.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] `BookingConfirmedNotification` → customer email
 - [ ] `BookingCanceledNotification` → customer email
 - [ ] `DispatchAssignedNotification` → transporter email
@@ -318,10 +353,12 @@
 ---
 
 ## Phase 15 — Polish & Advanced Features
+
 📁 Details: [`docs/phases/phase-15-polish.md`](phases/phase-15-polish.md)  
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Activity log viewer in Filament (Spatie)
 - [ ] Global search across bookings
 - [ ] Bulk operations (confirm, cancel, export)
@@ -366,13 +403,13 @@ Phase 10: Greeter  Phase 11: Accountant
 
 ## 🔑 Key Info
 
-| Item | Value |
-|------|-------|
-| Admin URL | http://127.0.0.1:8000/admin |
-| Admin Email | webmaster@9-shen.com |
-| DB Name | booklix |
-| DB User | root |
-| DB Host | 127.0.0.1:3306 (XAMPP) |
-| Filament Version | v4.0.0 |
-| Laravel Version | 12.x |
-| PHP Version | 8.2.12 |
+| Item             | Value                       |
+| ---------------- | --------------------------- |
+| Admin URL        | http://127.0.0.1:8000/admin |
+| Admin Email      | webmaster@9-shen.com        |
+| DB Name          | booklix                     |
+| DB User          | root                        |
+| DB Host          | 127.0.0.1:3306 (XAMPP)      |
+| Filament Version | v4.0.0                      |
+| Laravel Version  | 12.x                        |
+| PHP Version      | 8.2.12                      |
