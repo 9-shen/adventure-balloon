@@ -375,6 +375,19 @@ class BookingWizard
                             ->nullable()
                             ->placeholder('Any additional notes about this booking...')
                             ->columnSpanFull(),
+
+                        Select::make('booking_status')
+                            ->label('Booking Status')
+                            ->options([
+                                'pending'   => 'Pending',
+                                'confirmed' => 'Confirmed',
+                                'cancelled' => 'Cancelled',
+                                'completed' => 'Completed',
+                            ])
+                            ->default('pending')
+                            ->required()
+                            ->native(false)
+                            ->columnSpanFull(),
                     ]),
 
             ])->columnSpanFull(),

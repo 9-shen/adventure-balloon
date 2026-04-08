@@ -78,6 +78,54 @@ class BookingEditForm
                     ]),
                 ]),
 
+            // ── Pricing Summary (read-only) ────────────────────────────────────────
+            Section::make('Pricing Summary')
+                ->description('Based on the saved pricing at time of booking.')
+                ->collapsible()
+                ->columns(2)
+                ->components([
+
+                    Placeholder::make('adult_price_display')
+                        ->label('Adult Price (each)')
+                        ->content(fn ($record): string => $record
+                            ? 'MAD ' . number_format((float) $record->base_adult_price, 2)
+                            : '—'),
+
+                    Placeholder::make('child_price_display')
+                        ->label('Child Price (each)')
+                        ->content(fn ($record): string => $record
+                            ? 'MAD ' . number_format((float) $record->base_child_price, 2)
+                            : '—'),
+
+                    Placeholder::make('adult_total_display')
+                        ->label('Adult Total')
+                        ->content(fn ($record): string => $record
+                            ? 'MAD ' . number_format((float) $record->adult_total, 2)
+                            : '—'),
+
+                    Placeholder::make('child_total_display')
+                        ->label('Child Total')
+                        ->content(fn ($record): string => $record
+                            ? 'MAD ' . number_format((float) $record->child_total, 2)
+                            : '—'),
+
+                    Placeholder::make('discount_display')
+                        ->label('Discount (MAD)')
+                        ->content(fn ($record): string => $record
+                            ? 'MAD ' . number_format((float) $record->discount_amount, 2)
+                            : '—'),
+
+                    Placeholder::make('final_amount_display')
+                        ->label('Final Amount')
+                        ->content(fn ($record): HtmlString => $record
+                            ? new HtmlString(
+                                '<span class="text-lg font-bold text-primary-600">MAD '
+                                . number_format((float) $record->final_amount, 2)
+                                . '</span>'
+                            )
+                            : new HtmlString('—')),
+                ]),
+
             Section::make('Payment')
                 ->components([
                     Grid::make(2)->components([
