@@ -36,6 +36,7 @@ class Booking extends Model
         'amount_paid',
         'balance_due',
         'booking_status',
+        'attendance',
         'cancelled_reason',
         'notes',
         'created_by',
@@ -61,6 +62,7 @@ class Booking extends Model
             'final_amount'      => 'decimal:2',
             'amount_paid'       => 'decimal:2',
             'balance_due'       => 'decimal:2',
+            'attendance'        => 'string',
         ];
     }
 
@@ -145,6 +147,25 @@ class Booking extends Model
             'partial' => 'warning',
             'on_site' => 'info',
             default   => 'danger',
+        };
+    }
+
+    public function isShow(): bool
+    {
+        return $this->attendance === 'show';
+    }
+
+    public function isNoShow(): bool
+    {
+        return $this->attendance === 'no_show';
+    }
+
+    public function getAttendanceColor(): string
+    {
+        return match ($this->attendance) {
+            'show'    => 'success',
+            'no_show' => 'danger',
+            default   => 'gray',
         };
     }
 }

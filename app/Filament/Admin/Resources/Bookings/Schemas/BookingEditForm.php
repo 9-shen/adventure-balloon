@@ -183,6 +183,16 @@ class BookingEditForm
                             ])
                             ->required()
                             ->native(false),
+
+                        Select::make('attendance')
+                            ->label('Attendance')
+                            ->options([
+                                'pending' => '⏳ Pending',
+                                'show'    => '✅ Show',
+                                'no_show' => '❌ No-Show',
+                            ])
+                            ->required()
+                            ->native(false),
                     ]),
 
                     Textarea::make('notes')

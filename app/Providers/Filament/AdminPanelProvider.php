@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Admin\Widgets\GreeterTodayStatsWidget;
 use App\Filament\Admin\Widgets\PaxAlertWidget;
 use App\Http\Middleware\ApplyEmailSettings;
 use Filament\Http\Middleware\Authenticate;
@@ -42,11 +43,13 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
                 PaxAlertWidget::class,
+                GreeterTodayStatsWidget::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make('Bookings'),
+                NavigationGroup::make('Greeter'),
                 NavigationGroup::make('Transport Management'),
                 NavigationGroup::make('Partner Management'),
                 NavigationGroup::make('Product Management'),
