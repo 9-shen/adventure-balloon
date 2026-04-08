@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-08 (Phase 9 in progress — status dropdown implemented)  
+> **Last Updated:** 2026-04-08 (Phase 9 — WhatsApp notifications, auto-email on create, booking status & pricing summary on forms, sidebar ordering)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -305,37 +305,38 @@
 
 ### Completed ✅
 
-- [x] `dispatches` table migration — `dispatch_ref`, `booking_id`, `transport_company_id`, `pickup_location`, `dropoff_location`, `pickup_time`, `status` ENUM (`pending/confirmed/in_progress/delivered/cancelled`), `notes`, `notified_at`, `created_by`, soft deletes
-- [x] `dispatch_drivers` pivot table migration — `dispatch_id`, `driver_id`, `vehicle_id`, `pax_assigned`, `status`, `whatsapp_sent`, `whatsapp_sent_at`
-- [x] `Dispatch` model — `$fillable`, casts, `SoftDeletes`, `HasFactory`
-- [x] `DispatchDriver` pivot model — `hasMany` from Dispatch; extends `Model` with own PK
-- [x] Model relationships: `booking()`, `transportCompany()`, `createdBy()`, `dispatchDriverRows()`, `drivers()` BelongsToMany
-- [x] `DispatchResource` — modular structure with `Dispatches/Schemas/`, `Pages/`
-- [x] `DispatchForm::configure()` — CREATE form: reactive booking selector + live info card + transport + status + driver repeater + notes
-- [x] `DispatchForm::forEdit()` — EDIT form: read-only booking block (`staticBookingComponents`) + editable logistics sections
-- [x] Booking selector — searchable dropdown (confirmed bookings without dispatch); locked/disabled on edit; backed by `Hidden::make('booking_id')`
-- [x] Reactive booking info card — shows booking ref, type badge, flight date, PAX breakdown, partner details
-- [x] Transport company selector (active companies only)
-- [x] **Status management dropdown** — `pending | confirmed | in_progress | delivered | cancelled` on both Create and Edit forms; defaults to `pending` on create; verified in browser
-- [x] Driver repeater (`buildDriverRepeater()`) — driver + vehicle (filtered by company via `../../transport_company_id`) + PAX assigned; collapsible with item labels
-- [x] Manual override — add/remove driver rows freely before saving
-- [x] `Send Notifications` + `Update Status` header action buttons on Edit page
-- [x] `DispatchRef` formatted as `DSP-YYYY-NNNN`
+- [x] `dispatches` + `dispatch_drivers` migrations
+- [x] `Dispatch` + `DispatchDriver` models with all relationships
+- [x] `DispatchService` — `generateRef()`, `suggestDriverAssignments()`, `createDispatch()`
+- [x] `DispatchForm::configure()` — CREATE form: reactive booking selector, info card, transport company, status dropdown, driver repeater, notes
+- [x] `DispatchForm::forEdit()` — EDIT form: read-only booking block + editable logistics
+- [x] **Status management dropdown** — `pending | confirmed | in_progress | delivered | cancelled` on both Create and Edit forms; defaults to `pending`
+- [x] `DispatchResource` — modular structure, ViewDispatch/EditDispatch/CreateDispatch pages
+- [x] **`DispatchAssignedNotification`** — rich email to transport company: dispatch ref, booking ref, schedule, full passenger list with contacts, driver-vehicle assignments with plates; branded with `AppSettings::company_name`
+- [x] **`DriverAssignedNotification`** — email to each driver with assignment details
+- [x] **`DispatchService::notifyTransporter()`** — fires email, marks `notified_at`
+- [x] **`DispatchService::notifyDrivers()`** — fires driver email notification
+- [x] **`DispatchService::sendWhatsAppToDrivers()`** — Twilio WhatsApp API; reads `WhatsAppSettings` from DB; per-driver message with app name, dispatch ref, booking ref, date, pickup time, pickup/dropoff locations, PAX list with contacts, vehicle info; marks `whatsapp_sent` + `whatsapp_sent_at`
+- [x] **`twilio/sdk ^8.11.3`** installed
+- [x] **`ViewDispatch` page** — "Send WhatsApp to Drivers" green header action button with confirmation modal and smart sent/skipped/error notifications
+- [x] **`CreateDispatch::afterCreate()`** — auto-fires `notifyTransporter()` on creation; UI banner shows email confirmation or warning if no email on file
+- [x] **Booking Create Wizard** — Booking Status select added to Step 5 (Review & Confirm); defaults to `pending`
+- [x] **Booking Edit Form** — Pricing Summary read-only section added; shows adult/child unit price, adult/child totals, discount, final amount (bold) from saved columns
+- [x] **Sidebar navigation ordering** — `AdminPanelProvider::navigationGroups()` enforces: Bookings → Transport Management → Partner Management → Product Management → User Management → **Settings (collapsed)**
 
 ### Remaining ⏳
 
-- [ ] Driver auto-suggest algorithm — `ceil(total_pax / vehicle_capacity)`, fills repeater automatically
-- [ ] `DispatchService::assignDrivers(Dispatch $dispatch): array`
-- [ ] `DispatchAssignedNotification` → transporter email (full manifest PDF)
-- [ ] `DriverAssignedNotification` → driver WhatsApp via Twilio
-- [ ] `DispatchService::notifyTransporter()` + `notifyDrivers()`
+- [ ] Driver auto-suggest button — fills repeater automatically from `suggestDriverAssignments()` algorithm
+- [ ] `DispatchService::assignDrivers(Dispatch $dispatch)` — write auto-assignments to DB directly
 
 ### Architecture Decisions
 
-- **`DispatchForm` split** — `configure()` for Create vs `forEdit()` for Edit; avoids OOM from mixing reactive `Get` closures with `$record`-bound closures in same schema
-- **Status field** — bound to `dispatches.status` ENUM; `$fillable` already included it from initial migration — no extra migration needed
-- **Relative `Get` path** — driver/vehicle options use `../../transport_company_id` to traverse up from repeater item scope to the parent form
-- **Booking lock pattern** — `->disabled()` on the Select + `Hidden::make('booking_id')` ensures the FK value survives the form save even when the field is read-only
+- **Form split** — `configure()` vs `forEdit()` in `DispatchForm` to avoid Filament OOM from mixing reactive closures with `$record`-bound closures
+- **Booking lock** — `->disabled()` + `Hidden::make('booking_id')` ensures FK survives form save
+- **Relative `Get` path** — `../../transport_company_id` traverses up from repeater item scope to parent form
+- **WhatsApp via Twilio** — `WhatsAppSettings` (Spatie) holds creds; normalises driver phone to `+NNN` format; guarded against disabled/missing config
+- **Auto-email on create** — caught in try/catch; errors logged without crashing; UI notification shows result
+- **NavigationGroups** — group names must exactly match `getNavigationGroup()` return value in each Resource; `->collapsed()` on Settings hides it by default
 
 ---
 
