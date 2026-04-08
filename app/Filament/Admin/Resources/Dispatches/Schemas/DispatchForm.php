@@ -95,6 +95,19 @@ class DispatchForm
                         })
                         ->live(),
 
+                    Select::make('status')
+                        ->label('Dispatch Status')
+                        ->required()
+                        ->native(false)
+                        ->default('pending')
+                        ->options([
+                            'pending'     => '⏳ Pending',
+                            'confirmed'   => '✅ Confirmed',
+                            'in_progress' => '🚌 In Progress',
+                            'delivered'   => '🏁 Delivered',
+                            'cancelled'   => '❌ Cancelled',
+                        ]),
+
                     TimePicker::make('pickup_time')
                         ->label('Pickup Time')
                         ->seconds(false)
@@ -171,6 +184,18 @@ class DispatchForm
                                 ->toArray();
                         })
                         ->live(),
+
+                    Select::make('status')
+                        ->label('Dispatch Status')
+                        ->required()
+                        ->native(false)
+                        ->options([
+                            'pending'     => '⏳ Pending',
+                            'confirmed'   => '✅ Confirmed',
+                            'in_progress' => '🚌 In Progress',
+                            'delivered'   => '🏁 Delivered',
+                            'cancelled'   => '❌ Cancelled',
+                        ]),
 
                     TimePicker::make('pickup_time')
                         ->label('Pickup Time')

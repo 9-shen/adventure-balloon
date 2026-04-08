@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-07 (Phase 8 complete + verified)  
+> **Last Updated:** 2026-04-08 (Phase 9 in progress — status dropdown implemented)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -19,7 +19,7 @@
 | 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
 | 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
 | 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
-| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔲 Pending      |
+| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔄 **IN PROGRESS** |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
 | 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | 🔲 Pending      |
 | 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🟠 MED-HIGH | 4–5             | 🔲 Pending      |
@@ -301,19 +301,41 @@
 ## Phase 9 — Dispatch System
 
 📁 Details: [`docs/phases/phase-09-dispatch.md`](phases/phase-09-dispatch.md)  
-**Status: 🔲 Pending**
+**Status: 🔄 IN PROGRESS** — Started 2026-04-08
 
-### To Do
+### Completed ✅
 
-- [ ] `dispatches` table migration
-- [ ] `dispatch_drivers` pivot migration
-- [ ] `DispatchResource` Filament CRUD
-- [ ] Transport company assignment
-- [ ] Driver auto-assignment algorithm (`ceil(pax / capacity)`)
-- [ ] Transporter email notification (manifest)
-- [ ] Driver WhatsApp notification (Twilio)
-- [ ] Status tracking (Pending → Confirmed → In Progress → Delivered)
-- [ ] `DispatchService`
+- [x] `dispatches` table migration — `dispatch_ref`, `booking_id`, `transport_company_id`, `pickup_location`, `dropoff_location`, `pickup_time`, `status` ENUM (`pending/confirmed/in_progress/delivered/cancelled`), `notes`, `notified_at`, `created_by`, soft deletes
+- [x] `dispatch_drivers` pivot table migration — `dispatch_id`, `driver_id`, `vehicle_id`, `pax_assigned`, `status`, `whatsapp_sent`, `whatsapp_sent_at`
+- [x] `Dispatch` model — `$fillable`, casts, `SoftDeletes`, `HasFactory`
+- [x] `DispatchDriver` pivot model — `hasMany` from Dispatch; extends `Model` with own PK
+- [x] Model relationships: `booking()`, `transportCompany()`, `createdBy()`, `dispatchDriverRows()`, `drivers()` BelongsToMany
+- [x] `DispatchResource` — modular structure with `Dispatches/Schemas/`, `Pages/`
+- [x] `DispatchForm::configure()` — CREATE form: reactive booking selector + live info card + transport + status + driver repeater + notes
+- [x] `DispatchForm::forEdit()` — EDIT form: read-only booking block (`staticBookingComponents`) + editable logistics sections
+- [x] Booking selector — searchable dropdown (confirmed bookings without dispatch); locked/disabled on edit; backed by `Hidden::make('booking_id')`
+- [x] Reactive booking info card — shows booking ref, type badge, flight date, PAX breakdown, partner details
+- [x] Transport company selector (active companies only)
+- [x] **Status management dropdown** — `pending | confirmed | in_progress | delivered | cancelled` on both Create and Edit forms; defaults to `pending` on create; verified in browser
+- [x] Driver repeater (`buildDriverRepeater()`) — driver + vehicle (filtered by company via `../../transport_company_id`) + PAX assigned; collapsible with item labels
+- [x] Manual override — add/remove driver rows freely before saving
+- [x] `Send Notifications` + `Update Status` header action buttons on Edit page
+- [x] `DispatchRef` formatted as `DSP-YYYY-NNNN`
+
+### Remaining ⏳
+
+- [ ] Driver auto-suggest algorithm — `ceil(total_pax / vehicle_capacity)`, fills repeater automatically
+- [ ] `DispatchService::assignDrivers(Dispatch $dispatch): array`
+- [ ] `DispatchAssignedNotification` → transporter email (full manifest PDF)
+- [ ] `DriverAssignedNotification` → driver WhatsApp via Twilio
+- [ ] `DispatchService::notifyTransporter()` + `notifyDrivers()`
+
+### Architecture Decisions
+
+- **`DispatchForm` split** — `configure()` for Create vs `forEdit()` for Edit; avoids OOM from mixing reactive `Get` closures with `$record`-bound closures in same schema
+- **Status field** — bound to `dispatches.status` ENUM; `$fillable` already included it from initial migration — no extra migration needed
+- **Relative `Get` path** — driver/vehicle options use `../../transport_company_id` to traverse up from repeater item scope to the parent form
+- **Booking lock pattern** — `->disabled()` on the Select + `Hidden::make('booking_id')` ensures the FK value survives the form save even when the field is read-only
 
 ---
 
