@@ -7,9 +7,7 @@ use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
-use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use App\Filament\Admin\Resources\Greeter\Pages\ListGreeterBookings;
@@ -53,6 +51,7 @@ class GreeterBookingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
+            ->with('customers', 'product', 'partner')
             ->whereIn('booking_status', ['confirmed', 'pending', 'completed'])
             ->withoutGlobalScopes();
     }
@@ -104,7 +103,7 @@ class GreeterBookingResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('booking_status')
-                    ->label('Booking Status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'confirmed' => 'success',
@@ -114,18 +113,16 @@ class GreeterBookingResource extends Resource
                     })
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
 
-                TextColumn::make('attendance')
-                    ->label('Attendance')
+                // PAX-level attendance summary — e.g. "✅ 2/4 Showed"
+                TextColumn::make('pax_attendance')
+                    ->label('PAX Attendance')
+                    ->getStateUsing(fn (Booking $record): string => $record->getPaxAttendanceLabel())
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'show'    => 'success',
-                        'no_show' => 'danger',
-                        default   => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'show'    => '✅ Show',
-                        'no_show' => '❌ No-Show',
-                        default   => '⏳ Pending',
+                    ->color(fn (Booking $record): string => match (true) {
+                        $record->customers->isEmpty()                                     => 'gray',
+                        $record->customers->where('attendance', 'show')->count() === $record->customers->count() => 'success',
+                        $record->customers->where('attendance', 'pending')->count() === $record->customers->count() => 'gray',
+                        default => 'warning',
                     }),
             ])
             ->filters([
@@ -145,15 +142,6 @@ class GreeterBookingResource extends Resource
                         };
                     }),
 
-                SelectFilter::make('attendance')
-                    ->label('Attendance')
-                    ->options([
-                        'pending' => '⏳ Pending',
-                        'show'    => '✅ Show',
-                        'no_show' => '❌ No-Show',
-                    ])
-                    ->native(false),
-
                 SelectFilter::make('booking_status')
                     ->label('Booking Status')
                     ->options([
@@ -164,42 +152,10 @@ class GreeterBookingResource extends Resource
                     ->native(false),
             ])
             ->actions([
-                Action::make('mark_show')
-                    ->label('Mark Show')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->requiresConfirmation()
-                    ->modalHeading('Mark as Show')
-                    ->modalDescription('Confirm this customer group showed up for their flight?')
-                    ->visible(fn (Booking $record): bool => $record->attendance !== 'show')
-                    ->action(function (Booking $record): void {
-                        $record->update(['attendance' => 'show']);
-                        Notification::make()
-                            ->title('✅ Marked as Show')
-                            ->body("Booking {$record->booking_ref} attendance updated.")
-                            ->success()
-                            ->send();
-                    }),
-
-                Action::make('mark_no_show')
-                    ->label('No-Show')
-                    ->icon('heroicon-o-x-circle')
-                    ->color('danger')
-                    ->requiresConfirmation()
-                    ->modalHeading('Mark as No-Show')
-                    ->modalDescription('Mark this booking as a no-show?')
-                    ->visible(fn (Booking $record): bool => $record->attendance !== 'no_show')
-                    ->action(function (Booking $record): void {
-                        $record->update(['attendance' => 'no_show']);
-                        Notification::make()
-                            ->title('❌ Marked as No-Show')
-                            ->body("Booking {$record->booking_ref} marked as no-show.")
-                            ->danger()
-                            ->send();
-                    }),
-
                 ViewAction::make()
-                    ->url(fn (Booking $record): string => ViewGreeterBooking::getUrl(['record' => $record])),
+                    ->url(fn (Booking $record): string => ViewGreeterBooking::getUrl(['record' => $record]))
+                    ->label('Manage Attendance')
+                    ->icon('heroicon-o-user-group'),
             ])
             ->bulkActions([]);
     }

@@ -168,4 +168,34 @@ class Booking extends Model
             default   => 'gray',
         };
     }
+
+    /**
+     * Returns per-PAX attendance summary array.
+     * ['total' => 4, 'show' => 2, 'no_show' => 1, 'pending' => 1]
+     */
+    public function getPaxAttendanceSummary(): array
+    {
+        $customers = $this->customers;
+        return [
+            'total'   => $customers->count(),
+            'show'    => $customers->where('attendance', 'show')->count(),
+            'no_show' => $customers->where('attendance', 'no_show')->count(),
+            'pending' => $customers->where('attendance', 'pending')->count(),
+        ];
+    }
+
+    /**
+     * Formatted label: "2/4 Showed" or "⏳ Awaiting" if none marked yet.
+     */
+    public function getPaxAttendanceLabel(): string
+    {
+        $summary = $this->getPaxAttendanceSummary();
+        if ($summary['total'] === 0) {
+            return '—';
+        }
+        if ($summary['show'] === 0 && $summary['no_show'] === 0) {
+            return '⏳ Awaiting';
+        }
+        return "✅ {$summary['show']}/{$summary['total']} Showed";
+    }
 }
