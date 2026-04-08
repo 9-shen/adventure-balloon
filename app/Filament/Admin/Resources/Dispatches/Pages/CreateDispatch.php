@@ -67,9 +67,43 @@ class CreateDispatch extends CreateRecord
         /** @var Dispatch $dispatch */
         $dispatch = $this->getRecord();
 
+        // Pre-load all relations the notification needs
+        $dispatch->load([
+            'transportCompany',
+            'booking.product',
+            'booking.customers',
+            'booking.partner',
+            'dispatchDriverRows.driver',
+            'dispatchDriverRows.vehicle',
+        ]);
+
+        $service = app(DispatchService::class);
+
+        // ── Auto-send transporter email ───────────────────────────────────────
+        $emailSent = false;
+        if ($dispatch->transportCompany?->email) {
+            try {
+                $service->notifyTransporter($dispatch);
+                $emailSent = true;
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error(
+                    "CreateDispatch: failed to email transporter [{$dispatch->dispatch_ref}]: "
+                    . $e->getMessage()
+                );
+            }
+        }
+
+        // ── UI notification ───────────────────────────────────────────────────
+        $body = "Reference **{$dispatch->dispatch_ref}** created successfully.";
+        if ($emailSent) {
+            $body .= "\n✉️ Email sent to **{$dispatch->transportCompany->company_name}** ({$dispatch->transportCompany->email}).";
+        } elseif ($dispatch->transportCompany && ! $dispatch->transportCompany->email) {
+            $body .= "\n⚠️ No email address on file for the transport company — notification skipped.";
+        }
+
         Notification::make()
             ->title('Dispatch Created')
-            ->body("Reference **{$dispatch->dispatch_ref}** created successfully.")
+            ->body($body)
             ->success()
             ->send();
     }
