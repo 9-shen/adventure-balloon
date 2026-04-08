@@ -160,6 +160,13 @@ class GreeterBookingResource extends Resource
             ->bulkActions([]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            \App\Filament\Admin\Resources\Greeter\RelationManagers\GreeterCustomersRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
