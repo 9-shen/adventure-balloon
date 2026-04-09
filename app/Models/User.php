@@ -74,7 +74,15 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return false;
         }
 
-        return $this->hasRole('super_admin') || $this->hasRole('admin');
+        return $this->hasAnyRole([
+            'super_admin',
+            'admin',
+            'manager',
+            'agent',
+            'dispatcher',
+            'accountant',
+            'partner'
+        ]);
     }
 
     public function registerMediaCollections(): void

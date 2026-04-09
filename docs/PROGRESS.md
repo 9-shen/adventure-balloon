@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-08 (Phase 9 — WhatsApp notifications, auto-email on create, booking status & pricing summary on forms, sidebar ordering)  
+> **Last Updated:** 2026-04-09 (Phase 11 — Accountant Module: Finance Bookings resource, Process Payment action, Revenue & Payments widgets, Per-PAX attendance view)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -21,7 +21,7 @@
 | 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
 | 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔄 **IN PROGRESS** |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
-| 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | 🔲 Pending      |
+| 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
 | 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🟠 MED-HIGH | 4–5             | 🔲 Pending      |
 | 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | 🔲 Pending      |
 | 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
@@ -343,33 +343,47 @@
 ## Phase 10 — Greeter Module
 
 📁 Details: [`docs/phases/phase-10-greeter.md`](phases/phase-10-greeter.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-08
 
-### To Do
+### Completed ✅
 
-- [ ] `/greeter` Filament panel setup
-- [ ] Today's bookings list
-- [ ] 7-day calendar view
-- [ ] Attendance toggle (Show / No-Show) per customer
-- [ ] Booking history with search
-- [ ] Greeter dashboard stats widget
+- [x] Greeter navigation group in Admin panel (scoped to `greeter` role)
+- [x] Today's Bookings list (filtered by `flight_date = today`)
+- [x] Upcoming & next-7-days views
+- [x] Per-passenger attendance tracking (`BookingCustomer.attendance`)
+- [x] `GreeterCustomersRelationManager` — native Filament table with Show / No-Show / Reset per PAX
+- [x] Bulk actions: Mark All Show / Mark All No-Show / Mark Selected
+- [x] Auto-sync parent `Booking.attendance` when PAX statuses change
+- [x] `ViewGreeterBooking` page with booking summary infolist
+- [x] Greeter dashboard widgets (today's stats)
 
 ---
 
 ## Phase 11 — Accountant Module
 
 📁 Details: [`docs/phases/phase-11-accountant.md`](phases/phase-11-accountant.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-09
 
-### To Do
+### Completed ✅
 
-- [ ] Accountant access to `/admin` (scoped view)
-- [ ] Financial overview (all bookings + payment status)
-- [ ] Payment adjustment capability
-- [ ] Attendance verification cross-check
-- [ ] Revenue summary by day/week/month
-- [ ] Due payments list
-- [ ] Filament widgets: TotalRevenue, OutstandingBalance, PaymentsByMethod, RecentPayments
+- [x] `accountant` role added to `RolesAndPermissionsSeeder`
+- [x] `User::canAccessPanel()` updated — allows `accountant`, `manager`, `agent`, `dispatcher`, `partner` roles
+- [x] `AccountantBookingResource` — Finance Bookings list with:
+  - [x] Partner/Type column: shows partner company name OR `🔵 Regular`
+  - [x] PAX summary with attendance label per row
+  - [x] Financial columns: Final Amount, Amount Paid, Balance Due (color-coded), Payment Status, Method
+  - [x] Filters: Payment Status, Payment Method, Outstanding Balance toggle
+  - [x] **Process Payment** slide-over action per row — updates `amount_paid`, `payment_method`, `payment_status`, auto-calculates `balance_due`
+- [x] `ViewAccountantBooking` — full detail view page with:
+  - [x] Booking Details section (ref, type badge, status, PAX attendance)
+  - [x] Flight & Partner Information section
+  - [x] Passenger Summary section (adults, children, total, source badges)
+  - [x] Financial Summary section (amount due, paid, balance, status — all color-coded)
+  - [x] Pricing Breakdown section (collapsed by default)
+  - [x] **Passenger List & Attendance** table (name, type, phone, nationality, attendance badge)
+  - [x] Process Payment header action button
+- [x] `AccountantTotalRevenueWidget` — Stats: Total Collected Revenue, Total Outstanding, Pending Invoices count
+- [x] `AccountantRecentPaymentsWidget` — Table: last 5 bookings with payments activity
 
 ---
 

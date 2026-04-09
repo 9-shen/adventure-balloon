@@ -84,6 +84,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'manage_pilots',
                 'view_media',
             ],
+            'accountant'        => [
+                'view_bookings', 'edit_bookings',
+                'view_payments', 'process_payments',
+                'view_reports', 'export_reports',
+                'view_customers',
+            ],
             'pilot'             => [
                 'view_flights',
                 'view_bookings',
