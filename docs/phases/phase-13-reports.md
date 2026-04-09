@@ -24,13 +24,20 @@ All pages: `Page implements HasTable + InteractsWithTable`
 Access: `super_admin`, `admin`, `accountant`, `manager`  
 Navigation group: **Financial Reports**
 
+Each custom page uses a minimalistic blade view to ensure both widgets and table render natively:
+```blade
+<x-filament-panels::page>
+    {{ $this->table }}
+</x-filament-panels::page>
+```
+
 #### RevenueReport (sort 1)
-- 4-stat bar: Total Revenue | Collected | Outstanding | Total Bookings
+- Uses `RevenueStatsWidget` natively injected via `getHeaderWidgets()`
 - Filters: Date Range, Type, Product, Payment Status, Booking Status
-- Export: Revenue CSV
+- Export: Export All (Header Action) & Export Selected (Bulk Action)
 
 #### DuePaymentsReport (sort 2)  
-- 3-stat bar: Total Outstanding | Due Bookings Count | Highest Single Balance
+- Uses `DuePaymentsStatsWidget` natively injected via `getHeaderWidgets()`
 - Only shows `balance_due > 0`, sorted descending
 
 #### PartnerSummaryReport (sort 3)
@@ -39,14 +46,13 @@ Navigation group: **Financial Reports**
 - Date range filter via `whereHas`
 
 #### PaxStatsReport (sort 4)
-- 4-stat bar: Total Flights | Total PAX | Avg PAX/Flight | No-Show Rate %
+- Uses `PaxStatsWidget` natively injected via `getHeaderWidgets()`
 - Grouped by `flight_date` + `type` (aggregate query)
 - Custom `getTableRecordKey()` using composite key
 
-### Dashboard Widgets (`app/Filament/Admin/Widgets/`)
-- `RevenueChartWidget` — Line chart, monthly revenue current year, brand red
-- `PaymentStatusChartWidget` — Doughnut, Paid/Partial/Due/On-site distribution  
-- `TopProductsWidget` — Stats overview, top 3 products by revenue this month
+### Dashboard & Page Widgets (`app/Filament/Admin/Pages/Reports/Widgets/` & `app/Filament/Admin/Widgets/`)
+- Page Widgets (`StatsOverviewWidget`): `RevenueStatsWidget`, `DuePaymentsStatsWidget`, `PaxStatsWidget` utilizing `InteractsWithPageTable` to sync with filters.
+- Dashboard Widgets: `RevenueChartWidget` (line), `PaymentStatusChartWidget` (doughnut), `TopProductsWidget` (list).
 
 ---
 
@@ -54,6 +60,9 @@ Navigation group: **Financial Reports**
 
 | Pattern | Correct | Wrong |
 |---------|---------|-------|
+| Table Custom Pages | Return minimal view `{{ $this->table }}` | Omit view, or manually build HTML layout |
+| Stat Cards on Pages | Return via `getHeaderWidgets()` | Write custom blade UI blocks |
+| Dynamic Widget Stats | Use `InteractsWithPageTable` trait | Ignore table filters |
 | `$heading` on ChartWidget | `protected ?string $heading` | `protected static ?string $heading` |
 | `$color` on ChartWidget | `protected string $color` | `protected static string $color` |
 | `$columnSpan` | `protected array\|string\|int $columnSpan` | `protected int $columnSpan` |

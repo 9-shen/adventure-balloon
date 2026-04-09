@@ -480,6 +480,9 @@
 - [x] Added `Financial Reports` group to `AdminPanelProvider`
 
 ### Filament v4 Gotchas Discovered in This Phase
+- Table Custom Pages: Must return minimal view `<x-filament-panels::page> {{ $this->table }} </x-filament-panels::page>` to ensure header widgets and table render together
+- Stat Cards on Pages: Use native `getHeaderWidgets()` rather than manually writing Tailwind HTML blocks
+- Widget Interactivity: Use `InteractsWithPageTable` trait to sync `StatsOverviewWidget` with table filters
 - `$heading` and `$color` on `ChartWidget` are **non-static** — never declare as `static`
 - `$columnSpan` must be declared as `protected array|string|int` (exact union from `Widget` parent)
 - Aggregate `groupBy` tables have no `id` key — override `getTableRecordKey(Model|array $record): string` with composite key

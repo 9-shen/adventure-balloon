@@ -67,37 +67,11 @@ class PaxStatsReport extends Page implements HasTable
         return $record->flight_date . '_' . ($record->type ?? 'all');
     }
 
-    // -------------------------------------------------------
-    // Stats helpers
-    // -------------------------------------------------------
-    private function baseQuery(): Builder
+    protected function getHeaderWidgets(): array
     {
-        return Booking::query()->whereIn('booking_status', ['confirmed', 'completed']);
-    }
-
-    public function getTotalFlights(): int
-    {
-        return $this->baseQuery()->count();
-    }
-
-    public function getTotalPax(): int
-    {
-        return (int) $this->baseQuery()->sum(DB::raw('adult_pax + child_pax'));
-    }
-
-    public function getAvgPaxPerFlight(): string
-    {
-        $flights = $this->getTotalFlights();
-        if ($flights === 0) return '0';
-        return number_format($this->getTotalPax() / $flights, 1);
-    }
-
-    public function getNoShowRate(): string
-    {
-        $total   = $this->baseQuery()->whereNotNull('attendance')->sum(DB::raw('adult_pax + child_pax'));
-        $noShow  = $this->baseQuery()->where('attendance', 'no_show')->sum(DB::raw('adult_pax + child_pax'));
-        if ($total == 0) return '0%';
-        return round(($noShow / $total) * 100, 1) . '%';
+        return [
+            \App\Filament\Admin\Pages\Reports\Widgets\PaxStatsWidget::class,
+        ];
     }
 
     // -------------------------------------------------------

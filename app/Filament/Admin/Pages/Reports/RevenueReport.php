@@ -10,13 +10,13 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -29,7 +29,7 @@ class RevenueReport extends Page implements HasTable
         return 'heroicon-o-banknotes';
     }
 
-    protected static ?int    $navigationSort  = 1;
+    protected static ?int $navigationSort = 1;
 
     public static function getNavigationGroup(): ?string
     {
@@ -58,27 +58,11 @@ class RevenueReport extends Page implements HasTable
         return 'filament.admin.pages.reports.revenue-report';
     }
 
-    // -------------------------------------------------------
-    // Stats helpers (used in the blade view)
-    // -------------------------------------------------------
-    public function getTotalRevenue(): string
+    protected function getHeaderWidgets(): array
     {
-        return number_format((float) $this->getBaseQuery()->sum('final_amount'), 2);
-    }
-
-    public function getTotalCollected(): string
-    {
-        return number_format((float) $this->getBaseQuery()->sum('amount_paid'), 2);
-    }
-
-    public function getTotalOutstanding(): string
-    {
-        return number_format((float) $this->getBaseQuery()->sum('balance_due'), 2);
-    }
-
-    public function getTotalBookings(): int
-    {
-        return $this->getBaseQuery()->count();
+        return [
+            \App\Filament\Admin\Pages\Reports\Widgets\RevenueStatsWidget::class,
+        ];
     }
 
     private function getBaseQuery(): Builder
@@ -88,13 +72,13 @@ class RevenueReport extends Page implements HasTable
     }
 
     // -------------------------------------------------------
-    // Export action
+    // Header actions — Export ALL data
     // -------------------------------------------------------
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('export_csv')
-                ->label('Export CSV')
+            Action::make('export_all')
+                ->label('Export All')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->action(function () {
@@ -108,14 +92,14 @@ class RevenueReport extends Page implements HasTable
                             'payment_status' => $filters['payment_status']['value'] ?? null,
                             'booking_status' => $filters['booking_status']['value'] ?? null,
                         ]),
-                        'revenue-report-' . now()->format('Y-m-d') . '.xlsx'
+                        'revenue-all-' . now()->format('Y-m-d') . '.xlsx'
                     );
                 }),
         ];
     }
 
     // -------------------------------------------------------
-    // Table
+    // Table — with checkboxes + bulk export selected
     // -------------------------------------------------------
     public function table(Table $table): Table
     {
@@ -149,12 +133,13 @@ class RevenueReport extends Page implements HasTable
                     ->limit(22),
 
                 TextColumn::make('flight_date')
+                    ->label('Flight Date')
                     ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('pax')
                     ->label('PAX')
-                    ->state(fn($record) => ($record->adult_pax + $record->child_pax) . 'A+' . $record->child_pax . 'C')
+                    ->state(fn($record) => ($record->adult_pax + $record->child_pax))
                     ->alignCenter(),
 
                 TextColumn::make('final_amount')
@@ -176,21 +161,21 @@ class RevenueReport extends Page implements HasTable
                 TextColumn::make('payment_status')
                     ->badge()
                     ->color(fn($state) => match($state) {
-                        'paid'     => 'success',
-                        'partial'  => 'warning',
-                        'due'      => 'danger',
-                        'on_site'  => 'info',
-                        default    => 'gray',
+                        'paid'    => 'success',
+                        'partial' => 'warning',
+                        'due'     => 'danger',
+                        'on_site' => 'info',
+                        default   => 'gray',
                     }),
 
                 TextColumn::make('booking_status')
                     ->badge()
                     ->color(fn($state) => match($state) {
-                        'confirmed'  => 'success',
-                        'pending'    => 'warning',
-                        'cancelled'  => 'danger',
-                        'completed'  => 'info',
-                        default      => 'gray',
+                        'confirmed' => 'success',
+                        'pending'   => 'warning',
+                        'cancelled' => 'danger',
+                        'completed' => 'info',
+                        default     => 'gray',
                     }),
             ])
             ->filters([
@@ -228,6 +213,19 @@ class RevenueReport extends Page implements HasTable
                     ->options(['confirmed' => 'Confirmed', 'pending' => 'Pending', 'completed' => 'Completed']),
             ])
             ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
+            ->bulkActions([
+                \Filament\Actions\BulkAction::make('export_selected')
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (Collection $records) {
+                        $ids = $records->pluck('id')->toArray();
+                        return Excel::download(
+                            new RevenueReportExport(['ids' => $ids]),
+                            'revenue-selected-' . now()->format('Y-m-d') . '.xlsx'
+                        );
+                    }),
+            ])
             ->defaultSort('flight_date', 'desc')
             ->striped()
             ->paginated([25, 50, 100]);

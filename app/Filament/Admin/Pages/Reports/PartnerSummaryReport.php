@@ -48,7 +48,6 @@ class PartnerSummaryReport extends Page implements HasTable
         $user = Auth::user();
         return $user?->hasAnyRole(['super_admin', 'admin', 'accountant', 'manager']) ?? false;
     }
-
     public function getView(): string
     {
         return 'filament.admin.pages.reports.partner-summary-report';

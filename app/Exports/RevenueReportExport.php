@@ -20,6 +20,14 @@ class RevenueReportExport implements FromQuery, WithHeadings, WithMapping, Shoul
 
     public function query(): Builder
     {
+        // When specific IDs are passed (selected rows), export only those
+        if (!empty($this->filters['ids'])) {
+            return Booking::query()
+                ->with(['partner', 'product'])
+                ->whereIn('id', $this->filters['ids'])
+                ->orderBy('flight_date', 'desc');
+        }
+
         return Booking::query()
             ->with(['partner', 'product'])
             ->when($this->filters['date_from'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '>=', $v))

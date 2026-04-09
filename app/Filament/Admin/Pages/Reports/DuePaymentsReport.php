@@ -55,27 +55,11 @@ class DuePaymentsReport extends Page implements HasTable
         return 'filament.admin.pages.reports.due-payments-report';
     }
 
-    // -------------------------------------------------------
-    // Stats helpers
-    // -------------------------------------------------------
-    public function getTotalOutstanding(): string
+    protected function getHeaderWidgets(): array
     {
-        return number_format((float) Booking::where('balance_due', '>', 0)
-            ->whereIn('booking_status', ['confirmed', 'pending'])
-            ->sum('balance_due'), 2);
-    }
-
-    public function getDueCount(): int
-    {
-        return Booking::where('balance_due', '>', 0)
-            ->whereIn('booking_status', ['confirmed', 'pending'])
-            ->count();
-    }
-
-    public function getHighestBalance(): string
-    {
-        return number_format((float) Booking::where('balance_due', '>', 0)
-            ->max('balance_due'), 2);
+        return [
+            \App\Filament\Admin\Pages\Reports\Widgets\DuePaymentsStatsWidget::class,
+        ];
     }
 
     // -------------------------------------------------------
