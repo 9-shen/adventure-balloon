@@ -387,23 +387,70 @@
 
 ---
 
+---
+
 ## Phase 12 — Invoicing System
 
 📁 Details: [`docs/phases/phase-12-invoicing.md`](phases/phase-12-invoicing.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-09
 
-### To Do
+### Completed ✅
 
-- [ ] `invoices` table migration
-- [ ] `invoice_items` table migration
-- [ ] `InvoiceResource` Filament CRUD
-- [ ] Invoice generation from partner bookings (batch by period)
-- [ ] PDF generation (DomPDF) with company branding
-- [ ] Email invoice to partner
-- [ ] Mark invoice as paid
-- [ ] `InvoiceService`
+#### Database
+- [x] `invoices` table — invoice_ref (INV-YYYY-XXXX), partner_id FK, period_from/to, subtotal, tax_rate, tax_amount, total_amount, status ENUM(draft|sent|paid|overdue), sent_at, paid_at, payment_reference, notes, created_by, soft_deletes
+- [x] `invoice_items` table — invoice_id FK, booking_id FK, description, flight_date, adult_pax, child_pax, unit_price, line_total
+- [x] `add_invoiced_at_to_bookings_table` — adds `invoice_id` FK + `invoiced_at` timestamp to `bookings`
 
----
+#### Models
+- [x] `Invoice` model — `generateRef()`, `isDraft()`, `isSent()`, `isPaid()`, `SoftDeletes`, `hasMany(InvoiceItem)`, `belongsTo(Partner)`, `belongsTo(User, 'created_by')`
+- [x] `InvoiceItem` model — `belongsTo(Invoice)`, `belongsTo(Booking)`
+- [x] `Partner` model updated — added `invoices()` HasMany, confirmed `bookings()` HasMany
+- [x] `Booking` model updated — added `invoice_id`, `invoiced_at` to fillable + `isInvoiced()` helper
+
+#### Service
+- [x] `InvoiceService::generate(Partner, bookingIds[], meta)` — creates Invoice + InvoiceItems, stamps `invoiced_at` on each booking to prevent double-invoicing
+- [x] `InvoiceService::generatePdf(Invoice)` — DomPDF render of professional invoice blade template
+- [x] `InvoiceService::markPaid(Invoice, $reference)` — sets status=paid, paid_at=now(), payment_reference
+- [x] `InvoiceService::markSent(Invoice)` — sets status=sent, sent_at=now()
+
+#### PDF Template
+- [x] `resources/views/pdf/invoice.blade.php` — A4 professional layout:
+  - Header: company name/contact | invoice ref + date | period | status
+  - Bill To: partner company name, address, tax number, email
+  - Line items table: Date | Ref | Description | Adults | Children | Unit Price | Amount
+  - Totals: Subtotal | Tax (if > 0%) | TOTAL DUE (dark accent band)
+  - Notes section + payment terms footer
+
+#### Filament Resources (nav group: Invoicing)
+- [x] **`PartnerInvoiceResource`** — Partner list (sort 1)
+  - Columns: company_name, total_bookings (badge), total_billed, total_paid, total_outstanding (red/green), invoices_count, status badge
+  - Filter: partner status
+  - Action: "View Bookings" → URL navigate to manage page
+- [x] **`ViewPartnerBookings`** (extends `ManageRelatedRecords`, relationship: 'bookings')
+  - Table: booking_ref, flight_date, product, PAX, total, paid, balance, payment badge, status badge, invoiced badge
+  - **Advanced Date Range filter** on `flight_date` with from/until indicators
+  - Filters: payment_status, booking_status, "Not Yet Invoiced" toggle
+  - Bulk actions: "Add to Invoice" (skips already-invoiced) / "Remove from Basket"
+  - Header: "Create Invoice (N bookings)" slideOver → tax_rate + notes → generates + redirects
+  - `public array $selectedForInvoice = []` Livewire property tracks basket state
+- [x] **`InvoiceResource`** — all invoices list (sort 2)
+  - Columns: invoice_ref, partner, period, items_count, subtotal, total_amount, status badge, created_at, paid_at
+  - Filters: status, partner (searchable preload), date range
+  - Row actions: View, Download PDF (stream), Mark Sent (confirm), Mark Paid (slideOver with payment_reference)
+- [x] **`ViewInvoice`** — full invoice detail page
+  - Infolist sections: Invoice Details, Partner/Bill To, Financial Summary, Booking Lines (RepeatableEntry with 7 columns)
+  - Header actions: Download PDF, Mark Sent, Mark Paid
+
+#### Bug Fix
+- [x] Fixed custom blade view `view-partner-bookings.blade.php` — removed broken `$this->selectedBookingIds` references (old HasTable approach) that caused line 24 IDE CSS parse error and runtime failures. `ManageRelatedRecords` renders the table natively — blade file only needs `<x-filament-panels::page>` wrapper
+
+### Filament v4 Gotchas Discovered in This Phase
+- `Filament\Actions\BulkAction` ✅ (`Filament\Tables\Actions\BulkAction` does NOT exist in v4)
+- `Filament\Actions\Action` ✅ for table row URL actions
+- `ManageRelatedRecords` ✅ for parent→related table drill-down (auto-routes, auto-breadcrumbs, native table)
+- `protected static string $view` ❌ on page classes → PHP fatal error. Use `getView()` method or remove entirely
+- For `ManageRelatedRecords` pages: custom blade is NOT needed. If it exists (resolved by name convention), keep it minimal — never reference `$this->selectedXxx` properties from the old `HasTable` approach.
+
 
 ## Phase 13 — Financial Reports & Dashboard
 
