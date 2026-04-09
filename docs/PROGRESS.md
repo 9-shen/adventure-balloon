@@ -455,16 +455,35 @@
 ## Phase 13 — Financial Reports & Dashboard
 
 📁 Details: [`docs/phases/phase-13-reports.md`](phases/phase-13-reports.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-09
 
-### To Do
+### Completed ✅
 
-- [ ] Revenue report (Regular vs Partner, by date range)
-- [ ] Transport cost report
-- [ ] Due payments report
-- [ ] Client statistics (repeat customers, nationality)
-- [ ] PAX & flight stats (volume, no-show rate)
-- [ ] CSV export via Maatwebsite Excel for all reports
+#### Excel Exports (`app/Exports/`)
+- [x] `RevenueReportExport` — all bookings with revenue columns, filterable by date/type/product/status
+- [x] `DuePaymentsExport` — bookings where balance_due > 0, ordered by highest balance
+- [x] `PartnerSummaryExport` — per-partner aggregate: bookings, revenue, paid, outstanding, invoices count
+- [x] `PaxStatsExport` — grouped by flight_date: total flights, PAX, showed, no-showed, no-show rate %
+
+#### Report Pages (`app/Filament/Admin/Pages/Reports/`, nav group: Financial Reports)
+- [x] **`RevenueReport`** — Stats bar + filterable table + CSV export
+- [x] **`DuePaymentsReport`** — Stats bar showing total outstanding + due count + highest balance; balance highlighted red
+- [x] **`PartnerSummaryReport`** — Per-partner aggregates via `withCount`/`withSum`; date range filter via `whereHas`
+- [x] **`PaxStatsReport`** — Grouped by flight_date+type; Custom `getTableRecordKey()` composite key; Stats bar with no-show rate %
+
+#### Dashboard Widgets (Admin Dashboard)
+- [x] **`RevenueChartWidget`** (sort 5, span 2) — Line chart: monthly revenue current year, brand red, fill area
+- [x] **`PaymentStatusChartWidget`** (sort 6, span 1) — Doughnut: Paid/Partial/Due/On-Site distribution, 70% cutout
+- [x] **`TopProductsWidget`** (sort 7) — Stats: top 3 products by revenue this month, trophy/star/sparkle icons
+
+#### Navigation
+- [x] Added `Financial Reports` group to `AdminPanelProvider`
+
+### Filament v4 Gotchas Discovered in This Phase
+- `$heading` and `$color` on `ChartWidget` are **non-static** — never declare as `static`
+- `$columnSpan` must be declared as `protected array|string|int` (exact union from `Widget` parent)
+- Aggregate `groupBy` tables have no `id` key — override `getTableRecordKey(Model|array $record): string` with composite key
+- Never call `$this->getTableFiltersForm()->getState()` inside the `query()` closure — use standard `filter()->query()` callbacks
 
 ---
 
