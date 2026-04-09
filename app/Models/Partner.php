@@ -57,6 +57,16 @@ class Partner extends Model implements HasMedia
                     ->using(PartnerProduct::class);
     }
 
+    public function bookings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    public function invoices(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
     /**
      * Users linked to this partner company.
      */

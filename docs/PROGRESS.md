@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-09 (Phase 11 — Accountant Module: Finance Bookings resource, Process Payment action, Revenue & Payments widgets, Per-PAX attendance view)  
+> **Last Updated:** 2026-04-09 (Phase 12 — Invoicing System: PartnerInvoiceResource, ViewPartnerBookings with date range filter + multi-select invoice basket, InvoiceResource with PDF download + Mark Paid, InvoiceService, DomPDF template)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -22,7 +22,7 @@
 | 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔄 **IN PROGRESS** |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
 | 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
-| 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🟠 MED-HIGH | 4–5             | 🔲 Pending      |
+| 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
 | 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | 🔲 Pending      |
 | 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
 | 15  | [Polish & Advanced Features](#phase-15--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |

@@ -44,6 +44,8 @@ class Booking extends Model
         'confirmed_at',
         'cancelled_by',
         'cancelled_at',
+        'invoice_id',
+        'invoiced_at',
     ];
 
     protected function casts(): array
@@ -63,6 +65,7 @@ class Booking extends Model
             'amount_paid'       => 'decimal:2',
             'balance_due'       => 'decimal:2',
             'attendance'        => 'string',
+            'invoiced_at'       => 'datetime',
         ];
     }
 
@@ -101,6 +104,11 @@ class Booking extends Model
     public function dispatch(): HasOne
     {
         return $this->hasOne(Dispatch::class);
+    }
+
+    public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Invoice::class);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────
@@ -197,5 +205,10 @@ class Booking extends Model
             return '⏳ Awaiting';
         }
         return "✅ {$summary['show']}/{$summary['total']} Showed";
+    }
+
+    public function isInvoiced(): bool
+    {
+        return $this->invoiced_at !== null;
     }
 }
