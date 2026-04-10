@@ -82,13 +82,17 @@ class RevenueReport extends Page implements HasTable
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->action(function () {
-                    $filters = $this->getTableFiltersForm()->getState();
+                    // Read filter state directly from the Livewire property — never call
+                    // getTableFiltersForm() inside an action when header widgets are present
+                    // as it re-initialises table state and causes null assignment errors.
+                    $filters = $this->tableFilters ?? [];
+
                     return Excel::download(
                         new RevenueReportExport([
                             'date_from'      => $filters['date_range']['date_from'] ?? null,
                             'date_until'     => $filters['date_range']['date_until'] ?? null,
                             'type'           => $filters['type']['value'] ?? null,
-                            'product_id'     => $filters['product']['value'] ?? null,
+                            'product_id'     => $filters['product_id']['value'] ?? null,
                             'payment_status' => $filters['payment_status']['value'] ?? null,
                             'booking_status' => $filters['booking_status']['value'] ?? null,
                         ]),

@@ -73,7 +73,7 @@ class DuePaymentsReport extends Page implements HasTable
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->action(function () {
-                    $filters = $this->getTableFiltersForm()->getState();
+                    $filters = $this->tableFilters ?? [];
                     return Excel::download(
                         new DuePaymentsExport([
                             'type'       => $filters['type']['value'] ?? null,

@@ -64,7 +64,7 @@ class PartnerSummaryReport extends Page implements HasTable
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('success')
                 ->action(function () {
-                    $filters = $this->getTableFiltersForm()->getState();
+                    $filters = $this->tableFilters ?? [];
                     return Excel::download(
                         new PartnerSummaryExport([
                             'date_from'  => $filters['date_range']['date_from'] ?? null,

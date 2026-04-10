@@ -2,31 +2,25 @@
 
 namespace App\Filament\Admin\Pages\Reports\Widgets;
 
-use App\Filament\Admin\Pages\Reports\DuePaymentsReport;
+use App\Models\Booking;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Filament\Widgets\Concerns\InteractsWithPageTable;
 
 class DuePaymentsStatsWidget extends BaseWidget
 {
-    use InteractsWithPageTable;
-
-    protected function getTablePage(): string
-    {
-        return DuePaymentsReport::class;
-    }
-
     protected function getStats(): array
     {
-        $query = $this->getPageTableQuery();
-        
-        $totalOutstanding = (float) $query->clone()->sum('balance_due');
-        $dueCount = $query->clone()->count();
-        $highestBalance = (float) $query->clone()->max('balance_due');
+        $query = Booking::query()
+            ->where('balance_due', '>', 0)
+            ->whereIn('booking_status', ['confirmed', 'pending']);
+
+        $totalOutstanding = (float) (clone $query)->sum('balance_due');
+        $dueCount         = (clone $query)->count();
+        $highestBalance   = (float) (clone $query)->max('balance_due');
 
         return [
             Stat::make('Total Outstanding', 'MAD ' . number_format($totalOutstanding, 2))
-                ->description('Across all active filters')
+                ->description('Across all due bookings')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),
 

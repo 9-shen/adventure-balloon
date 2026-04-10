@@ -2,36 +2,27 @@
 
 namespace App\Filament\Admin\Pages\Reports\Widgets;
 
-use App\Filament\Admin\Pages\Reports\RevenueReport;
+use App\Models\Booking;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Illuminate\Support\Facades\DB;
 
 class RevenueStatsWidget extends BaseWidget
 {
-    use InteractsWithPageTable;
-
-    protected function getTablePage(): string
-    {
-        return RevenueReport::class;
-    }
-
     protected function getStats(): array
     {
-        $query = $this->getPageTableQuery();
-        
-        $totalRevenue = (float) $query->clone()->sum('final_amount');
-        $collected = (float) $query->clone()->sum('amount_paid');
-        $outstanding = (float) $query->clone()->sum('balance_due');
-        $bookingsCount = $query->clone()->count();
+        $query = Booking::query()
+            ->whereIn('booking_status', ['confirmed', 'pending', 'completed']);
 
-        // Calculate total PAX
-        $totalPax = (int) $query->clone()->sum(DB::raw('adult_pax + child_pax'));
+        $totalRevenue   = (float) (clone $query)->sum('final_amount');
+        $collected      = (float) (clone $query)->sum('amount_paid');
+        $outstanding    = (float) (clone $query)->sum('balance_due');
+        $bookingsCount  = (clone $query)->count();
+        $totalPax       = (int) (clone $query)->sum(DB::raw('adult_pax + child_pax'));
 
         return [
             Stat::make('Total Revenue', 'MAD ' . number_format($totalRevenue, 2))
-                ->description('All filtered bookings')
+                ->description('All active bookings')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('primary'),
 
