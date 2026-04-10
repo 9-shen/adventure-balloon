@@ -26,8 +26,13 @@
 | 13  | [Financial Reports](#phase-13--financial-reports--dashboard)         | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
 | 14  | [Notifications & Automation](#phase-14--notifications--automation)   | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
 | 15  | [Partner Portal](#phase-15--partner-portal)                          | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
-| 16  | [Polish & Advanced Features](#phase-16--polish--advanced-features)   | 🟢 LOW      | 3–5             | 🔲 **NEXT**   |
-|     | **TOTAL**                                                            |             | **~55–73 days** |                 |
+| 16  | [Transport Portal](#phase-16--transport-portal)                      | 🟡 MEDIUM   | 2–3             | 🔲 **NEXT**      |
+| 17  | [Driver Portal](#phase-17--driver-portal)                            | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
+| 18  | [Greeter Portal](#phase-18--greeter-portal)                          | 🟡 MEDIUM   | 2               | 🔲 Pending      |
+| 19  | [Accountant Portal](#phase-19--accountant-portal)                    | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
+| 20  | [Manager Portal](#phase-20--manager-portal)                          | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
+| 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features)   | 🟢 LOW      | 3–5             | 🔲 Pending      |
+|     | **TOTAL**                                                            |             | **~66–87 days** |                 |
 
 ---
 
@@ -589,10 +594,72 @@
 
 ---
 
-## Phase 16 — Polish & Advanced Features
+## Phase 16 — Transport Portal
 
-📁 Details: [`docs/phases/phase-15-polish.md`](phases/phase-15-polish.md)  
+📁 Details: [`docs/phases/phase-16-transport-portal.md`](phases/phase-16-transport-portal.md)  
 **Status: 🔲 NEXT**
+
+### To Do
+- [ ] Dedicated `TransportPanelProvider` at `/transport`
+- [ ] Transport Dashboard (active drivers, vehicles, dispatches)
+- [ ] My Vehicles & My Drivers fleet management
+- [ ] Dispatch Viewer & Passenger Manifest
+
+---
+
+## Phase 17 — Driver Portal
+
+📁 Details: [`docs/phases/phase-17-driver-portal.md`](phases/phase-17-driver-portal.md)  
+**Status: 🔲 Pending**
+
+### To Do
+- [ ] Dedicated mobile-first `DriverPanelProvider` at `/driver`
+- [ ] Today's Mission widget
+- [ ] Status Tracking toggle
+- [ ] Dispatch Manifest with WhatsApp shortcuts
+
+---
+
+## Phase 18 — Greeter Portal
+
+📁 Details: [`docs/phases/phase-18-greeter-portal.md`](phases/phase-18-greeter-portal.md)  
+**Status: 🔲 Pending**
+
+### To Do
+- [ ] Dedicated mobile-first `GreeterPanelProvider` at `/greeter`
+- [ ] Live Flight Stats dashboard
+- [ ] Migrate Greeter Attendance checklist into dedicated panel
+
+---
+
+## Phase 19 — Accountant Portal
+
+📁 Details: [`docs/phases/phase-19-accountant-portal.md`](phases/phase-19-accountant-portal.md)  
+**Status: 🔲 Pending**
+
+### To Do
+- [ ] Dedicated `AccountantPanelProvider` at `/finance`
+- [ ] Cash flow and accounting widgets
+- [ ] Migrate invoicing, reports, transport billing to new portal
+
+---
+
+## Phase 20 — Manager Portal
+
+📁 Details: [`docs/phases/phase-20-manager-portal.md`](phases/phase-20-manager-portal.md)  
+**Status: 🔲 Pending**
+
+### To Do
+- [ ] Dedicated `ManagerPanelProvider` at `/manager`
+- [ ] Operational Health dashboard
+- [ ] High-level operations access (Bookings, Dispatches) without configuration clutter
+
+---
+
+## Phase 21 — Polish & Advanced Features
+
+📁 Details: [`docs/phases/phase-21-polish.md`](phases/phase-21-polish.md)  
+**Status: 🔲 Pending**
 
 ### To Do
 
@@ -600,8 +667,6 @@
 - [ ] Global search across bookings
 - [ ] Bulk operations (confirm, cancel, export)
 - [ ] CSV import for bulk bookings
-- [ ] Mobile optimization (greeter + driver panels)
-- [ ] Widget visibility by role
 - [ ] Audit trail reports
 - [ ] `BookingConfirmedNotification` → customer email
 - [ ] `PaymentReminderNotification` → partner (scheduled)
@@ -638,7 +703,9 @@ Phase 10: Greeter ✅  Phase 11: Accountant ✅
         ↓
     Phase 15: Partner Portal ✅
         ↓
-    Phase 16: Polish & Advanced ← NEXT
+    Phase 16 - 20: Role Specific Portals ← NEXT
+        ↓
+    Phase 21: Polish & Advanced
 ```
 
 ---
