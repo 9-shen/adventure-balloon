@@ -13,12 +13,20 @@ use App\Models\Dispatch;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class DispatchResource extends Resource
 {
     protected static ?string $model = Dispatch::class;
 
     protected static ?string $recordTitleAttribute = 'dispatch_ref';
+
+    public static function canAccess(): bool
+    {
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
+        return $user?->hasAnyRole(['super_admin', 'admin', 'manager']) ?? false;
+    }
 
     public static function getNavigationIcon(): string|\BackedEnum|null
     {
