@@ -2,16 +2,32 @@
 
 namespace App\Filament\Partner\Pages;
 
+use App\Filament\Partner\Widgets\AccountStatsWidget;
 use App\Models\Booking;
 use App\Models\Invoice;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
+use Filament\Tables\Actions\Action as TableAction;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class AccountStatement extends Page
+class AccountStatement extends Page implements HasTable
 {
-    protected string $view = 'filament.partner.pages.account-statement';
+    use InteractsWithTable;
+
+    public string $activeTab = 'bookings';
+
+    public function getView(): string
+    {
+        return 'filament.partner.pages.account-statement';
+    }
 
     public static function getNavigationIcon(): string|\BackedEnum|null
     {
@@ -33,84 +49,15 @@ class AccountStatement extends Page
         return 20;
     }
 
-    // ─── Data ─────────────────────────────────────────────────────────────────
-
-    public function getStats(): array
+    // ─── Header Widget ─────────────────────────────────────────────────────────
+    protected function getHeaderWidgets(): array
     {
-        /** @var \App\Models\User $user */
-        $user      = Auth::user();
-        $partnerId = $user->partner_id;
-
-        $totalBookings = Booking::where('partner_id', $partnerId)
-            ->where('type', 'partner')
-            ->count();
-
-        $confirmedBookings = Booking::where('partner_id', $partnerId)
-            ->where('type', 'partner')
-            ->where('booking_status', 'confirmed')
-            ->count();
-
-        $totalPax = Booking::where('partner_id', $partnerId)
-            ->where('type', 'partner')
-            ->selectRaw('SUM(adult_pax + child_pax) as total')
-            ->value('total') ?? 0;
-
-        $totalBilled = Invoice::where('partner_id', $partnerId)
-            ->whereNotIn('status', ['draft'])
-            ->sum('total_amount');
-
-        $totalPaid = Invoice::where('partner_id', $partnerId)
-            ->where('status', 'paid')
-            ->sum('total_amount');
-
-        $totalDue = Invoice::where('partner_id', $partnerId)
-            ->whereIn('status', ['sent', 'overdue'])
-            ->sum('total_amount');
-
-        $overdueAmount = Invoice::where('partner_id', $partnerId)
-            ->where('status', 'overdue')
-            ->sum('total_amount');
-
-        return compact(
-            'totalBookings', 'confirmedBookings', 'totalPax',
-            'totalBilled', 'totalPaid', 'totalDue', 'overdueAmount'
-        );
+        return [
+            AccountStatsWidget::class,
+        ];
     }
 
-    public function getBookingRows(): \Illuminate\Support\Collection
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        return Booking::with('product')
-            ->where('partner_id', $user->partner_id)
-            ->where('type', 'partner')
-            ->select([
-                'booking_ref', 'flight_date', 'product_id',
-                'adult_pax', 'child_pax', 'final_amount',
-                'payment_status', 'booking_status',
-            ])
-            ->orderByDesc('flight_date')
-            ->get();
-    }
-
-    public function getInvoiceRows(): \Illuminate\Support\Collection
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        return Invoice::where('partner_id', $user->partner_id)
-            ->select([
-                'invoice_ref', 'period_from', 'period_to',
-                'subtotal', 'tax_amount', 'total_amount',
-                'status', 'sent_at', 'paid_at',
-            ])
-            ->orderByDesc('created_at')
-            ->get();
-    }
-
-    // ─── Actions ──────────────────────────────────────────────────────────────
-
+    // ─── CSV Export Actions ────────────────────────────────────────────────────
     protected function getHeaderActions(): array
     {
         return [
@@ -128,8 +75,182 @@ class AccountStatement extends Page
         ];
     }
 
-    // ─── CSV Exports ──────────────────────────────────────────────────────────
+    // ─── Filament Table ────────────────────────────────────────────────────────
+    public function table(Table $table): Table
+    {
+        /** @var \App\Models\User $user */
+        $user      = Auth::user();
+        $partnerId = $user->partner_id;
 
+        if ($this->activeTab === 'invoices') {
+            return $this->buildInvoicesTable($table, $partnerId);
+        }
+
+        return $this->buildBookingsTable($table, $partnerId);
+    }
+
+    private function buildBookingsTable(Table $table, int $partnerId): Table
+    {
+        return $table
+            ->query(
+                Booking::with('product')
+                    ->where('partner_id', $partnerId)
+                    ->where('type', 'partner')
+                    ->latest('flight_date')
+            )
+            ->columns([
+                TextColumn::make('booking_ref')
+                    ->label('Booking Ref')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->weight('bold')
+                    ->fontFamily('mono'),
+
+                TextColumn::make('flight_date')
+                    ->label('Flight Date')
+                    ->date('d/m/Y')
+                    ->sortable(),
+
+                TextColumn::make('product.name')
+                    ->label('Product')
+                    ->searchable(),
+
+                TextColumn::make('adult_pax')
+                    ->label('Adults')
+                    ->alignCenter(),
+
+                TextColumn::make('child_pax')
+                    ->label('Children')
+                    ->alignCenter(),
+
+                TextColumn::make('final_amount')
+                    ->label('Amount (MAD)')
+                    ->money('MAD')
+                    ->sortable()
+                    ->alignRight(),
+
+                TextColumn::make('payment_status')
+                    ->label('Payment')
+                    ->badge()
+                    ->colors([
+                        'success' => 'paid',
+                        'warning' => 'partial',
+                        'danger'  => 'due',
+                    ]),
+
+                TextColumn::make('booking_status')
+                    ->label('Status')
+                    ->badge()
+                    ->colors([
+                        'success' => 'confirmed',
+                        'warning' => 'pending',
+                        'danger'  => 'cancelled',
+                    ]),
+            ])
+            ->filters([
+                SelectFilter::make('booking_status')
+                    ->label('Status')
+                    ->options([
+                        'pending'   => 'Pending',
+                        'confirmed' => 'Confirmed',
+                        'cancelled' => 'Cancelled',
+                    ]),
+                SelectFilter::make('payment_status')
+                    ->label('Payment')
+                    ->options([
+                        'due'     => 'Due',
+                        'partial' => 'Partial',
+                        'paid'    => 'Paid',
+                    ]),
+            ])
+            ->defaultSort('flight_date', 'desc')
+            ->striped()
+            ->paginated([10, 25, 50]);
+    }
+
+    private function buildInvoicesTable(Table $table, int $partnerId): Table
+    {
+        return $table
+            ->query(
+                Invoice::where('partner_id', $partnerId)
+                    ->latest()
+            )
+            ->columns([
+                TextColumn::make('invoice_ref')
+                    ->label('Invoice #')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->weight('bold')
+                    ->fontFamily('mono'),
+
+                TextColumn::make('period_from')
+                    ->label('Period')
+                    ->formatStateUsing(fn ($record) =>
+                        optional($record->period_from)?->format('d/m/Y')
+                        . ' → '
+                        . optional($record->period_to)?->format('d/m/Y')
+                    ),
+
+                TextColumn::make('subtotal')
+                    ->label('Subtotal')
+                    ->money('MAD')
+                    ->alignRight(),
+
+                TextColumn::make('tax_amount')
+                    ->label('Tax')
+                    ->money('MAD')
+                    ->alignRight(),
+
+                TextColumn::make('total_amount')
+                    ->label('Total')
+                    ->money('MAD')
+                    ->sortable()
+                    ->alignRight()
+                    ->weight('bold'),
+
+                TextColumn::make('status')
+                    ->badge()
+                    ->colors([
+                        'gray'    => 'draft',
+                        'info'    => 'sent',
+                        'success' => 'paid',
+                        'danger'  => 'overdue',
+                    ]),
+
+                TextColumn::make('sent_at')
+                    ->label('Sent')
+                    ->date('d/m/Y')
+                    ->placeholder('—'),
+
+                TextColumn::make('paid_at')
+                    ->label('Paid On')
+                    ->date('d/m/Y')
+                    ->placeholder('—'),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->options([
+                        'draft'   => 'Draft',
+                        'sent'    => 'Sent',
+                        'paid'    => 'Paid',
+                        'overdue' => 'Overdue',
+                    ]),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->striped()
+            ->paginated([10, 25]);
+    }
+
+    // ─── Tab switching (Livewire) ──────────────────────────────────────────────
+    public function switchTab(string $tab): void
+    {
+        $this->activeTab = $tab;
+        $this->resetTable();
+    }
+
+    // ─── CSV Exports ───────────────────────────────────────────────────────────
     public function exportBookingsCsv(): StreamedResponse
     {
         /** @var \App\Models\User $user */
@@ -141,30 +262,24 @@ class AccountStatement extends Page
             ->orderByDesc('flight_date')
             ->get();
 
-        $filename = 'bookings-' . now()->format('Ymd') . '.csv';
-
         return response()->streamDownload(function () use ($rows) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Booking Ref', 'Flight Date', 'Product',
-                'Adults', 'Children', 'Total PAX',
-                'Amount (MAD)', 'Payment Status', 'Booking Status',
-            ]);
-            foreach ($rows as $row) {
-                fputcsv($handle, [
-                    $row->booking_ref,
-                    optional($row->flight_date)?->format('d/m/Y'),
-                    $row->product?->name ?? '—',
-                    $row->adult_pax,
-                    $row->child_pax,
-                    $row->adult_pax + $row->child_pax,
-                    number_format((float) $row->final_amount, 2),
-                    $row->payment_status,
-                    $row->booking_status,
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Booking Ref','Flight Date','Product','Adults','Children','Total PAX','Amount (MAD)','Payment Status','Booking Status']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r->booking_ref,
+                    optional($r->flight_date)?->format('d/m/Y'),
+                    $r->product?->name,
+                    $r->adult_pax,
+                    $r->child_pax,
+                    $r->adult_pax + $r->child_pax,
+                    number_format((float)$r->final_amount, 2),
+                    $r->payment_status,
+                    $r->booking_status,
                 ]);
             }
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
+            fclose($out);
+        }, 'bookings-' . now()->format('Ymd') . '.csv', ['Content-Type' => 'text/csv']);
     }
 
     public function exportInvoicesCsv(): StreamedResponse
@@ -176,29 +291,23 @@ class AccountStatement extends Page
             ->orderByDesc('created_at')
             ->get();
 
-        $filename = 'invoices-' . now()->format('Ymd') . '.csv';
-
         return response()->streamDownload(function () use ($rows) {
-            $handle = fopen('php://output', 'w');
-            fputcsv($handle, [
-                'Invoice #', 'Period From', 'Period To',
-                'Subtotal (MAD)', 'Tax (MAD)', 'Total (MAD)',
-                'Status', 'Sent At', 'Paid At',
-            ]);
-            foreach ($rows as $row) {
-                fputcsv($handle, [
-                    $row->invoice_ref,
-                    optional($row->period_from)?->format('d/m/Y') ?? '—',
-                    optional($row->period_to)?->format('d/m/Y') ?? '—',
-                    number_format((float) $row->subtotal, 2),
-                    number_format((float) $row->tax_amount, 2),
-                    number_format((float) $row->total_amount, 2),
-                    $row->status,
-                    optional($row->sent_at)?->format('d/m/Y') ?? '—',
-                    optional($row->paid_at)?->format('d/m/Y') ?? '—',
+            $out = fopen('php://output', 'w');
+            fputcsv($out, ['Invoice #','Period From','Period To','Subtotal (MAD)','Tax (MAD)','Total (MAD)','Status','Sent At','Paid At']);
+            foreach ($rows as $r) {
+                fputcsv($out, [
+                    $r->invoice_ref,
+                    optional($r->period_from)?->format('d/m/Y'),
+                    optional($r->period_to)?->format('d/m/Y'),
+                    number_format((float)$r->subtotal, 2),
+                    number_format((float)$r->tax_amount, 2),
+                    number_format((float)$r->total_amount, 2),
+                    $r->status,
+                    optional($r->sent_at)?->format('d/m/Y'),
+                    optional($r->paid_at)?->format('d/m/Y'),
                 ]);
             }
-            fclose($handle);
-        }, $filename, ['Content-Type' => 'text/csv']);
+            fclose($out);
+        }, 'invoices-' . now()->format('Ymd') . '.csv', ['Content-Type' => 'text/csv']);
     }
 }
