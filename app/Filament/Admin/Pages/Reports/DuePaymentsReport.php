@@ -80,7 +80,8 @@ class DuePaymentsReport extends Page implements HasTable
                             'date_from'  => $filters['date_range']['date_from'] ?? null,
                             'date_until' => $filters['date_range']['date_until'] ?? null,
                         ]),
-                        'due-payments-' . now()->format('Y-m-d') . '.xlsx'
+                        'due-payments-' . now()->format('Y-m-d') . '.csv',
+                        \Maatwebsite\Excel\Excel::CSV
                     );
                 }),
         ];

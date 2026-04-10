@@ -92,7 +92,8 @@ class PaxStatsReport extends Page implements HasTable
                             'date_until' => $filters['date_range']['date_until'] ?? null,
                             'type'       => $filters['type']['value'] ?? null,
                         ]),
-                        'pax-stats-' . now()->format('Y-m-d') . '.xlsx'
+                        'pax-stats-' . now()->format('Y-m-d') . '.csv',
+                        \Maatwebsite\Excel\Excel::CSV
                     );
                 }),
         ];

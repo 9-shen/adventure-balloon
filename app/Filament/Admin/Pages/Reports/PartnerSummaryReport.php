@@ -70,7 +70,8 @@ class PartnerSummaryReport extends Page implements HasTable
                             'date_from'  => $filters['date_range']['date_from'] ?? null,
                             'date_until' => $filters['date_range']['date_until'] ?? null,
                         ]),
-                        'partner-summary-' . now()->format('Y-m-d') . '.xlsx'
+                        'partner-summary-' . now()->format('Y-m-d') . '.csv',
+                        \Maatwebsite\Excel\Excel::CSV
                     );
                 }),
         ];

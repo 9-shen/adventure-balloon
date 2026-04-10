@@ -96,7 +96,8 @@ class RevenueReport extends Page implements HasTable
                             'payment_status' => $filters['payment_status']['value'] ?? null,
                             'booking_status' => $filters['booking_status']['value'] ?? null,
                         ]),
-                        'revenue-all-' . now()->format('Y-m-d') . '.xlsx'
+                        'revenue-all-' . now()->format('Y-m-d') . '.csv',
+                        \Maatwebsite\Excel\Excel::CSV
                     );
                 }),
         ];
@@ -226,7 +227,8 @@ class RevenueReport extends Page implements HasTable
                         $ids = $records->pluck('id')->toArray();
                         return Excel::download(
                             new RevenueReportExport(['ids' => $ids]),
-                            'revenue-selected-' . now()->format('Y-m-d') . '.xlsx'
+                            'revenue-selected-' . now()->format('Y-m-d') . '.csv',
+                            \Maatwebsite\Excel\Excel::CSV
                         );
                     }),
             ])
