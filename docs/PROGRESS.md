@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-10 (Phase 13 — Transport Finance Module + Financial Reports complete; Phase 14 — Email Notifications: PartnerBookingNotification, InvoiceIssuedNotification implemented)  
+> **Last Updated:** 2026-04-10 (Phase 14 — Email Notifications COMPLETE; Phase 15 — Partner Portal COMPLETE; Roles updated to 8 canonical roles)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -9,24 +9,25 @@
 
 ## 🗺️ Phase Overview
 
-| #   | Phase                                                              | Priority    | Est. Days       | Status          |
-| --- | ------------------------------------------------------------------ | ----------- | --------------- | --------------- |
-| 1   | [Foundation](#phase-1--foundation)                                 | —           | 2–3             | ✅ **COMPLETE** |
-| 2   | [Settings & Config](#phase-2--settings--config)                    | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
-| 3   | [User Management](#phase-3--user-management)                       | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
-| 4   | [Product Management](#phase-4--product-management)                 | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
-| 5   | [Partner Management](#phase-5--partner-management)                 | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
-| 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
-| 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
-| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
-| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | ✅ **COMPLETE** |
-| 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
-| 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
-| 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
-| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
-| 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔄 **IN PROGRESS** |
-| 15  | [Polish & Advanced Features](#phase-15--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
-|     | **TOTAL**                                                          |             | **~53–70 days** |                 |
+| #   | Phase                                                                | Priority    | Est. Days       | Status          |
+| --- | -------------------------------------------------------------------- | ----------- | --------------- | --------------- |
+| 1   | [Foundation](#phase-1--foundation)                                   | —           | 2–3             | ✅ **COMPLETE** |
+| 2   | [Settings & Config](#phase-2--settings--config)                      | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 3   | [User Management](#phase-3--user-management)                         | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 4   | [Product Management](#phase-4--product-management)                   | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
+| 5   | [Partner Management](#phase-5--partner-management)                   | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
+| 6   | [Transport Management](#phase-6--transport-management)               | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
+| 7   | [Regular Booking System](#phase-7--regular-booking-system)           | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
+| 8   | [Partner Booking System](#phase-8--partner-booking-system)           | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
+| 9   | [Dispatch System](#phase-9--dispatch-system)                         | 🟠 MED-HIGH | 5–7             | ✅ **COMPLETE** |
+| 10  | [Greeter Module](#phase-10--greeter-module)                          | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 11  | [Accountant Module](#phase-11--accountant-module)                    | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
+| 12  | [Invoicing System](#phase-12--invoicing-system)                      | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
+| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)         | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
+| 14  | [Notifications & Automation](#phase-14--notifications--automation)   | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
+| 15  | [Partner Portal](#phase-15--partner-portal)                          | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
+| 16  | [Polish & Advanced Features](#phase-16--polish--advanced-features)   | 🟢 LOW      | 3–5             | 🔲 **NEXT**   |
+|     | **TOTAL**                                                            |             | **~55–73 days** |                 |
 
 ---
 
@@ -301,7 +302,7 @@
 ## Phase 9 — Dispatch System
 
 📁 Details: [`docs/phases/phase-09-dispatch.md`](phases/phase-09-dispatch.md)  
-**Status: 🔄 IN PROGRESS** — Started 2026-04-08
+**Status: ✅ COMPLETE** — Completed 2026-04-08
 
 ### Completed ✅
 
@@ -500,7 +501,7 @@
 ## Phase 14 — Notifications & Automation
 
 📁 Details: [`docs/phases/phase-14-notifications.md`](phases/phase-14-notifications.md)  
-**Status: 🔄 IN PROGRESS** — Started 2026-04-10
+**Status: ✅ COMPLETE** — Completed 2026-04-10
 
 ### Already Implemented ✅ (Phase 9 — Do NOT modify)
 
@@ -512,8 +513,9 @@
 
 ### Implemented in Phase 14 ✅
 
-- [x] **`PartnerBookingNotification`** — alerts admin email (`AppSettings::email`) when a partner booking is created
-  - Fired in `CreateBooking::afterCreate()` when `$booking->type === 'partner'`
+- [x] **`PartnerBookingNotification`** — alerts admin (`AppSettings::company_email`) when a partner booking is created
+  - ⚠️ Property is `company_email`, NOT `email` — caused 500 errors until fixed
+  - Fired in `CreateBooking::afterCreate()` (admin) AND `CreatePartnerBooking::afterCreate()` (partner portal)
   - Uses `AnonymousNotifiable` routed to admin email; guarded with try/catch + logging
   - Subject: `"New Partner Booking: PBX-REF — PartnerName"`
 
@@ -524,26 +526,73 @@
   - Guarded: skips silently if `partner->email` is null, logs a warning
   - Both implement `ShouldQueue` + `queue = 'notifications'` for async delivery
 
-### Remaining 🔲 (Deferred to Phase 15)
+### Bug Fix 🐛→✅
 
-- [ ] `BookingConfirmedNotification` → customer email (requires customer email capture improvement)
+- [x] **`AppSettings::$email` does NOT exist** — correct property is `company_email`. Fixed in 3 locations: `CreatePartnerBooking::afterCreate()`, `CreateBooking::afterCreate()`, `InvoiceIssuedNotification::toMail()`
+
+### Deferred (Phase 16)
+
+- [ ] `BookingConfirmedNotification` → customer email
 - [ ] `BookingCanceledNotification` → customer email
 - [ ] `PaymentReminderNotification` → partner email (scheduled recurring reminder job)
-- [ ] Notification log viewer in Filament (read-only table from `notifications` DB table)
-
-### Architecture Decisions
-
-- **`AnonymousNotifiable`** used for admin email alerts (no Notifiable model needed)
-- **`ShouldQueue` + named queue** pattern consistent across all new notifications
-- **Error isolation**: all notification calls wrapped in try/catch; failures log but never crash the main flow
-- **`isResend` flag** on `InvoiceIssuedNotification` adjusts subject line without needing a second notification class
+- [ ] Notification log viewer in Filament
 
 ---
 
-## Phase 15 — Polish & Advanced Features
+## Phase 15 — Partner Portal
+
+📁 Details: [`docs/phases/phase-15-partner-portal.md`](phases/phase-15-partner-portal.md)  
+**Status: ✅ COMPLETE** — Completed 2026-04-10
+
+### Completed ✅
+
+#### Database
+- [x] `add_partner_id_to_users_table` migration — `partner_id` nullable FK on `users`
+- [x] `User::partner()` BelongsTo, `Partner::users()` HasMany (via `partner_id` FK — replaces old pivot concept)
+
+#### Admin Panel Enhancements
+- [x] **PartnerForm Portal Access section** — "Assign Portal User" select in admin partner edit/create
+- [x] `CreatePartner::afterCreate()` + `EditPartner::afterSave()` — sync `partner_id` FK on selected user
+
+#### Partner Panel (`/partner`)
+- [x] `PartnerPanelProvider` — teal (`#0e7490`) branding, ID: `partner`, path: `/partner`
+- [x] Auto-discovers from `App\Filament\Partner\**`
+- [x] **`User::canAccessPanel()`** updated: partner role → `/partner` ONLY; admin staff → `/admin` ONLY
+
+#### Pages
+- [x] **Dashboard** — `PartnerStatsWidget` (4 stats: bookings, confirmed, PAX, revenue)
+- [x] **Profile** (`/partner/profile`) — editable company + banking info; non-static `$view` property
+- [x] **Account Statement** (`/partner/account-statement`)
+  - `InteractsWithTable` + `AccountStatsWidget` header (total bookings, billed, paid, outstanding)
+  - Tab switcher: Bookings / Invoices via `switchTab() → resetTable()`
+  - CSV exports for both tabs (stream download)
+
+#### Resources
+- [x] **`PartnerBookingResource`** — scoped to `partner_id`, 3-step wizard:
+  - Step 1: products filtered to partner's assigned products via `partner_products` pivot
+  - Step 2: passengers repeater
+  - Step 3: review with partner pricing, fires `PartnerBookingNotification` on create
+- [x] **`PartnerInvoiceResource`** — read-only invoice list scoped to `partner_id`
+
+#### Roles Refinement
+- [x] Canonical 8 roles: `super_admin`, `admin`, `manager`, `accountant`, `greeter`, `transport`, `driver`, `partner`
+- [x] Removed from DB: `agent`, `dispatcher`, `pilot`, `customer`
+- [x] `RolesAndPermissionsSeeder` deletes obsolete roles on each run
+
+#### Bug Fixes
+- [x] **`AppSettings::company_email`** — `->email` property does not exist; all references fixed
+
+### Filament v4 Gotchas Discovered
+- `protected string $view` (non-static) ✅ — `protected static string $view` ❌ (PHP fatal)
+- `getNavigationIcon()` must be a method, not a static property in resources
+- Tab switching with `resetTable()` required when swapping model queries in one page
+
+---
+
+## Phase 16 — Polish & Advanced Features
 
 📁 Details: [`docs/phases/phase-15-polish.md`](phases/phase-15-polish.md)  
-**Status: 🔲 Pending**
+**Status: 🔲 NEXT**
 
 ### To Do
 
@@ -554,6 +603,9 @@
 - [ ] Mobile optimization (greeter + driver panels)
 - [ ] Widget visibility by role
 - [ ] Audit trail reports
+- [ ] `BookingConfirmedNotification` → customer email
+- [ ] `PaymentReminderNotification` → partner (scheduled)
+- [ ] Database indexes on `flight_date`, `booking_status`, `partner_id`
 
 ---
 
@@ -570,21 +622,23 @@ Phase 4: Product Management ✅
     ↓               ↓
 Phase 5: Partners ✅  Phase 6: Transport ✅
     ↓               ↓
-Phase 7: Regular Bookings ← NEXT
+Phase 7: Regular Bookings ✅
     ↓
-Phase 8: Partner Bookings
+Phase 8: Partner Bookings ✅
     ↓
-Phase 9: Dispatch System
+Phase 9: Dispatch System ✅
     ↓               ↓
-Phase 10: Greeter  Phase 11: Accountant
+Phase 10: Greeter ✅  Phase 11: Accountant ✅
     ↓               ↓
-    Phase 12: Invoicing
+    Phase 12: Invoicing ✅
         ↓
-    Phase 13: Reports
+    Phase 13: Reports ✅
         ↓
-    Phase 14: Notifications
+    Phase 14: Notifications ✅
         ↓
-    Phase 15: Polish & Advanced
+    Phase 15: Partner Portal ✅
+        ↓
+    Phase 16: Polish & Advanced ← NEXT
 ```
 
 ---

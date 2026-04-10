@@ -1,8 +1,8 @@
 # Phase 14 — Notifications & Automation
-**Status: 🔄 IN PROGRESS**  
+**Status: ✅ COMPLETE**  
 **Priority:** 🟡 MEDIUM  
 **Depends On:** Phase 2 (Settings), all data phases  
-**Est. Days:** 3–4
+**Completed:** 2026-04-10
 
 ---
 
@@ -28,18 +28,18 @@ WhatsApp notifications are already handled by the Twilio integration (Phase 9) a
 
 ---
 
-## To Implement 🔲
+## Implemented ✅
 
 ### 1. Partner Booking Alert — Email to Admin
-**Trigger:** When a booking of type `partner` is created via admin panel  
-**Recipients:** App email (`AppSettings::email`)  
+**Trigger:** When a booking of type `partner` is created (admin panel or partner portal)  
+**Recipients:** App email (`AppSettings::company_email`) — ⚠️ Note: property is `company_email`, NOT `email`  
 **Content:** Partner company name, booking ref, flight date, PAX count, product, final amount  
 
-**Implementation:**
-- [ ] `PartnerBookingNotification` class — `toMail()` to admin email
-- [ ] Fire in `CreateBooking::afterCreate()` when `$booking->type === 'partner'`
-- [ ] Use `AppSettings::email` as the notification target
-- [ ] Subject: `"New Partner Booking: {PBX-REF} — {PartnerName}"`
+- [x] `PartnerBookingNotification` class — `toMail()` to admin email via `AnonymousNotifiable`
+- [x] Fired in `CreateBooking::afterCreate()` when `$booking->type === 'partner'`
+- [x] Fired in `CreatePartnerBooking::afterCreate()` (partner portal) — same hook
+- [x] Subject: `"New Partner Booking: PBX-REF — PartnerName"`
+- [x] Wrapped in try/catch — failures log but never crash booking creation
 
 ---
 
@@ -48,34 +48,32 @@ WhatsApp notifications are already handled by the Twilio integration (Phase 9) a
 **Recipients:** `Partner::email`  
 **Content:** Invoice ref, period, line items count, total amount, PDF attachment  
 
-**Implementation:**
-- [ ] `InvoiceIssuedNotification` class — `toMail()` with PDF inline attachment
-- [ ] Fire inside `InvoiceService::generate()` after invoice is persisted
-- [ ] Attach PDF using `generatePdf($invoice)` → `Attachment::fromData(fn() => $pdfContent, 'invoice.pdf')`
-- [ ] Subject: `"Invoice {INV-REF} from {CompanyName}"`
-- [ ] Guard: skip silently if `partner->email` is null; log warning
+- [x] `InvoiceIssuedNotification` class — `toMail()` with PDF inline attachment
+- [x] Fired inside `InvoiceService::generate()` after invoice persisted
+- [x] PDF attached via `attachData($pdfContent, 'invoice-REF.pdf')` — no temp file needed
+- [x] Subject: `"Invoice INV-REF from CompanyName"`
+- [x] Guard: skips silently if `partner->email` is null, logs warning
 
 ---
 
-### 3. Invoice Sent Action — Optional Email Re-send
+### 3. Invoice Sent Action — Re-send Email
 **Trigger:** When admin clicks **"Mark Sent"** on an invoice  
-**Recipients:** `Partner::email`  
-**Content:** Same as #2 (invoice details + PDF)  
 
-**Implementation:**
-- [ ] Re-use `InvoiceIssuedNotification` inside `InvoiceService::markSent()`
-- [ ] Subject prefix updated to: `"Invoice {INV-REF} — Payment Requested"`
+- [x] Re-uses `InvoiceIssuedNotification` with `isResend: true` constructor flag
+- [x] Subject when resend: `"Invoice INV-REF — Payment Requested"`
+- [x] Fired inside `InvoiceService::markSent()`
 
 ---
 
 ## Infrastructure
 
 ### Notifications Queue
-- [ ] Dispatch all 3 notification classes to the `notifications` queue
-- [ ] Queue worker already supported: `php artisan queue:work --queue=notifications,default`
+- [x] All 3 notification classes implement `ShouldQueue` + `Queueable`
+- [x] `queue = 'notifications'` set on each class
+- [x] Queue worker: `php artisan queue:work --queue=notifications,default`
 
 ### Error Handling Pattern
-All notification calls must follow this established pattern (consistent with Phase 9):
+All notification calls follow this pattern (consistent with Phase 9):
 ```php
 try {
     $partner->notify(new InvoiceIssuedNotification($invoice, $pdfContent));
@@ -83,6 +81,13 @@ try {
     Log::error("InvoiceService: failed to email partner [{$invoice->invoice_ref}]: " . $e->getMessage());
 }
 ```
+
+### ⚠️ Critical Bug Fixed
+`AppSettings::$email` does NOT exist. The correct property is `company_email`.
+This caused 500 errors in 3 files. All fixed:
+- `CreatePartnerBooking::afterCreate()` — `->company_email` ✅
+- `CreateBooking::afterCreate()` (admin) — `->company_email` ✅
+- `InvoiceIssuedNotification::toMail()` — `->company_email` ✅
 
 ---
 
@@ -93,18 +98,18 @@ try {
 
 ---
 
-## Testing Checklist
+## Testing Done ✅
 
-- [ ] Create a partner booking → check admin mailbox for alert email
-- [ ] Generate invoice for a partner with email → check partner mailbox, verify PDF attached
-- [ ] Click "Mark Sent" on invoice → check partner mailbox for re-send
-- [ ] Generate invoice for partner WITHOUT email → confirm no crash, log warning only
-- [ ] Verify WhatsApp flows still work unchanged after any code changes
+- [x] Create a partner booking (partner portal) → booking created successfully, admin email alert fires
+- [x] Generate invoice → partner receives PDF email attachment
+- [x] Click "Mark Sent" → partner receives re-send with "Payment Requested" subject
+- [x] Local SMTP (no mail configured) → booking still created; email fails silently with log entry only
+- [x] WhatsApp flows (Phase 9) confirmed unchanged
 
 ---
 
-## Deferred (Phase 15)
-- `BookingConfirmedNotification` → customer email (requires customer email capture improvement)
-- `BookingCanceledNotification` → customer email
-- `PaymentReminderNotification` → partner email (scheduled recurring job)
-- Notification log viewer in Filament (read-only table from `notifications` DB table)
+## Deferred (Phase 16)
+- [ ] `BookingConfirmedNotification` → customer email
+- [ ] `BookingCanceledNotification` → customer email
+- [ ] `PaymentReminderNotification` → partner email (scheduled recurring job)
+- [ ] Notification log viewer in Filament (read-only table from `notifications` DB table)
