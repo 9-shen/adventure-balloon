@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-09 (Phase 12 — Invoicing System: PartnerInvoiceResource, ViewPartnerBookings with date range filter + multi-select invoice basket, InvoiceResource with PDF download + Mark Paid, InvoiceService, DomPDF template)  
+> **Last Updated:** 2026-04-10 (Phase 13 — Transport Finance Module + Financial Reports complete; Phase 14 — Email Notifications: PartnerBookingNotification, InvoiceIssuedNotification implemented)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -19,12 +19,12 @@
 | 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
 | 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
 | 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
-| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | 🔄 **IN PROGRESS** |
+| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | ✅ **COMPLETE** |
 | 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
 | 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
 | 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
-| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | 🔲 Pending      |
-| 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔲 Pending      |
+| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
+| 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | 🔄 **IN PROGRESS** |
 | 15  | [Polish & Advanced Features](#phase-15--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
 |     | **TOTAL**                                                          |             | **~53–70 days** |                 |
 
@@ -500,19 +500,43 @@
 ## Phase 14 — Notifications & Automation
 
 📁 Details: [`docs/phases/phase-14-notifications.md`](phases/phase-14-notifications.md)  
-**Status: 🔲 Pending**
+**Status: 🔄 IN PROGRESS** — Started 2026-04-10
 
-### To Do
+### Already Implemented ✅ (Phase 9 — Do NOT modify)
 
-- [ ] `BookingConfirmedNotification` → customer email
+- [x] `DispatchAssignedNotification` — rich HTML email to transport company on dispatch creation (auto-fires)
+- [x] `DriverAssignedNotification` — email to each assigned driver
+- [x] `DispatchService::sendWhatsAppToDrivers()` — Twilio WhatsApp per-driver with full itinerary
+- [x] **"Send WhatsApp to Drivers"** action on `ViewDispatch` page
+- [x] **"Send Notifications"** action on `EditDispatch` page for manual re-send
+
+### Implemented in Phase 14 ✅
+
+- [x] **`PartnerBookingNotification`** — alerts admin email (`AppSettings::email`) when a partner booking is created
+  - Fired in `CreateBooking::afterCreate()` when `$booking->type === 'partner'`
+  - Uses `AnonymousNotifiable` routed to admin email; guarded with try/catch + logging
+  - Subject: `"New Partner Booking: PBX-REF — PartnerName"`
+
+- [x] **`InvoiceIssuedNotification`** — emails PDF invoice to partner when invoice generated or marked sent
+  - Fired inside `InvoiceService::generate()` after invoice persisted
+  - Re-fired inside `InvoiceService::markSent()` with `isResend: true` (subject: "Payment Requested")
+  - Attaches live-generated DomPDF via `attachData()` — no temp file needed
+  - Guarded: skips silently if `partner->email` is null, logs a warning
+  - Both implement `ShouldQueue` + `queue = 'notifications'` for async delivery
+
+### Remaining 🔲 (Deferred to Phase 15)
+
+- [ ] `BookingConfirmedNotification` → customer email (requires customer email capture improvement)
 - [ ] `BookingCanceledNotification` → customer email
-- [ ] `DispatchAssignedNotification` → transporter email
-- [ ] `DriverAssignedNotification` → driver WhatsApp (Twilio)
-- [ ] `InvoiceIssuedNotification` → partner email + PDF
-- [ ] `PaymentReminderNotification` → partner email
-- [ ] Queue jobs for all async notifications
-- [ ] Notification log in Filament
-- [ ] Retry failed notifications
+- [ ] `PaymentReminderNotification` → partner email (scheduled recurring reminder job)
+- [ ] Notification log viewer in Filament (read-only table from `notifications` DB table)
+
+### Architecture Decisions
+
+- **`AnonymousNotifiable`** used for admin email alerts (no Notifiable model needed)
+- **`ShouldQueue` + named queue** pattern consistent across all new notifications
+- **Error isolation**: all notification calls wrapped in try/catch; failures log but never crash the main flow
+- **`isResend` flag** on `InvoiceIssuedNotification` adjusts subject line without needing a second notification class
 
 ---
 
