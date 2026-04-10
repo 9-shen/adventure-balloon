@@ -49,11 +49,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make('Bookings'),
+                NavigationGroup::make('Greeter'),
                 NavigationGroup::make('Accountant Module'),
                 NavigationGroup::make('Invoicing'),
                 NavigationGroup::make('Transport Finance'),
                 NavigationGroup::make('Financial Reports'),
-                NavigationGroup::make('Greeter'),
                 NavigationGroup::make('Transport Management'),
                 NavigationGroup::make('Partner Management'),
                 NavigationGroup::make('Product Management'),

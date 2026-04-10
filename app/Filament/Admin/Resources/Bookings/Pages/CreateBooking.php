@@ -6,12 +6,16 @@ use App\Filament\Admin\Resources\Bookings\BookingResource;
 use App\Filament\Admin\Resources\Bookings\Schemas\BookingWizard;
 use App\Models\Booking;
 use App\Models\Product;
+use App\Notifications\PartnerBookingNotification;
 use App\Services\BookingService;
+use App\Settings\AppSettings;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CreateBooking extends CreateRecord
 {
@@ -137,5 +141,22 @@ class CreateBooking extends CreateRecord
             ->body("Booking reference: **{$booking->booking_ref}**")
             ->success()
             ->send();
+
+        // ── Partner booking: alert admin email ──────────────────────────────
+        if ($booking->type === 'partner') {
+            $adminEmail = app(AppSettings::class)->email;
+
+            if ($adminEmail) {
+                $booking->loadMissing(['partner', 'product']);
+
+                try {
+                    (new AnonymousNotifiable)
+                        ->route('mail', $adminEmail)
+                        ->notify(new PartnerBookingNotification($booking));
+                } catch (\Exception $e) {
+                    Log::error("CreateBooking: failed to send partner booking alert [{$booking->booking_ref}]: " . $e->getMessage());
+                }
+            }
+        }
     }
 }

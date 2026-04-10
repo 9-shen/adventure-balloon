@@ -6,8 +6,10 @@ use App\Models\Booking;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Partner;
+use App\Notifications\InvoiceIssuedNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class InvoiceService
 {
@@ -73,7 +75,23 @@ class InvoiceService
             ]);
         }
 
-        return $invoice->fresh(['partner', 'items.booking', 'items.booking.product']);
+        $invoice = $invoice->fresh(['partner', 'items.booking', 'items.booking.product']);
+
+        // ── Email invoice to partner ───────────────────────────────────────
+        if ($invoice->partner?->email) {
+            try {
+                $pdfContent = $this->generatePdf($invoice);
+                $invoice->partner->notify(
+                    new InvoiceIssuedNotification($invoice, $pdfContent)
+                );
+            } catch (\Exception $e) {
+                Log::error("InvoiceService: failed to email partner [{$invoice->invoice_ref}]: " . $e->getMessage());
+            }
+        } else {
+            Log::warning("InvoiceService: partner has no email, skipping notification [{$invoice->invoice_ref}]");
+        }
+
+        return $invoice;
     }
 
     /**
@@ -113,5 +131,19 @@ class InvoiceService
             'status'  => 'sent',
             'sent_at' => now(),
         ]);
+
+        // ── Re-send invoice email to partner when manually marked as sent ───
+        $invoice->loadMissing(['partner', 'items.booking.product', 'createdBy']);
+
+        if ($invoice->partner?->email) {
+            try {
+                $pdfContent = $this->generatePdf($invoice);
+                $invoice->partner->notify(
+                    new InvoiceIssuedNotification($invoice, $pdfContent, isResend: true)
+                );
+            } catch (\Exception $e) {
+                Log::error("InvoiceService: failed to re-send invoice email [{$invoice->invoice_ref}]: " . $e->getMessage());
+            }
+        }
     }
 }
