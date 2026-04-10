@@ -86,10 +86,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             'super_admin',
             'admin',
             'manager',
-            'agent',
-            'dispatcher',
             'accountant',
             'greeter',
+            'transport',
+            'driver',
         ]);
     }
 

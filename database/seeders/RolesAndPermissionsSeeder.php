@@ -49,8 +49,12 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // ── Roles ────────────────────────────────────────────────────────────────
         $roles = [
-            'super_admin'       => Permission::all()->pluck('name')->toArray(),
-            'admin'             => [
+
+            // ── Full access
+            'super_admin' => Permission::all()->pluck('name')->toArray(),
+
+            // ── All access except app settings
+            'admin' => [
                 'view_bookings', 'create_bookings', 'edit_bookings', 'delete_bookings',
                 'confirm_bookings', 'cancel_bookings', 'assign_bookings',
                 'view_customers', 'create_customers', 'edit_customers', 'delete_customers',
@@ -58,49 +62,55 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_flights', 'create_flights', 'edit_flights', 'dispatch_flights',
                 'view_payments', 'process_payments', 'issue_refunds',
                 'view_reports', 'export_reports',
-                'view_settings', 'edit_settings',
                 'view_users', 'create_users', 'edit_users',
                 'view_media', 'upload_media',
             ],
-            'manager'           => [
-                'view_bookings', 'create_bookings', 'edit_bookings', 'confirm_bookings',
-                'cancel_bookings', 'assign_bookings',
+
+            // ── Operational management — bookings, dispatch, partners, reports
+            'manager' => [
+                'view_bookings', 'create_bookings', 'edit_bookings',
+                'confirm_bookings', 'cancel_bookings', 'assign_bookings',
                 'view_customers', 'create_customers', 'edit_customers',
+                'view_partners', 'edit_partners',
                 'view_flights', 'create_flights', 'edit_flights', 'dispatch_flights',
                 'view_payments', 'view_reports',
                 'view_users',
                 'view_media', 'upload_media',
             ],
-            'agent'             => [
-                'view_bookings', 'create_bookings', 'edit_bookings', 'confirm_bookings',
-                'cancel_bookings',
-                'view_customers', 'create_customers', 'edit_customers',
-                'view_payments',
-                'view_media', 'upload_media',
-            ],
-            'dispatcher'        => [
-                'view_bookings', 'assign_bookings',
-                'view_flights', 'create_flights', 'edit_flights', 'dispatch_flights',
-                'manage_pilots',
-                'view_media',
-            ],
-            'accountant'        => [
+
+            // ── Finance & reporting only
+            'accountant' => [
                 'view_bookings', 'edit_bookings',
-                'view_payments', 'process_payments',
+                'view_payments', 'process_payments', 'issue_refunds',
                 'view_reports', 'export_reports',
                 'view_customers',
+                'view_partners',
+                'view_media',
             ],
-            'pilot'             => [
+
+            // ── Front-desk / arrival scanning
+            'greeter' => [
+                'view_bookings',
+                'edit_bookings',
+                'view_customers',
+            ],
+
+            // ── Transport company contact — sees their dispatches only
+            'transport' => [
                 'view_flights',
                 'view_bookings',
             ],
-            'partner'           => [
+
+            // ── Driver — sees their own assigned dispatches
+            'driver' => [
+                'view_flights',
+            ],
+
+            // ── Partner agency — access via /partner panel only
+            'partner' => [
                 'view_bookings', 'create_bookings',
                 'view_customers',
                 'view_payments',
-            ],
-            'customer'          => [
-                'view_bookings',
             ],
         ];
 
@@ -109,6 +119,16 @@ class RolesAndPermissionsSeeder extends Seeder
             $role->syncPermissions($rolePermissions);
         }
 
+        // ── Remove obsolete roles ─────────────────────────────────────────────────
+        $obsoleteRoles = ['agent', 'dispatcher', 'pilot', 'customer'];
+        foreach ($obsoleteRoles as $old) {
+            Role::where('name', $old)->delete();
+        }
+
         $this->command->info('✅ Roles and permissions seeded successfully.');
+        $this->command->table(
+            ['Role', 'Permissions'],
+            collect($roles)->map(fn ($perms, $name) => [$name, count($perms) . ' permissions'])->values()->toArray()
+        );
     }
 }
