@@ -260,7 +260,7 @@ class CreatePartnerBooking extends CreateRecord
         $booking->loadMissing(['partner', 'product']);
 
         // Notify admin
-        $adminEmail = app(AppSettings::class)->email;
+        $adminEmail = app(AppSettings::class)->company_email;
         if ($adminEmail) {
             try {
                 (new AnonymousNotifiable)

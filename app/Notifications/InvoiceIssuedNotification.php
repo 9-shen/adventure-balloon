@@ -33,7 +33,7 @@ class InvoiceIssuedNotification extends Notification implements ShouldQueue
         $invoice    = $this->invoice;
         $partner    = $invoice->partner;
         $appName    = app(AppSettings::class)->company_name;
-        $appEmail   = app(AppSettings::class)->email;
+        $appEmail   = app(AppSettings::class)->company_email;
 
         $periodFrom = $invoice->period_from
             ? Carbon::parse($invoice->period_from)->format('d/m/Y')

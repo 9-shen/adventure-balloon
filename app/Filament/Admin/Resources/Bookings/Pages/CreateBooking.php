@@ -144,7 +144,7 @@ class CreateBooking extends CreateRecord
 
         // ── Partner booking: alert admin email ──────────────────────────────
         if ($booking->type === 'partner') {
-            $adminEmail = app(AppSettings::class)->email;
+            $adminEmail = app(AppSettings::class)->company_email;
 
             if ($adminEmail) {
                 $booking->loadMissing(['partner', 'product']);
