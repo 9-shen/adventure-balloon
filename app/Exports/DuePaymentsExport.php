@@ -20,7 +20,7 @@ class DuePaymentsExport implements FromQuery, WithHeadings, WithMapping, ShouldA
     public function query(): Builder
     {
         return Booking::query()
-            ->with(['partner', 'product'])
+            ->with(['partner', 'product', 'passengers'])
             ->where('balance_due', '>', 0)
             ->when($this->filters['type'] ?? null, fn($q, $v) => $q->where('type', $v))
             ->when($this->filters['date_from'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '>=', $v))
@@ -42,7 +42,8 @@ class DuePaymentsExport implements FromQuery, WithHeadings, WithMapping, ShouldA
     public function map($booking): array
     {
         $name = $booking->partner?->company_name
-            ?? optional($booking->passengers->first())->full_name
+            ?? optional($booking->passengers?->first())->full_name
+            ?? $booking->booking_source
             ?? '—';
 
         return [
