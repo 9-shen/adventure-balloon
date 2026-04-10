@@ -82,6 +82,9 @@ class EditDispatch extends EditRecord
                 'status'       => 'pending',
             ]);
         }
+
+        // Recalculate transport cost based on assigned vehicles
+        app(DispatchService::class)->recalculateCost($dispatch);
     }
 
     // ─── Header Actions ───────────────────────────────────────────────────────

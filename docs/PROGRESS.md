@@ -470,6 +470,13 @@
 - [x] **`DuePaymentsReport`** — Stats bar showing total outstanding + due count + highest balance; balance highlighted red
 - [x] **`PartnerSummaryReport`** — Per-partner aggregates via `withCount`/`withSum`; date range filter via `whereHas`
 - [x] **`PaxStatsReport`** — Grouped by flight_date+type; Custom `getTableRecordKey()` composite key; Stats bar with no-show rate %
+- [x] **`TransportCostReport`** — Tracks dispatch costs based on assigned vehicles with billed status indicator & CSV export
+
+#### Transport Finance Module (nav group: Transport Finance)
+- [x] `transport_bills` & `transport_bill_items` tables + relationships with TransportCompany and Dispatch
+- [x] `TransportBillResource` and `TransporterBillingResource` following the Phase 12 invoicing bucket pattern
+- [x] PDF generating and tracking status (Draft -> Sent -> Paid) for transport company billing
+- [x] Fixed recalculateCost bug on DispatchEdit page and backfilled `transport_cost` on existing DB rows
 
 #### Dashboard Widgets (Admin Dashboard)
 - [x] **`RevenueChartWidget`** (sort 5, span 2) — Line chart: monthly revenue current year, brand red, fill area
@@ -477,7 +484,7 @@
 - [x] **`TopProductsWidget`** (sort 7) — Stats: top 3 products by revenue this month, trophy/star/sparkle icons
 
 #### Navigation
-- [x] Added `Financial Reports` group to `AdminPanelProvider`
+- [x] Added `Financial Reports` and `Transport Finance` groups to `AdminPanelProvider`
 
 ### Filament v4 Gotchas Discovered in This Phase
 - Table Custom Pages: Must return minimal view `<x-filament-panels::page> {{ $this->table }} </x-filament-panels::page>` to ensure header widgets and table render together

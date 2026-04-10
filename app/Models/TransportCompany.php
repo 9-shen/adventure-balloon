@@ -49,6 +49,11 @@ class TransportCompany extends Model implements \Spatie\MediaLibrary\HasMedia
         return $this->hasMany(Dispatch::class);
     }
 
+    public function transportBills(): HasMany
+    {
+        return $this->hasMany(TransportBill::class);
+    }
+
     // ─── Media ───────────────────────────────────────────────────────────────
 
     public function registerMediaCollections(): void

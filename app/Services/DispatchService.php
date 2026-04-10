@@ -137,8 +137,25 @@ class DispatchService
                 ]);
             }
 
+            // Auto-calculate transport cost from vehicle prices
+            $dispatch->update([
+                'transport_cost' => $dispatch->calculateCost(),
+            ]);
+
             return $dispatch;
         });
+    }
+
+    /**
+     * Recalculate the transport cost for a dispatch (e.g. after editing driver/vehicle assignments).
+     */
+    public function recalculateCost(Dispatch $dispatch): Dispatch
+    {
+        $dispatch->update([
+            'transport_cost' => $dispatch->calculateCost(),
+        ]);
+
+        return $dispatch->fresh();
     }
 
     // ─── Notifications ───────────────────────────────────────────────────────

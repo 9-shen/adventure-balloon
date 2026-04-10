@@ -24,6 +24,10 @@ class Dispatch extends Model
         'total_pax',
         'status',
         'notes',
+        'transport_cost',
+        'cost_notes',
+        'transport_bill_id',
+        'billed_at',
         'notified_at',
         'created_by',
     ];
@@ -31,9 +35,11 @@ class Dispatch extends Model
     protected function casts(): array
     {
         return [
-            'flight_date'  => 'date',
-            'notified_at'  => 'datetime',
-            'total_pax'    => 'integer',
+            'flight_date'     => 'date',
+            'notified_at'     => 'datetime',
+            'billed_at'       => 'datetime',
+            'total_pax'       => 'integer',
+            'transport_cost'  => 'decimal:2',
         ];
     }
 
@@ -72,10 +78,31 @@ class Dispatch extends Model
                     ->withTimestamps();
     }
 
+    public function transportBill(): BelongsTo
+    {
+        return $this->belongsTo(TransportBill::class);
+    }
+
     // ─── Helpers ─────────────────────────────────────────────────────────────
 
     public function isNotified(): bool
     {
         return $this->notified_at !== null;
+    }
+
+    public function isBilled(): bool
+    {
+        return $this->billed_at !== null;
+    }
+
+    /**
+     * Calculate transport cost from the sum of each assigned vehicle's price_per_trip.
+     */
+    public function calculateCost(): float
+    {
+        return (float) $this->dispatchDriverRows()
+            ->with('vehicle')
+            ->get()
+            ->sum(fn($row) => (float) ($row->vehicle?->price_per_trip ?? 0));
     }
 }

@@ -50,8 +50,13 @@ Each custom page uses a minimalistic blade view to ensure both widgets and table
 - Grouped by `flight_date` + `type` (aggregate query)
 - Custom `getTableRecordKey()` using composite key
 
+#### TransportCostReport (sort 5)
+- Tracks dispatch costs based on assigned vehicles
+- Uses `TransportCostStatsWidget` for overall cost, billed, and unbilled aggregates
+- Billed status indicator & CSV exports incorporating transport bill filters
+
 ### Dashboard & Page Widgets (`app/Filament/Admin/Pages/Reports/Widgets/` & `app/Filament/Admin/Widgets/`)
-- Page Widgets (`StatsOverviewWidget`): `RevenueStatsWidget`, `DuePaymentsStatsWidget`, `PaxStatsWidget` utilizing `InteractsWithPageTable` to sync with filters.
+- Page Widgets (`StatsOverviewWidget`): `RevenueStatsWidget`, `DuePaymentsStatsWidget`, `PaxStatsWidget`, `TransportCostStatsWidget`
 - Dashboard Widgets: `RevenueChartWidget` (line), `PaymentStatusChartWidget` (doughnut), `TopProductsWidget` (list).
 
 ---
@@ -72,5 +77,4 @@ Each custom page uses a minimalistic blade view to ensure both widgets and table
 ---
 
 ## Not Implemented (Deferred)
-- Transport Cost Report — requires dedicated transporter-payment model (Phase 15)
 - Client Statistics (nationality, repeat customers) — deferred to Phase 15
