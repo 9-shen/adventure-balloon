@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -68,16 +69,11 @@ class Partner extends Model implements HasMedia
     }
 
     /**
-     * Users linked to this partner company.
+     * Users linked to this partner company via partner_id FK.
      */
-    public function users(): BelongsToMany
+    public function users(): HasMany
     {
-        return $this->belongsToMany(User::class, 'model_has_roles')
-                    ->where('role_id', function ($q) {
-                        $q->select('id')
-                          ->from('roles')
-                          ->where('name', 'partner');
-                    });
+        return $this->hasMany(User::class, 'partner_id');
     }
 
     // ─── Media ───────────────────────────────────────────────────────────────

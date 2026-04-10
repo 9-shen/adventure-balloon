@@ -37,6 +37,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'address',
         'is_active',
         'last_login_at',
+        'partner_id',
     ];
 
     /**
@@ -66,7 +67,9 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     }
 
     /**
-     * Allow all users with the super_admin role to access Filament.
+     * Allow users to access Filament panels based on their role.
+     * Partner users may only access the 'partner' panel.
+     * All other staff roles may only access the 'admin' panel.
      */
     public function canAccessPanel(Panel $panel): bool
     {
@@ -74,6 +77,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return false;
         }
 
+        if ($panel->getId() === 'partner') {
+            return $this->hasRole('partner') && $this->partner_id !== null;
+        }
+
+        // Admin panel — staff roles only
         return $this->hasAnyRole([
             'super_admin',
             'admin',
@@ -81,8 +89,15 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             'agent',
             'dispatcher',
             'accountant',
-            'partner'
+            'greeter',
         ]);
+    }
+
+    // ─── Relationships ───────────────────────────────────────────────────────────────
+
+    public function partner(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Partner::class);
     }
 
     public function registerMediaCollections(): void

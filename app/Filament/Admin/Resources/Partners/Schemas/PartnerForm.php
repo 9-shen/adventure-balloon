@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Partners\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -139,6 +140,35 @@ class PartnerForm
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
                             ->maxFiles(20)
                             ->columnSpanFull(),
+                    ]),
+
+                // ── Portal Access ──────────────────────────────────────────────────────────
+                Section::make('Portal Access')
+                    ->description('Assign a user account (with "partner" role) so they can log in at /partner.')
+                    ->collapsed()
+                    ->components([
+                        Select::make('portal_user_id')
+                            ->label('Linked Portal User')
+                            ->placeholder('Search by name or email...')
+                            ->searchable()
+                            ->nullable()
+                            ->native(false)
+                            ->hint('Only users with the "partner" role are listed.')
+                            ->getSearchResultsUsing(fn (string $search) =>
+                                User::role('partner')
+                                    ->where(function ($q) use ($search) {
+                                        $q->where('name', 'like', "%{$search}%")
+                                          ->orWhere('email', 'like', "%{$search}%");
+                                    })
+                                    ->limit(20)
+                                    ->get()
+                                    ->mapWithKeys(fn ($u) => [$u->id => "{$u->name} ({$u->email})"])
+                                    ->toArray()
+                            )
+                            ->getOptionLabelUsing(fn ($value) =>
+                                optional(User::find($value))->name
+                                    . ' (' . optional(User::find($value))->email . ')'
+                            ),
                     ]),
 
             ]);
