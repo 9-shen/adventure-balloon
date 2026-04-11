@@ -91,6 +91,14 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return $this->hasRole('driver') && $this->driver_id !== null;
         }
 
+        if ($panel->getId() === 'greeter') {
+            return $this->hasRole('greeter');
+        }
+
+        if ($panel->getId() === 'accountant') {
+            return $this->hasAnyRole(['accountant', 'admin', 'super_admin']);
+        }
+
         // Admin panel — staff roles only
         return $this->hasAnyRole([
             'super_admin',

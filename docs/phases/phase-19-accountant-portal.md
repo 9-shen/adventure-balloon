@@ -14,15 +14,35 @@ Extract the financial operations (billing, invoicing, payments, resolving balanc
 ## Proposed Features
 
 ### 1. Dedicated Panel (`AccountantPanelProvider`)
-- Path: `/finance`
+- Path: `/accountant`
 - Authentication: Scoped to the `accountant` role.
+- Include a dedicated **Profile Page** for accountants to manage their credentials, similar to other portals.
 
-### 2. Financial Dashboard
-- **Cash Flow Widgets:** Daily/weekly revenue, total outstanding balances, unpaid invoices count.
-- **Recent Activities:** Latest payments processed, recent invoices generated.
+### 2. Navigation Structure & Migration
+Move resources from the Admin panel to the Accountant panel with the following grouping:
 
-### 3. Financial Workflows (Migration)
-- Move `AccountantBookingResource` (Process Payments).
-- Move `InvoiceResource` and `PartnerInvoiceResource` (Invoicing).
-- Move `TransportBillResource` and `TransporterBillingResource` (Transport Finance).
-- Move Financial Reports (`RevenueReport`, `DuePaymentsReport`, `PartnerSummaryReport`).
+#### Accountant Module
+- **Finance Bookings:** Migrate `AccountantBookingResource`
+
+#### Invoicing
+- **Partners & Bookings:** Migrate `PartnerInvoiceResource` (or create if billing context)
+- **Invoices:** Migrate `InvoiceResource`
+
+#### Transport Finance
+- **Transporters & Dispatches:** Migrate `TransporterBillingResource`
+- **Transport Bills:** Migrate `TransportBillResource`
+
+#### Financial Reports
+- **Revenue Report:** Migrate `RevenueReport` page
+- **Due Payments:** Migrate `DuePaymentsReport` page
+- **Partner Summary:** Migrate `PartnerSummaryReport` page
+- **PAX Statistics:** Migrate `PaxStatisticsReport` page
+- **Transport Cost Report:** Migrate `TransportCostReport` page
+
+### 3. Financial Dashboard & Widgets
+- Built-in widgets for the Dashboard giving an overview of the financials:
+  - Daily/Weekly revenue
+  - Total outstanding balances
+  - Unpaid invoices count
+  - Recent latest payments processed
+  - Recent invoices generated

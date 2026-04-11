@@ -36,9 +36,21 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::hex('#e71a39'),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
+            ->resources([
+                \App\Filament\Accountant\Resources\AccountantBookingResource::class,
+                \App\Filament\Accountant\Resources\InvoiceResource::class,
+                \App\Filament\Accountant\Resources\PartnerInvoiceResource::class,
+                \App\Filament\Accountant\Resources\TransportBillResource::class,
+                \App\Filament\Accountant\Resources\TransporterBillingResource::class,
+            ])
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
                 Dashboard::class,
+                \App\Filament\Accountant\Pages\Reports\RevenueReport::class,
+                \App\Filament\Accountant\Pages\Reports\DuePaymentsReport::class,
+                \App\Filament\Accountant\Pages\Reports\PartnerSummaryReport::class,
+                \App\Filament\Accountant\Pages\Reports\PaxStatsReport::class,
+                \App\Filament\Accountant\Pages\Reports\TransportCostReport::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([

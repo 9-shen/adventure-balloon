@@ -7,4 +7,5 @@ return [
     App\Providers\Filament\PartnerPanelProvider::class,
     App\Providers\Filament\TransportPanelProvider::class,
     App\Providers\Filament\GreeterPanelProvider::class,
+    App\Providers\Filament\AccountantPanelProvider::class,
 ];
