@@ -34,6 +34,12 @@ class DriverForm
                         ->required()
                         ->maxLength(255),
 
+                    TextInput::make('email')
+                        ->email()
+                        ->required()
+                        ->unique(ignoreRecord: true)
+                        ->maxLength(255),
+
                     TextInput::make('phone')
                         ->label('Phone (WhatsApp)')
                         ->tel()

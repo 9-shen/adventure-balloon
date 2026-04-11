@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
@@ -37,6 +38,11 @@ class Driver extends Model implements HasMedia
     }
 
     // ─── Relationships ────────────────────────────────────────────────────────
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class, 'driver_id');
+    }
 
     public function transportCompany(): BelongsTo
     {
@@ -82,5 +88,16 @@ class Driver extends Model implements HasMedia
     {
         if (!$this->license_expiry) return false;
         return $this->license_expiry->diffInDays(now()) <= 30;
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Driver $driver) {
+            if ($driver->isForceDeleting()) {
+                $driver->user()->forceDelete();
+            } else {
+                $driver->user()->delete();
+            }
+        });
     }
 }

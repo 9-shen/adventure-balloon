@@ -1,6 +1,6 @@
 # Booklix — Development Progress Tracker
 
-> **Last Updated:** 2026-04-10 (Phase 14 — Email Notifications COMPLETE; Phase 15 — Partner Portal COMPLETE; Roles updated to 8 canonical roles)  
+> **Last Updated:** 2026-04-11 (Phase 17 — Driver Portal COMPLETE)  
 > **Stack:** Laravel 12 · Filament 4 · MySQL 8 · Spatie Suite  
 > **App URL (dev):** http://127.0.0.1:8000  
 > **Admin Panel:** http://127.0.0.1:8000/admin
@@ -27,8 +27,8 @@
 | 14  | [Notifications & Automation](#phase-14--notifications--automation)   | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
 | 15  | [Partner Portal](#phase-15--partner-portal)                          | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
 | 16  | [Transport Portal](#phase-16--transport-portal)                      | 🟡 MEDIUM   | 2–3             | 🔲 **NEXT**      |
-| 17  | [Driver Portal](#phase-17--driver-portal)                            | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
-| 18  | [Greeter Portal](#phase-18--greeter-portal)                          | 🟡 MEDIUM   | 2               | 🔲 Pending      |
+| 17  | [Driver Portal](#phase-17--driver-portal)                            | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 18  | [Greeter Portal](#phase-18--greeter-portal)                          | 🟡 MEDIUM   | 2               | 🔲 **NEXT**     |
 | 19  | [Accountant Portal](#phase-19--accountant-portal)                    | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
 | 20  | [Manager Portal](#phase-20--manager-portal)                          | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
 | 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features)   | 🟢 LOW      | 3–5             | 🔲 Pending      |
@@ -610,13 +610,27 @@
 ## Phase 17 — Driver Portal
 
 📁 Details: [`docs/phases/phase-17-driver-portal.md`](phases/phase-17-driver-portal.md)  
-**Status: 🔲 Pending**
+**Status: ✅ COMPLETE** — Completed 2026-04-11
 
-### To Do
-- [ ] Dedicated mobile-first `DriverPanelProvider` at `/driver`
-- [ ] Today's Mission widget
-- [ ] Status Tracking toggle
-- [ ] Dispatch Manifest with WhatsApp shortcuts
+### Completed ✅
+
+#### Driver Access & Authentication
+- [x] Dedicated `DriverPanelProvider` at `/driver` accessible with `driver` role.
+- [x] New User-to-Driver association logic handling driver profiles securely.
+- [x] Initial driver accounts creation workflow with default random passwords and email invitations.
+
+#### Driver Dashboard
+- [x] **`DriverStatsWidget`** — Clear display of Today's Assigned Dispatches, Weekly Dispatches, and overall profile statistics.
+- [x] Clean, mobile-friendly interface configured to provide ease of use on the go.
+
+#### Dispatch Manifest View
+- [x] Restricted `DispatchResource` scoped strictly to only return the authenticated driver's assigned jobs.
+- [x] **Manifest View** — Enhanced visual `Infolist` displaying Dispatch Reference, Flight Date, Pickup Time, Total PAX, Pickup Location, Primary Customer Name, Customer Contact (with copyable field), and Dispatch Notes.
+- [x] **Actionable Status:** Restructured dispatch status dropdown on edit enabling drivers to only update statuses to *Delivered* and *Cancelled (Issue/No-Show)*.
+
+### Filament v4 Gotchas Discovered
+- `Filament\Infolists\Infolist` is largely obsolete in new schema-based Filament. Utilize `Schema` for components inside the `infolist()` method.
+- Avoid passing unknown component parameters (like Enum properties incorrectly namespaced) into ViewAction. Modals are adjusted utilizing standard simple format strings e.g. `->modalWidth('full')` for table actions.
 
 ---
 
