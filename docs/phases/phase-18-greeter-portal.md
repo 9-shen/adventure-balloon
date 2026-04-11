@@ -22,7 +22,10 @@ Migrate the existing Greeter module from the `/admin` panel into a dedicated, is
 - **Live Flight Stats:** Total expected passengers, checked-in count, remaining count.
 - **Quick Switch:** Easy toggling between today's flights and tomorrow's flights.
 
-### 3. Check-in Interface (Migration)
+### 3. Profile Management
+- **Dedicated Profile Page:** Allow greeters to update their personal information (name, phone) and login credentials safely and easily inside their portal.
+
+### 4. Check-in Interface (Migration)
 - Move `GreeterCustomersRelationManager` and related views from the Admin panel to the new Greeter panel.
 - Implement fast, touch-friendly "Show" / "No-Show" toggle buttons.
 - Real-time parent booking synchronization.
