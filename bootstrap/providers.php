@@ -6,4 +6,5 @@ return [
     App\Providers\Filament\DriverPanelProvider::class,
     App\Providers\Filament\PartnerPanelProvider::class,
     App\Providers\Filament\TransportPanelProvider::class,
+    App\Providers\Filament\GreeterPanelProvider::class,
 ];
