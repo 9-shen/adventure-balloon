@@ -99,10 +99,12 @@ class UserForm
                             ->preload()
                             ->nullable()
                             ->placeholder('Select partner...')
-                            ->visible(fn (\Filament\Schemas\Components\Component $component) =>
-                                collect($component->getContainer()->getParentComponent()?->getContainer()->getState()['roles'] ?? [])
-                                    ->contains(fn($role) => is_string($role) ? $role === 'partner' : ($role->name ?? '') === 'partner')
-                            )
+                            ->visible(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                $roles = (array) $get('roles');
+                                if (empty($roles)) return false;
+                                $partnerRoles = \Spatie\Permission\Models\Role::where('name', 'partner')->pluck('id')->toArray();
+                                return count(array_intersect($roles, $partnerRoles)) > 0 || in_array('partner', $roles);
+                            })
                             ->helperText('Link this user to a partner company for partner portal access.'),
 
                         Select::make('transport_company_id')
@@ -112,7 +114,28 @@ class UserForm
                             ->preload()
                             ->nullable()
                             ->placeholder('Select transport company...')
+                            ->visible(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                $roles = (array) $get('roles');
+                                if (empty($roles)) return false;
+                                $transportRoles = \Spatie\Permission\Models\Role::where('name', 'transport')->pluck('id')->toArray();
+                                return count(array_intersect($roles, $transportRoles)) > 0 || in_array('transport', $roles);
+                            })
                             ->helperText('Link this user to a transport company for transport portal access.'),
+                            
+                        Select::make('driver_id')
+                            ->label('Linked Driver')
+                            ->options(\App\Models\Driver::where('is_active', true)->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('Select driver...')
+                            ->visible(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                $roles = (array) $get('roles');
+                                if (empty($roles)) return false;
+                                $driverRoles = \Spatie\Permission\Models\Role::where('name', 'driver')->pluck('id')->toArray();
+                                return count(array_intersect($roles, $driverRoles)) > 0 || in_array('driver', $roles);
+                            })
+                            ->helperText('Link this user to a driver profile for the driver portal.'),
                     ]),
             ]);
     }
