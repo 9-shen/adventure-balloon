@@ -1,5 +1,5 @@
 # Phase 16 — Transport Portal
-**Status: 🔲 NEXT**  
+**Status: ✅ COMPLETE**  
 **Priority:** 🟡 MEDIUM  
 **Depends On:** Phase 6 (Transport), Phase 9 (Dispatch)  
 **Est. Days:** 3–4
@@ -57,11 +57,29 @@ public function users(): HasMany
 
 ### 2. Transport Dashboard
 - **Stats Widgets:**
-  - Total active vehicles
-  - Total active drivers
-  - Today's assigned dispatches
-  - Unassigned drivers count
+  - Total Dispatches
+  - Delivered Dispatches
+  - Expected Payment (Confirmed Dispatches)
+  - Payment Due (Delivered unbilled)
 - **Recent Dispatches:** Upcoming routes assigned to this transporter
+
+---
+
+### 2a. Transporter Profile
+- **Profile Management:** Self-service page for transporter companies to review and update operational and banking details.
+- **Fields:** Company Name, Contact Name, Email, Phone, Bank Name, IBAN.
+
+---
+
+### 2b. My Bills (Read-Only)
+- **Billing Transparency:** Scope restricted access to their specific `TransportBill`s.
+- **Workflow:** Transporters can view overall bill status (Draft, Sent, Paid), balance due, line items (related dispatches), and download official PDF summaries. View uses full-width panels.
+
+---
+
+### 2c. Dispatch Statistics & Export
+- **Exporting records:** Dedicated dashboard page with real-time tracking, combining `TransportStatsWidget` and detailed `DispatchStats` table.
+- **Action:** CSV Export functionality (`Response::streamDownload`) to dump past dispatches into spreadsheets.
 
 ---
 
@@ -236,19 +254,22 @@ app/
 
 ## Implementation Checklist
 
-- [ ] Migration: `add_transport_company_id_to_users_table`
-- [ ] Update `User` model (`transportCompany()` BelongsTo)
-- [ ] Update `TransportCompany` model (`users()` HasMany)
-- [ ] Create `TransportPanelProvider` at `/transport`
-- [ ] `Vehicle Management`: `VehicleResource` scoped to company
-- [ ] `Driver Management`: `DriverResource` scoped to company
-- [ ] `DriversRelationManager` on VehicleResource (AttachAction)
-- [ ] `is_default` toggle on driver-vehicle pivot
-- [ ] `Dispatch Viewer`: read-only dispatches + manifest popup
-- [ ] `TransportStatsWidget` for dashboard
-- [ ] `canAccessPanel()` updated for transport panel
-- [ ] Admin `UserResource`: transport company selector for transport role
-- [ ] Seed test transport user linked to a transport company
+- [x] Migration: `add_transport_company_id_to_users_table`
+- [x] Update `User` model (`transportCompany()` BelongsTo)
+- [x] Update `TransportCompany` model (`users()` HasMany)
+- [x] Create `TransportPanelProvider` at `/transport`
+- [x] `Vehicle Management`: `VehicleResource` scoped to company (Enum constraints fixed)
+- [x] `Driver Management`: `DriverResource` scoped to company
+- [x] `DriversRelationManager` on VehicleResource (AttachAction mapped correctly without withPivotData)
+- [x] `is_default` toggle on driver-vehicle pivot
+- [x] `Dispatch Viewer`: read-only dispatches + manifest popup
+- [x] `TransportStatsWidget` for dashboard with real payment due vs expected metrics
+- [x] `canAccessPanel()` updated for transport panel
+- [x] Admin `UserResource`: transport company selector for transport role
+- [x] Seed test transport user linked to a transport company
+- [x] App-Scoping Profile Page
+- [x] Read-Only Scoped `TransportBillResource` and `Pages\ViewTransportBill` with `->columnSpanFull()`
+- [x] `Dispatch Stats & Export` Page with CSV Generation
 
 ---
 

@@ -38,6 +38,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'is_active',
         'last_login_at',
         'partner_id',
+        'transport_company_id',
     ];
 
     /**
@@ -81,6 +82,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return $this->hasRole('partner') && $this->partner_id !== null;
         }
 
+        if ($panel->getId() === 'transport') {
+            return $this->hasRole('transport') && $this->transport_company_id !== null;
+        }
+
         // Admin panel — staff roles only
         return $this->hasAnyRole([
             'super_admin',
@@ -98,6 +103,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     public function partner(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Partner::class);
+    }
+
+    public function transportCompany(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(TransportCompany::class);
     }
 
     public function registerMediaCollections(): void

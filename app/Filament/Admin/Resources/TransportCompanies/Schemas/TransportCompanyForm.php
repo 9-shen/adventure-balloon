@@ -2,7 +2,9 @@
 
 namespace App\Filament\Admin\Resources\TransportCompanies\Schemas;
 
+use App\Models\User;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -94,6 +96,37 @@ class TransportCompanyForm
                         ->imageCropAspectRatio('1:1')
                         ->maxSize(2048)
                         ->columnSpanFull(),
+                ]),
+
+            // ── Portal Access ──────────────────────────────────────────────────────
+            Section::make('Portal Access')
+                ->description('Assign a user account (with "transport" role) so they can log in at /transport.')
+                ->icon('heroicon-o-key')
+                ->collapsible()
+                ->collapsed()
+                ->schema([
+                    Select::make('portal_user_id')
+                        ->label('Linked Portal User')
+                        ->placeholder('Search by name or email...')
+                        ->searchable()
+                        ->nullable()
+                        ->native(false)
+                        ->hint('Only users with the "transport" role are listed.')
+                        ->getSearchResultsUsing(fn (string $search) =>
+                            User::role('transport')
+                                ->where(function ($q) use ($search) {
+                                    $q->where('name', 'like', "%{$search}%")
+                                      ->orWhere('email', 'like', "%{$search}%");
+                                })
+                                ->limit(20)
+                                ->get()
+                                ->mapWithKeys(fn ($u) => [$u->id => "{$u->name} ({$u->email})"])
+                                ->toArray()
+                        )
+                        ->getOptionLabelUsing(fn ($value) =>
+                            optional(User::find($value))->name
+                                . ' (' . optional(User::find($value))->email . ')'
+                        ),
                 ]),
         ]);
     }

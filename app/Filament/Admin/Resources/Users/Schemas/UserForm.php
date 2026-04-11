@@ -2,6 +2,8 @@
 
 namespace App\Filament\Admin\Resources\Users\Schemas;
 
+use App\Models\Partner;
+use App\Models\TransportCompany;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Schemas\Components\Grid;
@@ -86,8 +88,31 @@ class UserForm
                                     ->relationship('roles', 'name', fn ($query) => auth()->user()?->hasRole('super_admin') ? $query : $query->where('name', '!=', 'super_admin'))
                                     ->multiple()
                                     ->preload()
+                                    ->live()
                                     ->columnSpan(2),
                             ]),
+
+                        Select::make('partner_id')
+                            ->label('Partner Company')
+                            ->options(Partner::where('status', 'approved')->pluck('company_name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('Select partner...')
+                            ->visible(fn (\Filament\Schemas\Components\Component $component) =>
+                                collect($component->getContainer()->getParentComponent()?->getContainer()->getState()['roles'] ?? [])
+                                    ->contains(fn($role) => is_string($role) ? $role === 'partner' : ($role->name ?? '') === 'partner')
+                            )
+                            ->helperText('Link this user to a partner company for partner portal access.'),
+
+                        Select::make('transport_company_id')
+                            ->label('Transport Company')
+                            ->options(TransportCompany::where('is_active', true)->pluck('company_name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->placeholder('Select transport company...')
+                            ->helperText('Link this user to a transport company for transport portal access.'),
                     ]),
             ]);
     }

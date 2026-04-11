@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Admin\Resources\TransportFinance\TransportBillResource\Pages;
+namespace App\Filament\Transport\Resources\TransportBillResource\Pages;
 
-use App\Filament\Admin\Resources\TransportFinance\TransportBillResource;
+use App\Filament\Transport\Resources\TransportBillResource;
 use App\Models\TransportBill;
 use App\Services\TransportBillService;
 use Filament\Resources\Pages\ViewRecord;
@@ -11,8 +11,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Actions\Action;
-use Filament\Forms\Components\TextInput;
-use Filament\Notifications\Notification;
 
 class ViewTransportBill extends ViewRecord
 {
@@ -20,7 +18,7 @@ class ViewTransportBill extends ViewRecord
 
     public function getTitle(): string
     {
-        return 'Transport Bill ' . $this->record->bill_ref;
+        return 'View Bill ' . $this->record->bill_ref;
     }
 
     protected function getHeaderActions(): array
@@ -29,7 +27,7 @@ class ViewTransportBill extends ViewRecord
             Action::make('download_pdf')
                 ->label('Download PDF')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->color('info')
+                ->color('primary')
                 ->action(function (): \Symfony\Component\HttpFoundation\StreamedResponse {
                     $pdf = app(TransportBillService::class)->generatePdf($this->record);
                     return response()->streamDownload(
@@ -38,35 +36,6 @@ class ViewTransportBill extends ViewRecord
                         ['Content-Type' => 'application/pdf']
                     );
                 }),
-
-            Action::make('mark_sent')
-                ->label('Mark Sent')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('warning')
-                ->visible(fn () => $this->record->isDraft())
-                ->requiresConfirmation()
-                ->action(function () {
-                    app(TransportBillService::class)->markSent($this->record);
-                    $this->refreshFormData(['status', 'sent_at']);
-                    Notification::make()->title('Bill marked as sent')->success()->send();
-                }),
-
-            Action::make('mark_paid')
-                ->label('Mark Paid')
-                ->icon('heroicon-o-banknotes')
-                ->color('success')
-                ->visible(fn () => !$this->record->isPaid())
-                ->form([
-                    TextInput::make('payment_reference')
-                        ->label('Payment Reference')
-                        ->placeholder('Bank transfer ref, cheque #, etc.'),
-                ])
-                ->action(function (array $data) {
-                    app(TransportBillService::class)->markPaid($this->record, $data['payment_reference'] ?? null);
-                    $this->refreshFormData(['status', 'paid_at', 'payment_reference', 'amount_paid', 'balance_due']);
-                    Notification::make()->title('✅ Bill marked as paid')->success()->send();
-                })
-                ->slideOver(),
         ];
     }
 
@@ -89,7 +58,7 @@ class ViewTransportBill extends ViewRecord
                         ->badge()
                         ->color(fn (string $state): string => match ($state) {
                             'draft'   => 'gray',
-                            'sent'    => 'info',
+                            'sent'    => 'warning',
                             'paid'    => 'success',
                             'overdue' => 'danger',
                             default   => 'gray',
@@ -97,7 +66,7 @@ class ViewTransportBill extends ViewRecord
                         ->formatStateUsing(fn (string $state): string => ucfirst($state)),
 
                     TextEntry::make('created_at')
-                        ->label('Bill Date')
+                        ->label('Issued On')
                         ->date('d/m/Y'),
 
                     TextEntry::make('period_range')
@@ -105,37 +74,6 @@ class ViewTransportBill extends ViewRecord
                         ->getStateUsing(fn ($record) =>
                             ($record->period_from?->format('d/m/Y') ?? '—') . ' → ' . ($record->period_to?->format('d/m/Y') ?? '—')
                         ),
-                ]),
-
-            // ─── Transport Company ────────────────────────────────────────
-            Section::make('Transport Company')
-                ->columns(3)
-                ->components([
-                    TextEntry::make('transportCompany.company_name')
-                        ->label('Company')
-                        ->weight('bold'),
-
-                    TextEntry::make('transportCompany.contact_name')
-                        ->label('Contact')
-                        ->placeholder('—'),
-
-                    TextEntry::make('transportCompany.email')
-                        ->label('Email')
-                        ->copyable()
-                        ->placeholder('—'),
-
-                    TextEntry::make('transportCompany.phone')
-                        ->label('Phone')
-                        ->copyable()
-                        ->placeholder('—'),
-
-                    TextEntry::make('transportCompany.bank_name')
-                        ->label('Bank')
-                        ->placeholder('—'),
-
-                    TextEntry::make('transportCompany.bank_iban')
-                        ->label('IBAN')
-                        ->placeholder('—'),
                 ]),
 
             // ─── Financial Summary ────────────────────────────────────────
@@ -155,10 +93,10 @@ class ViewTransportBill extends ViewRecord
                         ),
 
                     TextEntry::make('total_amount')
-                        ->label('Total To Pay')
+                        ->label('Total (Inc. Tax)')
                         ->money('MAD')
                         ->weight('bold')
-                        ->color('danger'),
+                        ->color('primary'),
 
                     TextEntry::make('balance_due')
                         ->label('Balance Due')
@@ -176,16 +114,7 @@ class ViewTransportBill extends ViewRecord
                         ->label('Payment Reference')
                         ->placeholder('—')
                         ->copyable(),
-
-                    TextEntry::make('sent_at')
-                        ->label('Sent At')
-                        ->dateTime('d/m/Y H:i')
-                        ->placeholder('Not sent yet'),
-
-                    TextEntry::make('createdBy.name')
-                        ->label('Created By')
-                        ->placeholder('—'),
-
+                        
                     TextEntry::make('notes')
                         ->label('Notes')
                         ->placeholder('—')
@@ -193,7 +122,7 @@ class ViewTransportBill extends ViewRecord
                 ]),
 
             // ─── Line Items ───────────────────────────────────────────────
-            Section::make('Dispatch Line Items')
+            Section::make('Dispatches Involved')
                 ->columnSpanFull()
                 ->components([
                     RepeatableEntry::make('items')
@@ -204,7 +133,7 @@ class ViewTransportBill extends ViewRecord
                             TextEntry::make('dispatch.dispatch_ref')
                                 ->label('Dispatch Ref')
                                 ->badge()
-                                ->color('primary'),
+                                ->color('gray'),
 
                             TextEntry::make('dispatch.flight_date')
                                 ->label('Flight Date')
@@ -219,7 +148,7 @@ class ViewTransportBill extends ViewRecord
                                 ->color('info'),
 
                             TextEntry::make('vehicle_cost')
-                                ->label('Vehicle Cost')
+                                ->label('Base Cost')
                                 ->money('MAD'),
 
                             TextEntry::make('line_total')

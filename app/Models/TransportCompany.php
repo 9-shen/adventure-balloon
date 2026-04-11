@@ -54,6 +54,11 @@ class TransportCompany extends Model implements \Spatie\MediaLibrary\HasMedia
         return $this->hasMany(TransportBill::class);
     }
 
+    public function users(): HasMany
+    {
+        return $this->hasMany(\App\Models\User::class, 'transport_company_id');
+    }
+
     // ─── Media ───────────────────────────────────────────────────────────────
 
     public function registerMediaCollections(): void
