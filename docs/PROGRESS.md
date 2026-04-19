@@ -9,30 +9,30 @@
 
 ## 🗺️ Phase Overview
 
-| #   | Phase                                                                | Priority    | Est. Days       | Status          |
-| --- | -------------------------------------------------------------------- | ----------- | --------------- | --------------- |
-| 1   | [Foundation](#phase-1--foundation)                                   | —           | 2–3             | ✅ **COMPLETE** |
-| 2   | [Settings & Config](#phase-2--settings--config)                      | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
-| 3   | [User Management](#phase-3--user-management)                         | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
-| 4   | [Product Management](#phase-4--product-management)                   | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
-| 5   | [Partner Management](#phase-5--partner-management)                   | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
-| 6   | [Transport Management](#phase-6--transport-management)               | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
-| 7   | [Regular Booking System](#phase-7--regular-booking-system)           | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
-| 8   | [Partner Booking System](#phase-8--partner-booking-system)           | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
-| 9   | [Dispatch System](#phase-9--dispatch-system)                         | 🟠 MED-HIGH | 5–7             | ✅ **COMPLETE** |
-| 10  | [Greeter Module](#phase-10--greeter-module)                          | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
-| 11  | [Accountant Module](#phase-11--accountant-module)                    | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
-| 12  | [Invoicing System](#phase-12--invoicing-system)                      | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
-| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)         | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
-| 14  | [Notifications & Automation](#phase-14--notifications--automation)   | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
-| 15  | [Partner Portal](#phase-15--partner-portal)                          | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
-| 16  | [Transport Portal](#phase-16--transport-portal)                      | 🟡 MEDIUM   | 2–3             | 🔲 **NEXT**      |
-| 17  | [Driver Portal](#phase-17--driver-portal)                            | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
-| 18  | [Greeter Portal](#phase-18--greeter-portal)                          | 🟡 MEDIUM   | 2               | 🔲 **NEXT**     |
-| 19  | [Accountant Portal](#phase-19--accountant-portal)                    | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
-| 20  | [Manager Portal](#phase-20--manager-portal)                          | 🟡 MEDIUM   | 2–3             | 🔲 Pending      |
-| 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features)   | 🟢 LOW      | 3–5             | 🔲 Pending      |
-|     | **TOTAL**                                                            |             | **~66–87 days** |                 |
+| #   | Phase                                                              | Priority    | Est. Days       | Status          |
+| --- | ------------------------------------------------------------------ | ----------- | --------------- | --------------- |
+| 1   | [Foundation](#phase-1--foundation)                                 | —           | 2–3             | ✅ **COMPLETE** |
+| 2   | [Settings & Config](#phase-2--settings--config)                    | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 3   | [User Management](#phase-3--user-management)                       | 🔴 HIGH     | 2–3             | ✅ **COMPLETE** |
+| 4   | [Product Management](#phase-4--product-management)                 | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
+| 5   | [Partner Management](#phase-5--partner-management)                 | 🟠 MED-HIGH | 3–4             | ✅ **COMPLETE** |
+| 6   | [Transport Management](#phase-6--transport-management)             | 🟠 MED-HIGH | 4–5             | ✅ **COMPLETE** |
+| 7   | [Regular Booking System](#phase-7--regular-booking-system)         | 🔴 HIGH     | 7–10            | ✅ **COMPLETE** |
+| 8   | [Partner Booking System](#phase-8--partner-booking-system)         | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
+| 9   | [Dispatch System](#phase-9--dispatch-system)                       | 🟠 MED-HIGH | 5–7             | ✅ **COMPLETE** |
+| 10  | [Greeter Module](#phase-10--greeter-module)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 11  | [Accountant Module](#phase-11--accountant-module)                  | 🔴 HIGH     | 3–4             | ✅ **COMPLETE** |
+| 12  | [Invoicing System](#phase-12--invoicing-system)                    | 🔴 HIGH     | 4–5             | ✅ **COMPLETE** |
+| 13  | [Financial Reports](#phase-13--financial-reports--dashboard)       | 🟡 MEDIUM   | 4–5             | ✅ **COMPLETE** |
+| 14  | [Notifications & Automation](#phase-14--notifications--automation) | 🟡 MEDIUM   | 3–4             | ✅ **COMPLETE** |
+| 15  | [Partner Portal](#phase-15--partner-portal)                        | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
+| 16  | [Transport Portal](#phase-16--transport-portal)                    | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 17  | [Driver Portal](#phase-17--driver-portal)                          | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 18  | [Greeter Portal](#phase-18--greeter-portal)                        | 🟡 MEDIUM   | 2               | ✅ **COMPLETE** |
+| 19  | [Accountant Portal](#phase-19--accountant-portal)                  | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 20  | [Manager Portal](#phase-20--manager-portal)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
+| 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
+|     | **TOTAL**                                                          |             | **~66–87 days** |                 |
 
 ---
 
@@ -375,19 +375,19 @@
 - [x] `accountant` role added to `RolesAndPermissionsSeeder`
 - [x] `User::canAccessPanel()` updated — allows `accountant`, `manager`, `agent`, `dispatcher`, `partner` roles
 - [x] `AccountantBookingResource` — Finance Bookings list with:
-  - [x] Partner/Type column: shows partner company name OR `🔵 Regular`
-  - [x] PAX summary with attendance label per row
-  - [x] Financial columns: Final Amount, Amount Paid, Balance Due (color-coded), Payment Status, Method
-  - [x] Filters: Payment Status, Payment Method, Outstanding Balance toggle
-  - [x] **Process Payment** slide-over action per row — updates `amount_paid`, `payment_method`, `payment_status`, auto-calculates `balance_due`
+    - [x] Partner/Type column: shows partner company name OR `🔵 Regular`
+    - [x] PAX summary with attendance label per row
+    - [x] Financial columns: Final Amount, Amount Paid, Balance Due (color-coded), Payment Status, Method
+    - [x] Filters: Payment Status, Payment Method, Outstanding Balance toggle
+    - [x] **Process Payment** slide-over action per row — updates `amount_paid`, `payment_method`, `payment_status`, auto-calculates `balance_due`
 - [x] `ViewAccountantBooking` — full detail view page with:
-  - [x] Booking Details section (ref, type badge, status, PAX attendance)
-  - [x] Flight & Partner Information section
-  - [x] Passenger Summary section (adults, children, total, source badges)
-  - [x] Financial Summary section (amount due, paid, balance, status — all color-coded)
-  - [x] Pricing Breakdown section (collapsed by default)
-  - [x] **Passenger List & Attendance** table (name, type, phone, nationality, attendance badge)
-  - [x] Process Payment header action button
+    - [x] Booking Details section (ref, type badge, status, PAX attendance)
+    - [x] Flight & Partner Information section
+    - [x] Passenger Summary section (adults, children, total, source badges)
+    - [x] Financial Summary section (amount due, paid, balance, status — all color-coded)
+    - [x] Pricing Breakdown section (collapsed by default)
+    - [x] **Passenger List & Attendance** table (name, type, phone, nationality, attendance badge)
+    - [x] Process Payment header action button
 - [x] `AccountantTotalRevenueWidget` — Stats: Total Collected Revenue, Total Outstanding, Pending Invoices count
 - [x] `AccountantRecentPaymentsWidget` — Table: last 5 bookings with payments activity
 
@@ -403,60 +403,66 @@
 ### Completed ✅
 
 #### Database
+
 - [x] `invoices` table — invoice_ref (INV-YYYY-XXXX), partner_id FK, period_from/to, subtotal, tax_rate, tax_amount, total_amount, status ENUM(draft|sent|paid|overdue), sent_at, paid_at, payment_reference, notes, created_by, soft_deletes
 - [x] `invoice_items` table — invoice_id FK, booking_id FK, description, flight_date, adult_pax, child_pax, unit_price, line_total
 - [x] `add_invoiced_at_to_bookings_table` — adds `invoice_id` FK + `invoiced_at` timestamp to `bookings`
 
 #### Models
+
 - [x] `Invoice` model — `generateRef()`, `isDraft()`, `isSent()`, `isPaid()`, `SoftDeletes`, `hasMany(InvoiceItem)`, `belongsTo(Partner)`, `belongsTo(User, 'created_by')`
 - [x] `InvoiceItem` model — `belongsTo(Invoice)`, `belongsTo(Booking)`
 - [x] `Partner` model updated — added `invoices()` HasMany, confirmed `bookings()` HasMany
 - [x] `Booking` model updated — added `invoice_id`, `invoiced_at` to fillable + `isInvoiced()` helper
 
 #### Service
+
 - [x] `InvoiceService::generate(Partner, bookingIds[], meta)` — creates Invoice + InvoiceItems, stamps `invoiced_at` on each booking to prevent double-invoicing
 - [x] `InvoiceService::generatePdf(Invoice)` — DomPDF render of professional invoice blade template
 - [x] `InvoiceService::markPaid(Invoice, $reference)` — sets status=paid, paid_at=now(), payment_reference
 - [x] `InvoiceService::markSent(Invoice)` — sets status=sent, sent_at=now()
 
 #### PDF Template
+
 - [x] `resources/views/pdf/invoice.blade.php` — A4 professional layout:
-  - Header: company name/contact | invoice ref + date | period | status
-  - Bill To: partner company name, address, tax number, email
-  - Line items table: Date | Ref | Description | Adults | Children | Unit Price | Amount
-  - Totals: Subtotal | Tax (if > 0%) | TOTAL DUE (dark accent band)
-  - Notes section + payment terms footer
+    - Header: company name/contact | invoice ref + date | period | status
+    - Bill To: partner company name, address, tax number, email
+    - Line items table: Date | Ref | Description | Adults | Children | Unit Price | Amount
+    - Totals: Subtotal | Tax (if > 0%) | TOTAL DUE (dark accent band)
+    - Notes section + payment terms footer
 
 #### Filament Resources (nav group: Invoicing)
+
 - [x] **`PartnerInvoiceResource`** — Partner list (sort 1)
-  - Columns: company_name, total_bookings (badge), total_billed, total_paid, total_outstanding (red/green), invoices_count, status badge
-  - Filter: partner status
-  - Action: "View Bookings" → URL navigate to manage page
+    - Columns: company_name, total_bookings (badge), total_billed, total_paid, total_outstanding (red/green), invoices_count, status badge
+    - Filter: partner status
+    - Action: "View Bookings" → URL navigate to manage page
 - [x] **`ViewPartnerBookings`** (extends `ManageRelatedRecords`, relationship: 'bookings')
-  - Table: booking_ref, flight_date, product, PAX, total, paid, balance, payment badge, status badge, invoiced badge
-  - **Advanced Date Range filter** on `flight_date` with from/until indicators
-  - Filters: payment_status, booking_status, "Not Yet Invoiced" toggle
-  - Bulk actions: "Add to Invoice" (skips already-invoiced) / "Remove from Basket"
-  - Header: "Create Invoice (N bookings)" slideOver → tax_rate + notes → generates + redirects
-  - `public array $selectedForInvoice = []` Livewire property tracks basket state
+    - Table: booking_ref, flight_date, product, PAX, total, paid, balance, payment badge, status badge, invoiced badge
+    - **Advanced Date Range filter** on `flight_date` with from/until indicators
+    - Filters: payment_status, booking_status, "Not Yet Invoiced" toggle
+    - Bulk actions: "Add to Invoice" (skips already-invoiced) / "Remove from Basket"
+    - Header: "Create Invoice (N bookings)" slideOver → tax_rate + notes → generates + redirects
+    - `public array $selectedForInvoice = []` Livewire property tracks basket state
 - [x] **`InvoiceResource`** — all invoices list (sort 2)
-  - Columns: invoice_ref, partner, period, items_count, subtotal, total_amount, status badge, created_at, paid_at
-  - Filters: status, partner (searchable preload), date range
-  - Row actions: View, Download PDF (stream), Mark Sent (confirm), Mark Paid (slideOver with payment_reference)
+    - Columns: invoice_ref, partner, period, items_count, subtotal, total_amount, status badge, created_at, paid_at
+    - Filters: status, partner (searchable preload), date range
+    - Row actions: View, Download PDF (stream), Mark Sent (confirm), Mark Paid (slideOver with payment_reference)
 - [x] **`ViewInvoice`** — full invoice detail page
-  - Infolist sections: Invoice Details, Partner/Bill To, Financial Summary, Booking Lines (RepeatableEntry with 7 columns)
-  - Header actions: Download PDF, Mark Sent, Mark Paid
+    - Infolist sections: Invoice Details, Partner/Bill To, Financial Summary, Booking Lines (RepeatableEntry with 7 columns)
+    - Header actions: Download PDF, Mark Sent, Mark Paid
 
 #### Bug Fix
+
 - [x] Fixed custom blade view `view-partner-bookings.blade.php` — removed broken `$this->selectedBookingIds` references (old HasTable approach) that caused line 24 IDE CSS parse error and runtime failures. `ManageRelatedRecords` renders the table natively — blade file only needs `<x-filament-panels::page>` wrapper
 
 ### Filament v4 Gotchas Discovered in This Phase
+
 - `Filament\Actions\BulkAction` ✅ (`Filament\Tables\Actions\BulkAction` does NOT exist in v4)
 - `Filament\Actions\Action` ✅ for table row URL actions
 - `ManageRelatedRecords` ✅ for parent→related table drill-down (auto-routes, auto-breadcrumbs, native table)
 - `protected static string $view` ❌ on page classes → PHP fatal error. Use `getView()` method or remove entirely
 - For `ManageRelatedRecords` pages: custom blade is NOT needed. If it exists (resolved by name convention), keep it minimal — never reference `$this->selectedXxx` properties from the old `HasTable` approach.
-
 
 ## Phase 13 — Financial Reports & Dashboard
 
@@ -466,12 +472,14 @@
 ### Completed ✅
 
 #### Excel Exports (`app/Exports/`)
+
 - [x] `RevenueReportExport` — all bookings with revenue columns, filterable by date/type/product/status
 - [x] `DuePaymentsExport` — bookings where balance_due > 0, ordered by highest balance
 - [x] `PartnerSummaryExport` — per-partner aggregate: bookings, revenue, paid, outstanding, invoices count
 - [x] `PaxStatsExport` — grouped by flight_date: total flights, PAX, showed, no-showed, no-show rate %
 
 #### Report Pages (`app/Filament/Admin/Pages/Reports/`, nav group: Financial Reports)
+
 - [x] **`RevenueReport`** — Stats bar + filterable table + CSV export
 - [x] **`DuePaymentsReport`** — Stats bar showing total outstanding + due count + highest balance; balance highlighted red
 - [x] **`PartnerSummaryReport`** — Per-partner aggregates via `withCount`/`withSum`; date range filter via `whereHas`
@@ -479,20 +487,24 @@
 - [x] **`TransportCostReport`** — Tracks dispatch costs based on assigned vehicles with billed status indicator & CSV export
 
 #### Transport Finance Module (nav group: Transport Finance)
+
 - [x] `transport_bills` & `transport_bill_items` tables + relationships with TransportCompany and Dispatch
 - [x] `TransportBillResource` and `TransporterBillingResource` following the Phase 12 invoicing bucket pattern
 - [x] PDF generating and tracking status (Draft -> Sent -> Paid) for transport company billing
 - [x] Fixed recalculateCost bug on DispatchEdit page and backfilled `transport_cost` on existing DB rows
 
 #### Dashboard Widgets (Admin Dashboard)
+
 - [x] **`RevenueChartWidget`** (sort 5, span 2) — Line chart: monthly revenue current year, brand red, fill area
 - [x] **`PaymentStatusChartWidget`** (sort 6, span 1) — Doughnut: Paid/Partial/Due/On-Site distribution, 70% cutout
 - [x] **`TopProductsWidget`** (sort 7) — Stats: top 3 products by revenue this month, trophy/star/sparkle icons
 
 #### Navigation
+
 - [x] Added `Financial Reports` and `Transport Finance` groups to `AdminPanelProvider`
 
 ### Filament v4 Gotchas Discovered in This Phase
+
 - Table Custom Pages: Must return minimal view `<x-filament-panels::page> {{ $this->table }} </x-filament-panels::page>` to ensure header widgets and table render together
 - Stat Cards on Pages: Use native `getHeaderWidgets()` rather than manually writing Tailwind HTML blocks
 - Widget Interactivity: Use `InteractsWithPageTable` trait to sync `StatsOverviewWidget` with table filters
@@ -519,17 +531,17 @@
 ### Implemented in Phase 14 ✅
 
 - [x] **`PartnerBookingNotification`** — alerts admin (`AppSettings::company_email`) when a partner booking is created
-  - ⚠️ Property is `company_email`, NOT `email` — caused 500 errors until fixed
-  - Fired in `CreateBooking::afterCreate()` (admin) AND `CreatePartnerBooking::afterCreate()` (partner portal)
-  - Uses `AnonymousNotifiable` routed to admin email; guarded with try/catch + logging
-  - Subject: `"New Partner Booking: PBX-REF — PartnerName"`
+    - ⚠️ Property is `company_email`, NOT `email` — caused 500 errors until fixed
+    - Fired in `CreateBooking::afterCreate()` (admin) AND `CreatePartnerBooking::afterCreate()` (partner portal)
+    - Uses `AnonymousNotifiable` routed to admin email; guarded with try/catch + logging
+    - Subject: `"New Partner Booking: PBX-REF — PartnerName"`
 
 - [x] **`InvoiceIssuedNotification`** — emails PDF invoice to partner when invoice generated or marked sent
-  - Fired inside `InvoiceService::generate()` after invoice persisted
-  - Re-fired inside `InvoiceService::markSent()` with `isResend: true` (subject: "Payment Requested")
-  - Attaches live-generated DomPDF via `attachData()` — no temp file needed
-  - Guarded: skips silently if `partner->email` is null, logs a warning
-  - Both implement `ShouldQueue` + `queue = 'notifications'` for async delivery
+    - Fired inside `InvoiceService::generate()` after invoice persisted
+    - Re-fired inside `InvoiceService::markSent()` with `isResend: true` (subject: "Payment Requested")
+    - Attaches live-generated DomPDF via `attachData()` — no temp file needed
+    - Guarded: skips silently if `partner->email` is null, logs a warning
+    - Both implement `ShouldQueue` + `queue = 'notifications'` for async delivery
 
 ### Bug Fix 🐛→✅
 
@@ -552,42 +564,50 @@
 ### Completed ✅
 
 #### Database
+
 - [x] `add_partner_id_to_users_table` migration — `partner_id` nullable FK on `users`
 - [x] `User::partner()` BelongsTo, `Partner::users()` HasMany (via `partner_id` FK — replaces old pivot concept)
 
 #### Admin Panel Enhancements
+
 - [x] **PartnerForm Portal Access section** — "Assign Portal User" select in admin partner edit/create
 - [x] `CreatePartner::afterCreate()` + `EditPartner::afterSave()` — sync `partner_id` FK on selected user
 
 #### Partner Panel (`/partner`)
+
 - [x] `PartnerPanelProvider` — teal (`#0e7490`) branding, ID: `partner`, path: `/partner`
 - [x] Auto-discovers from `App\Filament\Partner\**`
 - [x] **`User::canAccessPanel()`** updated: partner role → `/partner` ONLY; admin staff → `/admin` ONLY
 
 #### Pages
+
 - [x] **Dashboard** — `PartnerStatsWidget` (4 stats: bookings, confirmed, PAX, revenue)
 - [x] **Profile** (`/partner/profile`) — editable company + banking info; non-static `$view` property
 - [x] **Account Statement** (`/partner/account-statement`)
-  - `InteractsWithTable` + `AccountStatsWidget` header (total bookings, billed, paid, outstanding)
-  - Tab switcher: Bookings / Invoices via `switchTab() → resetTable()`
-  - CSV exports for both tabs (stream download)
+    - `InteractsWithTable` + `AccountStatsWidget` header (total bookings, billed, paid, outstanding)
+    - Tab switcher: Bookings / Invoices via `switchTab() → resetTable()`
+    - CSV exports for both tabs (stream download)
 
 #### Resources
+
 - [x] **`PartnerBookingResource`** — scoped to `partner_id`, 3-step wizard:
-  - Step 1: products filtered to partner's assigned products via `partner_products` pivot
-  - Step 2: passengers repeater
-  - Step 3: review with partner pricing, fires `PartnerBookingNotification` on create
+    - Step 1: products filtered to partner's assigned products via `partner_products` pivot
+    - Step 2: passengers repeater
+    - Step 3: review with partner pricing, fires `PartnerBookingNotification` on create
 - [x] **`PartnerInvoiceResource`** — read-only invoice list scoped to `partner_id`
 
 #### Roles Refinement
+
 - [x] Canonical 8 roles: `super_admin`, `admin`, `manager`, `accountant`, `greeter`, `transport`, `driver`, `partner`
 - [x] Removed from DB: `agent`, `dispatcher`, `pilot`, `customer`
 - [x] `RolesAndPermissionsSeeder` deletes obsolete roles on each run
 
 #### Bug Fixes
+
 - [x] **`AppSettings::company_email`** — `->email` property does not exist; all references fixed
 
 ### Filament v4 Gotchas Discovered
+
 - `protected string $view` (non-static) ✅ — `protected static string $view` ❌ (PHP fatal)
 - `getNavigationIcon()` must be a method, not a static property in resources
 - Tab switching with `resetTable()` required when swapping model queries in one page
@@ -600,6 +620,7 @@
 **Status: 🔲 NEXT**
 
 ### To Do
+
 - [ ] Dedicated `TransportPanelProvider` at `/transport`
 - [ ] Transport Dashboard (active drivers, vehicles, dispatches)
 - [ ] My Vehicles & My Drivers fleet management
@@ -615,20 +636,24 @@
 ### Completed ✅
 
 #### Driver Access & Authentication
+
 - [x] Dedicated `DriverPanelProvider` at `/driver` accessible with `driver` role.
 - [x] New User-to-Driver association logic handling driver profiles securely.
 - [x] Initial driver accounts creation workflow with default random passwords and email invitations.
 
 #### Driver Dashboard
+
 - [x] **`DriverStatsWidget`** — Clear display of Today's Assigned Dispatches, Weekly Dispatches, and overall profile statistics.
 - [x] Clean, mobile-friendly interface configured to provide ease of use on the go.
 
 #### Dispatch Manifest View
+
 - [x] Restricted `DispatchResource` scoped strictly to only return the authenticated driver's assigned jobs.
 - [x] **Manifest View** — Enhanced visual `Infolist` displaying Dispatch Reference, Flight Date, Pickup Time, Total PAX, Pickup Location, Primary Customer Name, Customer Contact (with copyable field), and Dispatch Notes.
-- [x] **Actionable Status:** Restructured dispatch status dropdown on edit enabling drivers to only update statuses to *Delivered* and *Cancelled (Issue/No-Show)*.
+- [x] **Actionable Status:** Restructured dispatch status dropdown on edit enabling drivers to only update statuses to _Delivered_ and _Cancelled (Issue/No-Show)_.
 
 ### Filament v4 Gotchas Discovered
+
 - `Filament\Infolists\Infolist` is largely obsolete in new schema-based Filament. Utilize `Schema` for components inside the `infolist()` method.
 - Avoid passing unknown component parameters (like Enum properties incorrectly namespaced) into ViewAction. Modals are adjusted utilizing standard simple format strings e.g. `->modalWidth('full')` for table actions.
 
@@ -640,6 +665,7 @@
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Dedicated mobile-first `GreeterPanelProvider` at `/greeter`
 - [ ] Live Flight Stats dashboard
 - [ ] Migrate Greeter Attendance checklist into dedicated panel
@@ -652,6 +678,7 @@
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Dedicated `AccountantPanelProvider` at `/finance`
 - [ ] Cash flow and accounting widgets
 - [ ] Migrate invoicing, reports, transport billing to new portal
@@ -664,6 +691,7 @@
 **Status: 🔲 Pending**
 
 ### To Do
+
 - [ ] Dedicated `ManagerPanelProvider` at `/manager`
 - [ ] Operational Health dashboard
 - [ ] High-level operations access (Bookings, Dispatches) without configuration clutter
