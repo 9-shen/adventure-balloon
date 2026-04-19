@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class PaxRemainingTodayWidget extends BaseWidget
 {
-    protected ?int $sort = 1;
+    protected static ?int $sort = 1;
 
     protected ?string $pollingInterval = '60s';
 
