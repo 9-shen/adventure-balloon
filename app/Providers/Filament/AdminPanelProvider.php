@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Admin\Widgets\BookingTypeChartWidget;
 use App\Filament\Admin\Widgets\GreeterTodayStatsWidget;
 use App\Filament\Admin\Widgets\PaxAlertWidget;
 use App\Filament\Admin\Widgets\PaxRemainingTodayWidget;
@@ -60,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 GreeterTodayStatsWidget::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,
+                BookingTypeChartWidget::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make('Bookings'),

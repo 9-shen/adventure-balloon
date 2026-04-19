@@ -6,42 +6,47 @@ use App\Models\Booking;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
 
-class PaymentStatusChartWidget extends ChartWidget
+class BookingTypeChartWidget extends ChartWidget
 {
     protected array|string|int $columnSpan = 1;
-    protected ?string $heading = 'Payment Status Distribution';
+    protected ?string $heading = 'Booking Type Split';
     protected static ?string $maxHeight = '220px';
-    protected static ?int $sort = 6;
+    protected static ?int $sort = 7;
 
     public static function canView(): bool
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        return $user?->hasAnyRole(['super_admin', 'admin', 'accountant']) ?? false;
+        return $user?->hasAnyRole(['super_admin', 'admin', 'manager', 'accountant']) ?? false;
     }
 
     protected function getData(): array
     {
-        $statuses = ['paid', 'partial', 'due', 'on_site'];
-        $colors   = [
-            'paid'    => '#22c55e',
-            'partial' => '#f59e0b',
-            'due'     => '#ef4444',
-            'on_site' => '#3b82f6',
-        ];
-        $labels = [];
+        $base = Booking::whereIn('booking_status', ['confirmed', 'pending', 'completed']);
+
+        $regular = (clone $base)->where('type', 'regular')->count();
+        $partner = (clone $base)->where('type', 'partner')->count();
+
+        // Fallback: if 'type' column doesn't filter clearly, use partner_id
+        if ($regular === 0 && $partner === 0) {
+            $partner = (clone $base)->whereNotNull('partner_id')->count();
+            $regular = (clone $base)->whereNull('partner_id')->count();
+        }
+
         $data   = [];
+        $labels = [];
         $bgs    = [];
 
-        foreach ($statuses as $status) {
-            $count = Booking::where('payment_status', $status)
-                ->whereIn('booking_status', ['confirmed', 'pending', 'completed'])
-                ->count();
-            if ($count > 0) {
-                $labels[] = ucfirst(str_replace('_', '-', $status));
-                $data[]   = $count;
-                $bgs[]    = $colors[$status];
-            }
+        if ($regular > 0) {
+            $data[]   = $regular;
+            $labels[] = 'Regular';
+            $bgs[]    = '#6366f1'; // indigo
+        }
+
+        if ($partner > 0) {
+            $data[]   = $partner;
+            $labels[] = 'Partner';
+            $bgs[]    = '#f59e0b'; // amber
         }
 
         return [
