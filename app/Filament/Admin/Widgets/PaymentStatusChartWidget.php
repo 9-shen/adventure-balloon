@@ -10,7 +10,7 @@ class PaymentStatusChartWidget extends ChartWidget
 {
     protected array|string|int $columnSpan = 1;
     protected ?string $heading = 'Payment Status Distribution';
-    protected static ?string $maxHeight = '220px';
+    protected ?string $maxHeight = '220px';
     protected static ?int $sort = 6;
 
     public static function canView(): bool

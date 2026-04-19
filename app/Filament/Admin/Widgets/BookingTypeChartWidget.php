@@ -10,7 +10,7 @@ class BookingTypeChartWidget extends ChartWidget
 {
     protected array|string|int $columnSpan = 1;
     protected ?string $heading = 'Booking Type Split';
-    protected static ?string $maxHeight = '220px';
+    protected ?string $maxHeight = '220px';
     protected static ?int $sort = 7;
 
     public static function canView(): bool
