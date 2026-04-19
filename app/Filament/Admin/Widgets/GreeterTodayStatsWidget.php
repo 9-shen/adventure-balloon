@@ -46,7 +46,8 @@ class GreeterTodayStatsWidget extends BaseWidget
             Stat::make("Today's Flights", $totalBookings)
                 ->description('Bookings scheduled for today')
                 ->descriptionIcon('heroicon-o-calendar-days')
-                ->color('primary'),
+                ->color('primary')
+                ->columnSpan(2),
 
             Stat::make('Total PAX Today', $totalPax)
                 ->description('Individual passengers')
