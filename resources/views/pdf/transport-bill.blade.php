@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    .page { max-width: 720px; margin: 30px auto; padding: 40px 50px; background: #fff; }
     body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1a1a2e; background: #fff; }
 
     .header { display: table; width: 100%; margin-bottom: 30px; border-bottom: 3px solid #2980b9; padding-bottom: 20px; }
@@ -68,6 +69,8 @@
 </style>
 </head>
 <body>
+
+<div class="page">
 
 <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
 <div class="header">
@@ -216,6 +219,8 @@
         <div class="page-number">Generated {{ now()->format('d/m/Y H:i') }}</div>
     </div>
 </div>
+
+</div><!-- /.page -->
 
 </body>
 </html>

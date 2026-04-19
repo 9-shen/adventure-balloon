@@ -7,6 +7,9 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Partner;
 use App\Notifications\InvoiceIssuedNotification;
+use App\Settings\AppSettings;
+use App\Settings\BankSettings;
+use App\Settings\LegalSettings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -102,9 +105,12 @@ class InvoiceService
         $invoice->loadMissing(['partner', 'items.booking.product', 'createdBy']);
 
         $pdf = Pdf::loadView('pdf.invoice', [
-            'invoice' => $invoice,
-            'items'   => $invoice->items,
-            'partner' => $invoice->partner,
+            'invoice'       => $invoice,
+            'items'         => $invoice->items,
+            'partner'       => $invoice->partner,
+            'appSettings'   => app(AppSettings::class),
+            'bankSettings'  => app(BankSettings::class),
+            'legalSettings' => app(LegalSettings::class),
         ])->setPaper('a4');
 
         return $pdf->output();
