@@ -84,7 +84,7 @@ class VehicleForm
 
                     Textarea::make('notes')
                         ->label('Notes')
-                        ->rows(3)
+                        ->rows(9)
                         ->columnSpanFull(),
                 ]),
         ]);

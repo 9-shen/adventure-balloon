@@ -30,14 +30,14 @@ class DispatchInfolist
 
                     TextEntry::make('status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'confirmed'   => 'success',
                             'in_progress' => 'warning',
                             'delivered'   => 'info',
                             'cancelled'   => 'danger',
                             default       => 'gray',
                         })
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
+                        ->formatStateUsing(fn(string $state): string => match ($state) {
                             'in_progress' => 'In Progress',
                             default       => ucfirst($state),
                         }),
@@ -86,13 +86,13 @@ class DispatchInfolist
                     TextEntry::make('booking.booking_status')
                         ->label('Booking Status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'confirmed'  => 'success',
                             'cancelled'  => 'danger',
                             'completed'  => 'info',
                             default      => 'warning',
                         })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                     TextEntry::make('booking.product.name')
                         ->label('Product'),
@@ -141,7 +141,7 @@ class DispatchInfolist
                         ->label('')
                         ->columnSpanFull()
                         ->placeholder('No notes.'),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 }

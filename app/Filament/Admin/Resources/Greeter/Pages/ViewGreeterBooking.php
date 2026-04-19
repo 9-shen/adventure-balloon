@@ -63,7 +63,7 @@ class ViewGreeterBooking extends ViewRecord
                         TextEntry::make('partner.company_name')
                             ->label('Partner')
                             ->placeholder('Individual Booking'),
-                    ]),
+                    ])->columnSpanFull(),
             ]);
     }
 }

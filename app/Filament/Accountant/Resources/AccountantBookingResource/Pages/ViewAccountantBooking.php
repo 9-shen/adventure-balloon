@@ -52,7 +52,7 @@ class ViewAccountantBooking extends ViewRecord
                         ->required()
                         ->rules(['min:0']),
                 ])
-                ->fillForm(fn (): array => [
+                ->fillForm(fn(): array => [
                     'payment_status' => $this->record->payment_status,
                     'payment_method' => $this->record->payment_method,
                     'amount_paid'    => $this->record->amount_paid,
@@ -94,23 +94,23 @@ class ViewAccountantBooking extends ViewRecord
                     TextEntry::make('type')
                         ->label('Booking Type')
                         ->badge()
-                        ->color(fn (string $state): string => $state === 'partner' ? 'purple' : 'info')
-                        ->formatStateUsing(fn (string $state): string => $state === 'partner' ? '🤝 Partner' : '🔵 Regular'),
+                        ->color(fn(string $state): string => $state === 'partner' ? 'purple' : 'info')
+                        ->formatStateUsing(fn(string $state): string => $state === 'partner' ? '🤝 Partner' : '🔵 Regular'),
 
                     TextEntry::make('booking_status')
                         ->label('Booking Status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'confirmed' => 'success',
                             'cancelled' => 'danger',
                             'completed' => 'info',
                             default     => 'warning',
                         })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                     TextEntry::make('attendance_display')
                         ->label('PAX Attendance')
-                        ->getStateUsing(fn ($record) => $record->getPaxAttendanceLabel())
+                        ->getStateUsing(fn($record) => $record->getPaxAttendanceLabel())
                         ->badge()
                         ->color('info'),
                 ]),
@@ -133,7 +133,7 @@ class ViewAccountantBooking extends ViewRecord
 
                     TextEntry::make('partner_info')
                         ->label('Partner')
-                        ->getStateUsing(fn ($record): string => $record->type === 'partner' && $record->partner
+                        ->getStateUsing(fn($record): string => $record->type === 'partner' && $record->partner
                             ? ($record->partner->company_name ?? $record->partner->name ?? 'Partner')
                             : '🔵 Regular Booking'),
                 ]),
@@ -146,17 +146,17 @@ class ViewAccountantBooking extends ViewRecord
                         ->label('Adults')
                         ->badge()
                         ->color('info')
-                        ->formatStateUsing(fn ($state): string => $state . ' Adult(s)'),
+                        ->formatStateUsing(fn($state): string => $state . ' Adult(s)'),
 
                     TextEntry::make('child_pax')
                         ->label('Children')
                         ->badge()
                         ->color('warning')
-                        ->formatStateUsing(fn ($state): string => $state . ' Child(ren)'),
+                        ->formatStateUsing(fn($state): string => $state . ' Child(ren)'),
 
                     TextEntry::make('total_pax')
                         ->label('Total PAX')
-                        ->getStateUsing(fn ($record): int => $record->getTotalPax())
+                        ->getStateUsing(fn($record): int => $record->getTotalPax())
                         ->badge()
                         ->color('gray'),
 
@@ -164,7 +164,7 @@ class ViewAccountantBooking extends ViewRecord
                         ->label('Booking Source')
                         ->badge()
                         ->color('gray')
-                        ->formatStateUsing(fn (?string $state): string => $state ? ucfirst($state) : '—')
+                        ->formatStateUsing(fn(?string $state): string => $state ? ucfirst($state) : '—')
                         ->placeholder('—'),
                 ]),
 
@@ -188,24 +188,23 @@ class ViewAccountantBooking extends ViewRecord
                         ->label('Balance Due')
                         ->money('MAD')
                         ->weight('bold')
-                        ->color(fn ($state) => $state > 0 ? 'danger' : 'success'),
+                        ->color(fn($state) => $state > 0 ? 'danger' : 'success'),
 
                     TextEntry::make('payment_status')
                         ->label('Payment Status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'due'     => 'danger',
                             'partial' => 'warning',
                             'on_site' => 'info',
                             'paid'    => 'success',
                             default   => 'gray',
                         })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
                 ]),
 
             Section::make('Pricing Breakdown')
                 ->columns(4)
-                ->collapsed()
                 ->components([
                     TextEntry::make('base_adult_price')
                         ->label('Adult Unit Price')
@@ -236,13 +235,13 @@ class ViewAccountantBooking extends ViewRecord
                         ->label('Payment Method')
                         ->badge()
                         ->color('gray')
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                     TextEntry::make('notes')
                         ->label('Notes')
                         ->placeholder('—')
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
 
             // ─── Row 5: Passenger Attendance Table ────────────────────────────
             Section::make('Passenger List & Attendance')
@@ -259,8 +258,8 @@ class ViewAccountantBooking extends ViewRecord
                             TextEntry::make('type')
                                 ->label('Type')
                                 ->badge()
-                                ->color(fn (string $state): string => $state === 'adult' ? 'info' : 'warning')
-                                ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                                ->color(fn(string $state): string => $state === 'adult' ? 'info' : 'warning')
+                                ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                             TextEntry::make('phone')
                                 ->label('Phone')
@@ -274,19 +273,18 @@ class ViewAccountantBooking extends ViewRecord
                             TextEntry::make('attendance')
                                 ->label('Attendance')
                                 ->badge()
-                                ->color(fn (string $state): string => match ($state) {
+                                ->color(fn(string $state): string => match ($state) {
                                     'show'    => 'success',
                                     'no_show' => 'danger',
                                     default   => 'gray',
                                 })
-                                ->formatStateUsing(fn (string $state): string => match ($state) {
+                                ->formatStateUsing(fn(string $state): string => match ($state) {
                                     'show'    => '✅ Show',
                                     'no_show' => '❌ No-Show',
                                     default   => '⏳ Pending',
                                 }),
                         ]),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 }
-

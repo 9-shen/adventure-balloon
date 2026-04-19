@@ -61,12 +61,12 @@ class DispatchForm
                             }
 
                             return $query->get()
-                                ->mapWithKeys(fn (Booking $b) => [
+                                ->mapWithKeys(fn(Booking $b) => [
                                     $b->id => self::formatBookingLabel($b),
                                 ])
                                 ->toArray();
                         })
-                        ->disabled(fn (?Model $record): bool => $record !== null)
+                        ->disabled(fn(?Model $record): bool => $record !== null)
                         ->live(),
 
                     // ── Reactive Booking Info Card (Get $get only — OOM-safe) ──
@@ -93,7 +93,8 @@ class DispatchForm
                                 ->pluck('company_name', 'id')
                                 ->toArray();
                         })
-                        ->live(),
+                        ->live()
+                        ->columnSpanFull(),
 
                     Select::make('status')
                         ->label('Dispatch Status')
@@ -126,22 +127,20 @@ class DispatchForm
             Section::make('Driver Assignments')
                 ->description(
                     'Add driver rows manually, or leave empty to let the system auto-assign '
-                    . 'based on total PAX ÷ vehicle capacity.'
+                        . 'based on total PAX ÷ vehicle capacity.'
                 )
                 ->components([
                     self::buildDriverRepeater(),
-                ]),
+                ])->columnSpanFull(),
 
             // ── 4. Notes ──────────────────────────────────────────────────────
             Section::make('Notes')
-                ->collapsible()
-                ->collapsed()
                 ->components([
                     Textarea::make('notes')
                         ->label('Internal Notes')
                         ->rows(3)
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 
@@ -183,7 +182,8 @@ class DispatchForm
                                 ->pluck('company_name', 'id')
                                 ->toArray();
                         })
-                        ->live(),
+                        ->live()
+                        ->columnSpanFull(),
 
                     Select::make('status')
                         ->label('Dispatch Status')
@@ -216,18 +216,16 @@ class DispatchForm
                 ->description('Add, remove or adjust driver rows. Changes are saved when you click Save.')
                 ->components([
                     self::buildDriverRepeater(),
-                ]),
+                ])->columnSpanFull(),
 
             // ── 4. Notes ──────────────────────────────────────────────────────
             Section::make('Notes')
-                ->collapsible()
-                ->collapsed()
                 ->components([
                     Textarea::make('notes')
                         ->label('Internal Notes')
                         ->rows(3)
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 
@@ -271,7 +269,7 @@ class DispatchForm
                             return Vehicle::where('transport_company_id', $companyId)
                                 ->where('is_active', true)
                                 ->get()
-                                ->mapWithKeys(fn ($v) => [
+                                ->mapWithKeys(fn($v) => [
                                     $v->id => "{$v->make} {$v->model} — {$v->plate_number} (cap: {$v->capacity})",
                                 ])
                                 ->toArray();
@@ -329,8 +327,8 @@ class DispatchForm
         if (!$bookingId) {
             return new HtmlString(
                 '<div style="color:#9ca3af;font-style:italic;font-size:14px;padding:8px 0;">'
-                . '← Select a confirmed booking above to view its details.'
-                . '</div>'
+                    . '← Select a confirmed booking above to view its details.'
+                    . '</div>'
             );
         }
 
@@ -379,11 +377,11 @@ class DispatchForm
                 ->label('Total PAX')
                 ->content(new HtmlString(
                     '<span style="font-size:22px;font-weight:700;color:' . self::paxColor($booking->getTotalPax()) . ';">'
-                    . $booking->getTotalPax()
-                    . '</span>'
-                    . '<span style="font-size:12px;color:#6b7280;margin-left:6px;">'
-                    . "{$booking->adult_pax} adults · {$booking->child_pax} children"
-                    . '</span>'
+                        . $booking->getTotalPax()
+                        . '</span>'
+                        . '<span style="font-size:12px;color:#6b7280;margin-left:6px;">'
+                        . "{$booking->adult_pax} adults · {$booking->child_pax} children"
+                        . '</span>'
                 )),
         ];
 
@@ -424,7 +422,7 @@ class DispatchForm
                 </div>";
         }
 
-        $slot = fn (string $lbl, string $val) => "
+        $slot = fn(string $lbl, string $val) => "
             <div>
                 <div style='font-size:10px;color:#9ca3af;text-transform:uppercase;font-weight:700;letter-spacing:.5px;margin-bottom:3px;'>{$lbl}</div>
                 <div style='font-weight:600;color:#1f2937;font-size:14px;'>{$val}</div>

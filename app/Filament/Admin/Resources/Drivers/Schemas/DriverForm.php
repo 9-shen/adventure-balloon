@@ -9,6 +9,7 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 
 class DriverForm
@@ -43,6 +44,7 @@ class DriverForm
                     TextInput::make('phone')
                         ->label('Phone (WhatsApp)')
                         ->tel()
+                        ->placeholder('eg: +212666555777')
                         ->required()
                         ->maxLength(50)
                         ->helperText('Used for dispatch WhatsApp notifications'),
@@ -52,44 +54,45 @@ class DriverForm
                         ->maxLength(100),
 
                     TextInput::make('license_number')
-                        ->label('License Number')
+                        ->label('Driver License Number')
                         ->maxLength(100),
 
                     DatePicker::make('license_expiry')
-                        ->label('License Expiry Date')
+                        ->label('Driver License Expiry Date')
                         ->native(false)
                         ->displayFormat('d/m/Y'),
                 ]),
 
-            Section::make('Status & Notes')
-                ->icon('heroicon-o-cog-6-tooth')
-                ->columns(2)
+            Grid::make(1)
                 ->schema([
-                    Toggle::make('is_active')
-                        ->label('Driver Active')
-                        ->default(true)
-                        ->inline(false),
+                    Section::make('Status & Notes')
+                        ->icon('heroicon-o-cog-6-tooth')
+                        ->columns(2)
+                        ->schema([
+                            Toggle::make('is_active')
+                                ->label('Driver Active')
+                                ->default(true)
+                                ->inline(false),
 
-                    Textarea::make('notes')
-                        ->label('Notes')
-                        ->rows(3)
-                        ->columnSpanFull(),
-                ]),
+                            Textarea::make('notes')
+                                ->label('Notes')
+                                ->rows(3)
+                                ->columnSpanFull(),
+                        ]),
 
-            Section::make('License Documents')
-                ->icon('heroicon-o-document')
-                ->collapsible()
-                ->collapsed()
-                ->schema([
-                    SpatieMediaLibraryFileUpload::make('license-documents')
-                        ->collection('license-documents')
-                        ->label('License & ID Documents')
-                        ->multiple()
-                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
-                        ->maxFiles(5)
-                        ->maxSize(4096)
-                        ->downloadable()
-                        ->columnSpanFull(),
+                    Section::make('License Documents')
+                        ->icon('heroicon-o-document')
+                        ->schema([
+                            SpatieMediaLibraryFileUpload::make('license-documents')
+                                ->collection('license-documents')
+                                ->label('License & ID Documents')
+                                ->multiple()
+                                ->acceptedFileTypes(['image/jpeg', 'image/png', 'application/pdf'])
+                                ->maxFiles(5)
+                                ->maxSize(4096)
+                                ->downloadable()
+                                ->columnSpanFull(),
+                        ]),
                 ]),
         ]);
     }

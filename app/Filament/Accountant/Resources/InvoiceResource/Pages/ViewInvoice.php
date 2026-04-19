@@ -36,7 +36,7 @@ class ViewInvoice extends ViewRecord
                     $filename = $this->record->invoice_ref . '.pdf';
 
                     return response()->streamDownload(
-                        fn () => print($pdf),
+                        fn() => print($pdf),
                         $filename,
                         ['Content-Type' => 'application/pdf']
                     );
@@ -46,7 +46,7 @@ class ViewInvoice extends ViewRecord
                 ->label('Mark as Sent')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('info')
-                ->visible(fn () => $this->record->isDraft())
+                ->visible(fn() => $this->record->isDraft())
                 ->requiresConfirmation()
                 ->action(function (): void {
                     app(InvoiceService::class)->markSent($this->record);
@@ -58,7 +58,7 @@ class ViewInvoice extends ViewRecord
                 ->label('Mark as Paid')
                 ->icon('heroicon-o-check-badge')
                 ->color('success')
-                ->visible(fn () => !$this->record->isPaid())
+                ->visible(fn() => !$this->record->isPaid())
                 ->form([
                     TextInput::make('payment_reference')
                         ->label('Payment Reference')
@@ -91,14 +91,14 @@ class ViewInvoice extends ViewRecord
                     TextEntry::make('status')
                         ->label('Status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'draft'   => 'gray',
                             'sent'    => 'info',
                             'paid'    => 'success',
                             'overdue' => 'danger',
                             default   => 'gray',
                         })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                     TextEntry::make('created_at')
                         ->label('Invoice Date')
@@ -106,7 +106,8 @@ class ViewInvoice extends ViewRecord
 
                     TextEntry::make('period_range')
                         ->label('Period')
-                        ->getStateUsing(fn ($record) =>
+                        ->getStateUsing(
+                            fn($record) =>
                             $record->period_from->format('d/m/Y') . ' → ' . $record->period_to->format('d/m/Y')
                         ),
                 ]),
@@ -139,7 +140,7 @@ class ViewInvoice extends ViewRecord
 
                     TextEntry::make('partner.payment_terms_days')
                         ->label('Payment Terms')
-                        ->formatStateUsing(fn ($state) => $state ? "{$state} days" : '30 days'),
+                        ->formatStateUsing(fn($state) => $state ? "{$state} days" : '30 days'),
                 ]),
 
             // ─── Financial Summary ─────────────────────────────────────────────
@@ -152,7 +153,8 @@ class ViewInvoice extends ViewRecord
 
                     TextEntry::make('tax_summary')
                         ->label('Tax')
-                        ->getStateUsing(fn ($record) =>
+                        ->getStateUsing(
+                            fn($record) =>
                             $record->tax_rate > 0
                                 ? 'MAD ' . number_format($record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
                                 : '—'
@@ -168,7 +170,7 @@ class ViewInvoice extends ViewRecord
                         ->label('Paid On')
                         ->date('d/m/Y')
                         ->placeholder('Unpaid')
-                        ->color(fn ($state) => $state ? 'success' : 'gray'),
+                        ->color(fn($state) => $state ? 'success' : 'gray'),
 
                     TextEntry::make('payment_reference')
                         ->label('Payment Reference')
@@ -188,7 +190,7 @@ class ViewInvoice extends ViewRecord
                         ->label('Notes')
                         ->placeholder('—')
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
 
             // ─── Line Items ────────────────────────────────────────────────────
             Section::make('Booking Lines')
@@ -229,8 +231,7 @@ class ViewInvoice extends ViewRecord
                                 ->money('MAD')
                                 ->weight('bold'),
                         ]),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 }
-

@@ -45,7 +45,8 @@ class UserForm
                                     ->password()
                                     ->dehydrateStateUsing(fn (string $state): string => Hash::make($state))
                                     ->dehydrated(fn (?string $state): bool => filled($state))
-                                    ->required(fn (string $context): bool => $context === 'create'),
+                                    ->required(fn (string $context): bool => $context === 'create')
+                                    ->columnSpanFull(),
                             ]),
                     ]),
 
@@ -70,6 +71,7 @@ class UserForm
 
                         Textarea::make('address')
                             ->default(null)
+                            ->rows(5)
                             ->columnSpanFull(),
                     ]),
                 
@@ -136,7 +138,7 @@ class UserForm
                                 return count(array_intersect($roles, $driverRoles)) > 0 || in_array('driver', $roles);
                             })
                             ->helperText('Link this user to a driver profile for the driver portal.'),
-                    ]),
+                    ])->columnSpanFull(),
             ]);
     }
 }

@@ -25,18 +25,31 @@ class ProductInfolist
                             ->columnSpanFull()
                             ->placeholder('No description provided.'),
                     ]),
+                Grid::make(1)
+                    ->schema([
+                        Section::make('Images')
+                            ->components([
+                                SpatieMediaLibraryImageEntry::make('product-images')
+                                    ->collection('product-images')
+                                    ->columnSpanFull(),
+                            ]),
 
-                Section::make('Pricing')
-                    ->columns(2)
-                    ->components([
-                        TextEntry::make('base_adult_price')
-                            ->label('Adult Price')
-                            ->money('MAD'),
+                        Section::make('Pricing')
+                            ->columns(2)
+                            ->components([
+                                TextEntry::make('base_adult_price')
+                                    ->label('Adult Price')
+                                    ->money('MAD'),
 
-                        TextEntry::make('base_child_price')
-                            ->label('Child Price')
-                            ->money('MAD'),
+                                TextEntry::make('base_child_price')
+                                    ->label('Child Price')
+                                    ->money('MAD'),
+                            ]),
                     ]),
+
+
+
+
 
                 Section::make('Details')
                     ->columns(2)
@@ -51,16 +64,10 @@ class ProductInfolist
                             ->boolean(),
                     ]),
 
-                Section::make('Images')
-                    ->components([
-                        SpatieMediaLibraryImageEntry::make('product-images')
-                            ->collection('product-images')
-                            ->columnSpanFull(),
-                    ]),
+
 
                 Section::make('System')
-                    ->columns(2)
-                    ->collapsed()
+                    ->columns(3)
                     ->components([
                         TextEntry::make('created_at')
                             ->dateTime(),

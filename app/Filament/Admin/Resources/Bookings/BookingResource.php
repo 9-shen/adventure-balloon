@@ -69,175 +69,186 @@ class BookingResource extends Resource
     {
         return $schema->components([
 
-            Section::make('Booking Details')
-                ->columns(3)
-                ->components([
-                    TextEntry::make('booking_ref')
-                        ->label('Reference')
-                        ->badge()
-                        ->color('primary')
-                        ->copyable(),
+            Grid::make(1)
+                ->schema([
+                    Section::make('Booking Details')
+                        ->columns(3)
+                        ->components([
+                            TextEntry::make('booking_ref')
+                                ->label('Reference')
+                                ->badge()
+                                ->color('primary')
+                                ->copyable(),
 
-                    TextEntry::make('type')
-                        ->label('Type')
-                        ->badge()
-                        ->color(fn (string $state): string => match ($state) {
-                            'partner' => 'purple',
-                            default   => 'info',
-                        })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            TextEntry::make('type')
+                                ->label('Type')
+                                ->badge()
+                                ->color(fn(string $state): string => match ($state) {
+                                    'partner' => 'purple',
+                                    default   => 'info',
+                                })
+                                ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
-                    TextEntry::make('product.name')
-                        ->label('Product'),
+                            TextEntry::make('product.name')
+                                ->label('Product'),
 
-                    TextEntry::make('booking_status')
-                        ->label('Status')
-                        ->badge()
-                        ->color(fn (string $state): string => match ($state) {
-                            'confirmed' => 'success',
-                            'cancelled' => 'danger',
-                            'completed' => 'info',
-                            default     => 'warning',
-                        })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                            TextEntry::make('booking_status')
+                                ->label('Status')
+                                ->badge()
+                                ->color(fn(string $state): string => match ($state) {
+                                    'confirmed' => 'success',
+                                    'cancelled' => 'danger',
+                                    'completed' => 'info',
+                                    default     => 'warning',
+                                })
+                                ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
-                    TextEntry::make('flight_date')
-                        ->label('Flight Date')
-                        ->date('d/m/Y'),
+                            TextEntry::make('flight_date')
+                                ->label('Flight Date')
+                                ->date('d/m/Y'),
 
-                    TextEntry::make('flight_time')
-                        ->label('Flight Time'),
+                            TextEntry::make('flight_time')
+                                ->label('Flight Time'),
 
-                    TextEntry::make('booking_source')
-                        ->label('Source')
-                        ->formatStateUsing(fn (?string $state): string => ucfirst($state ?? '—')),
+                            TextEntry::make('booking_source')
+                                ->label('Source')
+                                ->formatStateUsing(fn(?string $state): string => ucfirst($state ?? '—')),
+                        ]),
+
+                    // ── Partner Info section (visible only for partner bookings) ──
+                    Section::make('Partner Information')
+                        ->columns(2)
+                        ->visible(fn(Booking $record): bool => $record->type === 'partner')
+                        ->components([
+                            TextEntry::make('partner.company_name')
+                                ->label('Partner')
+                                ->placeholder('—'),
+
+                            TextEntry::make('type')
+                                ->label('Booking Type')
+                                ->badge()
+                                ->color('purple')
+                                ->formatStateUsing(fn(string $state): string => '🤝 ' . ucfirst($state)),
+                        ]),
+
+
+                    Section::make('Notes & Audit')
+                        ->columns(2)
+                        ->components([
+                            TextEntry::make('notes')
+                                ->label('Internal Notes')
+                                ->placeholder('No notes.')
+                                ->columnSpan(2),
+
+                            TextEntry::make('cancelled_reason')
+                                ->label('Cancellation Reason')
+                                ->placeholder('—')
+                                ->columnSpan(2),
+
+                            TextEntry::make('createdBy.name')
+                                ->label('Created By'),
+
+                            TextEntry::make('created_at')
+                                ->label('Created At')
+                                ->dateTime('d/m/Y H:i'),
+
+                            TextEntry::make('confirmedBy.name')
+                                ->label('Confirmed By'),
+
+                            TextEntry::make('confirmed_at')
+                                ->label('Confirmed At')
+                                ->dateTime('d/m/Y H:i'),
+                        ]),
+                ]),
+            Grid::make(1)
+                ->schema([
+                    Section::make('Passengers')
+                        ->columns(3)
+                        ->components([
+                            TextEntry::make('adult_pax')
+                                ->label('Adults'),
+
+                            TextEntry::make('child_pax')
+                                ->label('Children'),
+
+                            TextEntry::make('adult_pax')
+                                ->label('Total PAX')
+                                ->formatStateUsing(
+                                    fn($state, Booking $record): string =>
+                                    (string) $record->getTotalPax()
+                                ),
+                        ]),
+
+                    Section::make('Pricing')
+                        ->columns(2)
+                        ->components([
+                            TextEntry::make('base_adult_price')
+                                ->label('Adult Price (each)')
+                                ->money('MAD'),
+
+                            TextEntry::make('base_child_price')
+                                ->label('Child Price (each)')
+                                ->money('MAD'),
+
+                            TextEntry::make('adult_total')
+                                ->label('Adult Total')
+                                ->money('MAD'),
+
+                            TextEntry::make('child_total')
+                                ->label('Child Total')
+                                ->money('MAD'),
+
+                            TextEntry::make('discount_amount')
+                                ->label('Discount (MAD)')
+                                ->money('MAD'),
+
+                            TextEntry::make('final_amount')
+                                ->label('Final Amount')
+                                ->money('MAD'),
+                        ]),
+
+                    Section::make('Payment')
+                        ->columns(2)
+                        ->components([
+                            TextEntry::make('payment_method')
+                                ->label('Method')
+                                ->badge()
+                                ->formatStateUsing(fn(string $state): string => match ($state) {
+                                    'cash'   => 'Cash',
+                                    'wire'   => 'Wire Transfer',
+                                    'online' => 'Online',
+                                    default  => ucfirst($state),
+                                }),
+
+                            TextEntry::make('payment_status')
+                                ->label('Payment Status')
+                                ->badge()
+                                ->color(fn(string $state): string => match ($state) {
+                                    'paid'    => 'success',
+                                    'partial' => 'warning',
+                                    'on_site' => 'info',
+                                    default   => 'danger',
+                                })
+                                ->formatStateUsing(fn(string $state): string => match ($state) {
+                                    'paid'    => 'Paid',
+                                    'partial' => 'Partial',
+                                    'on_site' => 'On-Site',
+                                    default   => 'Due',
+                                }),
+
+                            TextEntry::make('amount_paid')
+                                ->label('Amount Paid')
+                                ->money('MAD'),
+
+                            TextEntry::make('balance_due')
+                                ->label('Balance Due')
+                                ->money('MAD'),
+                        ]),
+
                 ]),
 
-            // ── Partner Info section (visible only for partner bookings) ──
-            Section::make('Partner Information')
-                ->columns(2)
-                ->visible(fn (Booking $record): bool => $record->type === 'partner')
-                ->components([
-                    TextEntry::make('partner.company_name')
-                        ->label('Partner')
-                        ->placeholder('—'),
 
-                    TextEntry::make('type')
-                        ->label('Booking Type')
-                        ->badge()
-                        ->color('purple')
-                        ->formatStateUsing(fn (string $state): string => '🤝 ' . ucfirst($state)),
-                ]),
 
-            Section::make('Passengers')
-                ->columns(3)
-                ->components([
-                    TextEntry::make('adult_pax')
-                        ->label('Adults'),
-
-                    TextEntry::make('child_pax')
-                        ->label('Children'),
-
-                    TextEntry::make('adult_pax')
-                        ->label('Total PAX')
-                        ->formatStateUsing(fn ($state, Booking $record): string =>
-                            (string) $record->getTotalPax()
-                        ),
-                ]),
-
-            Section::make('Pricing')
-                ->columns(3)
-                ->components([
-                    TextEntry::make('base_adult_price')
-                        ->label('Adult Price (each)')
-                        ->money('MAD'),
-
-                    TextEntry::make('base_child_price')
-                        ->label('Child Price (each)')
-                        ->money('MAD'),
-
-                    TextEntry::make('adult_total')
-                        ->label('Adult Total')
-                        ->money('MAD'),
-
-                    TextEntry::make('child_total')
-                        ->label('Child Total')
-                        ->money('MAD'),
-
-                    TextEntry::make('discount_amount')
-                        ->label('Discount (MAD)')
-                        ->money('MAD'),
-
-                    TextEntry::make('final_amount')
-                        ->label('Final Amount')
-                        ->money('MAD'),
-                ]),
-
-            Section::make('Payment')
-                ->columns(3)
-                ->components([
-                    TextEntry::make('payment_method')
-                        ->label('Method')
-                        ->badge()
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'cash'   => 'Cash',
-                            'wire'   => 'Wire Transfer',
-                            'online' => 'Online',
-                            default  => ucfirst($state),
-                        }),
-
-                    TextEntry::make('payment_status')
-                        ->label('Payment Status')
-                        ->badge()
-                        ->color(fn (string $state): string => match ($state) {
-                            'paid'    => 'success',
-                            'partial' => 'warning',
-                            'on_site' => 'info',
-                            default   => 'danger',
-                        })
-                        ->formatStateUsing(fn (string $state): string => match ($state) {
-                            'paid'    => 'Paid',
-                            'partial' => 'Partial',
-                            'on_site' => 'On-Site',
-                            default   => 'Due',
-                        }),
-
-                    TextEntry::make('amount_paid')
-                        ->label('Amount Paid')
-                        ->money('MAD'),
-
-                    TextEntry::make('balance_due')
-                        ->label('Balance Due')
-                        ->money('MAD'),
-                ]),
-
-            Section::make('Notes & Audit')
-                ->columns(2)
-                ->components([
-                    TextEntry::make('notes')
-                        ->label('Internal Notes')
-                        ->placeholder('No notes.')
-                        ->columnSpan(2),
-
-                    TextEntry::make('cancelled_reason')
-                        ->label('Cancellation Reason')
-                        ->placeholder('—')
-                        ->columnSpan(2),
-
-                    TextEntry::make('createdBy.name')
-                        ->label('Created By'),
-
-                    TextEntry::make('created_at')
-                        ->label('Created At')
-                        ->dateTime('d/m/Y H:i'),
-
-                    TextEntry::make('confirmedBy.name')
-                        ->label('Confirmed By'),
-
-                    TextEntry::make('confirmed_at')
-                        ->label('Confirmed At')
-                        ->dateTime('d/m/Y H:i'),
-                ]),
         ]);
     }
 
@@ -262,7 +273,7 @@ class BookingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-                     ->withoutGlobalScope(SoftDeletingScope::class);
+            ->withoutGlobalScope(SoftDeletingScope::class);
     }
 
     // ─── Pages ────────────────────────────────────────────────────────────────

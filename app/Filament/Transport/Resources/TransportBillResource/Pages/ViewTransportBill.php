@@ -31,7 +31,7 @@ class ViewTransportBill extends ViewRecord
                 ->action(function (): \Symfony\Component\HttpFoundation\StreamedResponse {
                     $pdf = app(TransportBillService::class)->generatePdf($this->record);
                     return response()->streamDownload(
-                        fn () => print($pdf->output()),
+                        fn() => print($pdf->output()),
                         $this->record->bill_ref . '.pdf',
                         ['Content-Type' => 'application/pdf']
                     );
@@ -56,14 +56,14 @@ class ViewTransportBill extends ViewRecord
                     TextEntry::make('status')
                         ->label('Status')
                         ->badge()
-                        ->color(fn (string $state): string => match ($state) {
+                        ->color(fn(string $state): string => match ($state) {
                             'draft'   => 'gray',
                             'sent'    => 'warning',
                             'paid'    => 'success',
                             'overdue' => 'danger',
                             default   => 'gray',
                         })
-                        ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                        ->formatStateUsing(fn(string $state): string => ucfirst($state)),
 
                     TextEntry::make('created_at')
                         ->label('Issued On')
@@ -71,8 +71,8 @@ class ViewTransportBill extends ViewRecord
 
                     TextEntry::make('period_range')
                         ->label('Period')
-                        ->getStateUsing(fn ($record) =>
-                            ($record->period_from?->format('d/m/Y') ?? '—') . ' → ' . ($record->period_to?->format('d/m/Y') ?? '—')
+                        ->getStateUsing(
+                            fn($record) => ($record->period_from?->format('d/m/Y') ?? '—') . ' → ' . ($record->period_to?->format('d/m/Y') ?? '—')
                         ),
                 ]),
 
@@ -86,7 +86,8 @@ class ViewTransportBill extends ViewRecord
 
                     TextEntry::make('tax_summary')
                         ->label('Tax')
-                        ->getStateUsing(fn ($record) =>
+                        ->getStateUsing(
+                            fn($record) =>
                             $record->tax_rate > 0
                                 ? 'MAD ' . number_format((float) $record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
                                 : '—'
@@ -102,19 +103,19 @@ class ViewTransportBill extends ViewRecord
                         ->label('Balance Due')
                         ->money('MAD')
                         ->weight('bold')
-                        ->color(fn ($state) => (float) $state > 0 ? 'danger' : 'success'),
+                        ->color(fn($state) => (float) $state > 0 ? 'danger' : 'success'),
 
                     TextEntry::make('paid_at')
                         ->label('Paid On')
                         ->date('d/m/Y')
                         ->placeholder('Unpaid')
-                        ->color(fn ($state) => $state ? 'success' : 'gray'),
+                        ->color(fn($state) => $state ? 'success' : 'gray'),
 
                     TextEntry::make('payment_reference')
                         ->label('Payment Reference')
                         ->placeholder('—')
                         ->copyable(),
-                        
+
                     TextEntry::make('notes')
                         ->label('Notes')
                         ->placeholder('—')

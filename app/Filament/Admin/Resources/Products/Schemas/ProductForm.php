@@ -30,30 +30,21 @@ class ProductForm
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Pricing')
-                    ->description('Base prices used for all regular bookings. Partner overrides are managed in Phase 5.')
+                Section::make('Product Images')
+                    ->description('Upload one or more images for this product.')
                     ->components([
-                        Grid::make(2)
-                            ->components([
-                                TextInput::make('base_adult_price')
-                                    ->label('Adult Price (MAD)')
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->step(0.01)
-                                    ->prefix('MAD')
-                                    ->required()
-                                    ->default(0.00),
-
-                                TextInput::make('base_child_price')
-                                    ->label('Child Price (MAD)')
-                                    ->numeric()
-                                    ->minValue(0)
-                                    ->step(0.01)
-                                    ->prefix('MAD')
-                                    ->required()
-                                    ->default(0.00),
-                            ]),
+                        SpatieMediaLibraryFileUpload::make('product-images')
+                            ->collection('product-images')
+                            ->multiple()
+                            ->reorderable()
+                            ->image()
+                            ->imagePreviewHeight('120')
+                            ->panelLayout('grid')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxFiles(10)
+                            ->columnSpanFull(),
                     ]),
+
 
                 Section::make('Details')
                     ->description('Optional operational details.')
@@ -75,19 +66,31 @@ class ProductForm
                             ]),
                     ]),
 
-                Section::make('Product Images')
-                    ->description('Upload one or more images for this product. Used on partner portal and booking confirmations.')
+
+
+                Section::make('Pricing')
+                    ->description('Base prices used for all regular bookings.')
                     ->components([
-                        SpatieMediaLibraryFileUpload::make('product-images')
-                            ->collection('product-images')
-                            ->multiple()
-                            ->reorderable()
-                            ->image()
-                            ->imagePreviewHeight('120')
-                            ->panelLayout('grid')
-                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                            ->maxFiles(10)
-                            ->columnSpanFull(),
+                        Grid::make(2)
+                            ->components([
+                                TextInput::make('base_adult_price')
+                                    ->label('Adult Price (MAD)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefix('MAD')
+                                    ->required()
+                                    ->default(0.00),
+
+                                TextInput::make('base_child_price')
+                                    ->label('Child Price (MAD)')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->step(0.01)
+                                    ->prefix('MAD')
+                                    ->required()
+                                    ->default(0.00),
+                            ]),
                     ]),
             ]);
     }
