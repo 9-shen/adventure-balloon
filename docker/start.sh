@@ -49,10 +49,6 @@ echo "▶ Caching routes..."
 php artisan route:cache || echo "⚠ Route cache failed, continuing..."
 echo ""
 
-echo "▶ Caching views..."
-php artisan view:cache || echo "⚠ View cache failed, continuing..."
-echo ""
-
 echo "============================================"
 echo "  ✅ Bootstrap complete — Starting Supervisor"
 echo "============================================"
