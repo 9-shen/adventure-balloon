@@ -29,8 +29,16 @@ echo "▶ Linking storage..."
 php artisan storage:link || echo "⚠ Storage link failed, continuing..."
 echo ""
 
+echo "▶ Clearing all caches..."
+php artisan optimize:clear || echo "⚠ Optimize clear failed, continuing..."
+echo ""
+
 echo "▶ Publishing Filament assets..."
 php artisan filament:assets || echo "⚠ Filament assets failed, continuing..."
+echo ""
+
+echo "▶ Publishing Livewire assets..."
+php artisan livewire:publish --assets || echo "⚠ Livewire assets failed, continuing..."
 echo ""
 
 echo "▶ Caching configuration..."
