@@ -1,0 +1,15 @@
+node_modules
+vendor
+.env
+.git
+.gitignore
+.editorconfig
+storage/logs
+storage/framework/sessions
+storage/framework/cache
+storage/framework/views
+tests
+phpunit.xml
+Booklix-App.code-workspace
+BOOKLIX_BLUEPRINT.md
+database/database.sqlite
