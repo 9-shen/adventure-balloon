@@ -33,7 +33,19 @@
             font-family: 'Inter', system-ui, sans-serif;
             background: var(--bg);
             color: var(--text);
-            overflow-x: hidden;
+            overflow-x: hidden;   /* Fix: apply to BOTH html and body for iOS */
+        }
+
+        /* Fix: iOS tap highlight */
+        * { -webkit-tap-highlight-color: transparent; }
+        input, button { touch-action: manipulation; }
+
+        /* Fix: reduced motion accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         /* ─── Background ─────────────────────────────────── */
@@ -49,13 +61,14 @@
             opacity: 0.35;
         }
         .bg-orb-1 {
-            width: 600px; height: 600px;
+            /* Fix: cap orb size so it doesn't cause horizontal scroll on mobile */
+            width: min(600px, 120vw); height: min(600px, 120vw);
             background: var(--red);
             top: -200px; left: -200px;
             animation: float 12s ease-in-out infinite;
         }
         .bg-orb-2 {
-            width: 400px; height: 400px;
+            width: min(400px, 100vw); height: min(400px, 100vw);
             background: #7c3aed;
             bottom: -150px; right: -100px;
             animation: float 15s ease-in-out infinite reverse;
@@ -78,10 +91,15 @@
             position: relative;
             z-index: 1;
             min-height: 100vh;
+            min-height: 100dvh; /* Fix: use dvh for mobile browsers with toolbars */
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 24px;
+            /* Fix: safe-area-inset for notched iPhones */
+            padding: max(24px, env(safe-area-inset-top))
+                     max(24px, env(safe-area-inset-right))
+                     max(24px, env(safe-area-inset-bottom))
+                     max(24px, env(safe-area-inset-left));
         }
 
         /* ─── Card ───────────────────────────────────────── */
@@ -180,7 +198,8 @@
             border-radius: 10px;
             color: var(--text);
             font-family: inherit;
-            font-size: 0.925rem;
+            /* Fix: 16px minimum prevents iOS Safari auto-zoom on focus */
+            font-size: 16px;
             padding: 13px 14px 13px 42px;
             outline: none;
             transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
@@ -283,7 +302,20 @@
 
         /* ─── Responsive ─────────────────────────────────── */
         @media (max-width: 480px) {
-            .card { padding: 32px 24px; border-radius: 16px; }
+            .card { padding: 28px 20px; border-radius: 16px; }
+            /* Tighten brand section so form is visible without scrolling */
+            .brand { margin-bottom: 24px; }
+            .brand-icon { width: 52px; height: 52px; margin-bottom: 12px; }
+            .brand-icon svg { width: 26px; height: 26px; }
+            .brand-name { font-size: 1.25rem; }
+            .divider { margin-bottom: 20px; }
+            .form-group { margin-bottom: 14px; }
+            .remember-row { margin-bottom: 18px; }
+        }
+        /* Extra small (320px phones like iPhone SE 1st Gen) */
+        @media (max-width: 360px) {
+            .card { padding: 22px 16px; }
+            .brand { margin-bottom: 18px; }
         }
     </style>
 </head>
