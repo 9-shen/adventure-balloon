@@ -17,6 +17,13 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 echo ""
 
+echo "▶ Clearing all stale caches first..."
+php artisan config:clear  || echo "⚠ Config clear failed, continuing..."
+php artisan route:clear   || echo "⚠ Route clear failed, continuing..."
+php artisan view:clear    || echo "⚠ View clear failed, continuing..."
+php artisan cache:clear   || echo "⚠ Cache clear failed, continuing..."
+echo ""
+
 echo "▶ Running database migrations..."
 php artisan migrate --force || echo "⚠ Migration failed, continuing..."
 echo ""
@@ -26,19 +33,11 @@ php artisan db:seed --force || echo "⚠ Seeding failed, continuing..."
 echo ""
 
 echo "▶ Linking storage..."
-php artisan storage:link || echo "⚠ Storage link failed, continuing..."
-echo ""
-
-echo "▶ Clearing all caches..."
-php artisan optimize:clear || echo "⚠ Optimize clear failed, continuing..."
+php artisan storage:link --force || echo "⚠ Storage link failed, continuing..."
 echo ""
 
 echo "▶ Publishing Filament assets..."
 php artisan filament:assets || echo "⚠ Filament assets failed, continuing..."
-echo ""
-
-echo "▶ Publishing Livewire assets..."
-php artisan livewire:publish --assets || echo "⚠ Livewire assets failed, continuing..."
 echo ""
 
 echo "▶ Caching configuration..."
