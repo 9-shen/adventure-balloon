@@ -13,10 +13,10 @@ class PaxAlertWidget extends Widget
     // Refresh every 60 seconds
     protected static ?string $pollingInterval = '60s';
 
-    // Show at top of dashboard
+    // Show at top of dashboard, full width
     protected static ?int $sort = -2;
 
-    protected int $columns = 1;
+    public int | string | array $columnSpan = 'full';
 
     public function getViewData(): array
     {
