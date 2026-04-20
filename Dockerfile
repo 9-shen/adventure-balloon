@@ -1,18 +1,20 @@
-# ─── Stage 1: Build (Node + Composer) ─────────────────────────────────────────
+# ─── Stage 1: Node/Vite Asset Build ────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Copy lockfile + manifests first for layer caching
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
+# Copy full source and build frontend assets
 COPY . .
 RUN npm run build
 
-# ─── Stage 2: Production ───────────────────────────────────────────────────────
+# ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
 FROM php:8.2-fpm-alpine AS production
 
-# Install system dependencies
+# ── System dependencies ──────────────────────────────────────────────────────────
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -39,39 +41,52 @@ RUN apk add --no-cache \
         intl \
         opcache
 
-# Install Redis PHP extension
+# ── Redis PHP extension ──────────────────────────────────────────────────────────
 RUN apk add --no-cache $PHPIZE_DEPS \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && apk del $PHPIZE_DEPS
 
-# Install Composer
+# ── Composer ──────────────────────────────────────────────────────────────────────
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# Copy application files
+# ── PHP dependencies ──────────────────────────────────────────────────────────────
+# Copy composer files first for better layer caching
+COPY composer.json composer.lock ./
+RUN composer install \
+    --no-dev \
+    --no-scripts \
+    --no-interaction \
+    --optimize-autoloader \
+    --prefer-dist
+
+# ── Application source ────────────────────────────────────────────────────────────
 COPY . .
 
-# Copy built frontend assets from builder stage
+# ── Built frontend assets from Stage 1 ───────────────────────────────────────────
 COPY --from=builder /app/public/build ./public/build
 
-# Install PHP dependencies (production only)
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts
+# ── Run composer scripts (package:discover, filament:upgrade) ─────────────────────
+RUN composer run-script post-autoload-dump --no-interaction || true
 
-# Copy Docker config files
-COPY docker/nginx.conf /etc/nginx/http.d/default.conf
-COPY docker/php.ini /usr/local/etc/php/conf.d/custom.ini
+# ── Docker config files ───────────────────────────────────────────────────────────
+COPY docker/nginx.conf      /etc/nginx/http.d/default.conf
+COPY docker/php.ini         /usr/local/etc/php/conf.d/custom.ini
 COPY docker/supervisord.conf /etc/supervisord.conf
-COPY docker/start.sh /start.sh
-
-# Make start script executable
+COPY docker/start.sh        /start.sh
 RUN chmod +x /start.sh
 
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+# ── Storage & cache directory setup (writeable at build time) ─────────────────────
+RUN mkdir -p \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs \
+    bootstrap/cache \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
