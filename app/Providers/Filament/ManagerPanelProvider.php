@@ -31,16 +31,19 @@ class ManagerPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->brandName('Booklix Operations Manager')
+            ->viteTheme('resources/css/filament/manager/theme.css')
             ->discoverResources(in: app_path('Filament/Manager/Resources'), for: 'App\\Filament\\Manager\\Resources')
             ->discoverPages(in: app_path('Filament/Manager/Pages'), for: 'App\\Filament\\Manager\\Pages')
             ->pages([
                 \App\Filament\Manager\Pages\ManagerDashboard::class,
+                \App\Filament\Admin\Pages\BookingCalendarPage::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Manager/Widgets'), for: 'App\\Filament\\Manager\\Widgets')
             ->widgets([
                 // AccountWidget::class, // Can be disabled to avoid clutter if standard widgets are enough
             ])
             ->navigationGroups([
+                \Filament\Navigation\NavigationGroup::make('Bookings'),
                 \Filament\Navigation\NavigationGroup::make('Operations'),
                 \Filament\Navigation\NavigationGroup::make('Directory'),
             ])

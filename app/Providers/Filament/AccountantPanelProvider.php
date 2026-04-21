@@ -31,6 +31,7 @@ class AccountantPanelProvider extends PanelProvider
                 'primary' => Color::Blue,
             ])
             ->brandName('Booklix Finance Portal')
+            ->viteTheme('resources/css/filament/accountant/theme.css')
             ->discoverResources(
                 in: app_path('Filament/Accountant/Resources'),
                 for: 'App\\Filament\\Accountant\\Resources'
@@ -41,6 +42,7 @@ class AccountantPanelProvider extends PanelProvider
             )
             ->pages([
                 Dashboard::class,
+                \App\Filament\Admin\Pages\BookingCalendarPage::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Accountant/Widgets'),
@@ -52,6 +54,7 @@ class AccountantPanelProvider extends PanelProvider
                 \App\Filament\Accountant\Widgets\RecentInvoicesWidget::class,
             ])
             ->navigationGroups([
+                NavigationGroup::make('Bookings'),
                 NavigationGroup::make('Accountant Module'),
                 NavigationGroup::make('Invoicing'),
                 NavigationGroup::make('Transport Finance'),
