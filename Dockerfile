@@ -62,6 +62,15 @@ RUN composer install \
         --optimize-autoloader \
         --prefer-dist
 
+# ── Storage & cache dirs must exist BEFORE package:discover ─────────────────────
+# BladeIconsServiceProvider::boot() needs storage/framework/views for Blade compiler
+RUN mkdir -p \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/logs \
+    bootstrap/cache
+
 # ── Package discover (requires a temporary .env with APP_KEY) ───────────────────
 RUN cp .env.example .env && \
     echo "APP_KEY=base64:dGVtcEJ1aWxkS2V5MTIzNDU2Nzg5MDEyMzQ1Njc=" >> .env && \
@@ -75,14 +84,8 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/start.sh         /start.sh
 RUN chmod +x /start.sh
 
-# ── Storage & cache directory setup ────────────────────────────────────────────
-RUN mkdir -p \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/framework/cache \
-    storage/logs \
-    bootstrap/cache \
-    && chown -R www-data:www-data /var/www/html \
+# ── Final permissions ──────────────────────────────────────────────────────────
+RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
