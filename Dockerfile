@@ -12,7 +12,7 @@ RUN composer install \
         --optimize-autoloader \
         --prefer-dist \
         --ignore-platform-reqs \
-        --no-audit
+        --no-security-blocking
 
 # ─── Stage 1: Node/Vite Asset Build ─────────────────────────────────────────────
 FROM node:20-alpine AS builder
