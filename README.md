@@ -55,14 +55,11 @@ QUEUE_CONNECTION=database
 # REDIS_PASSWORD=null
 
 # ── Mail ──────────────────────────────────────────────────────────────
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.example.com
-MAIL_PORT=587
-MAIL_USERNAME=your@email.com
-MAIL_PASSWORD=your-mail-password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@your-domain.com
-MAIL_FROM_NAME=Booklix
+# NOTE: SMTP credentials are NOT configured here.
+# They are stored in the database via the admin panel:
+#   Admin → Settings → Email (SMTP)
+# The only env var needed is MAIL_MAILER=log (fallback until settings are saved)
+MAIL_MAILER=log
 
 # ── Filesystem ────────────────────────────────────────────────────────
 FILESYSTEM_DISK=local
@@ -164,15 +161,15 @@ Without a persistent volume, **all uploaded files are deleted on every redeploy*
 ```
 [1/10]  Create storage directories & set permissions
 [2/10]  Clear stale caches
-[3/10]  Run database migrations
-[4/10]  Seed database (roles, admin user, settings)
-[5/10]  Link public storage
-[6/10]  Publish Livewire JS assets (static files)
-[7/10]  Publish Filament assets
+[3/10]  Discover packages & Livewire components
+[4/10]  Run database migrations
+[5/10]  Seed database (roles, admin user, default settings)
+[6/10]  Link public storage
+[7/10]  Publish Livewire & Filament assets
 [8/10]  Cache configuration
-[9/10]  Cache routes
-[10/10] Cache views
-→ Start Supervisor (nginx + php-fpm + queue + scheduler)
+[9/10]  Cache views
+[10/10] Skip route cache (Filament requires dynamic route registration)
+→ Start Supervisor (nginx + php-fpm + queue-worker + scheduler)
 ```
 
 ---
@@ -190,15 +187,65 @@ Visit your domain. You should see the Booklix login page at `/admin/login`.
 
 ---
 
-### Step 7 — Post-Deploy Checks
+### Step 6.5 — ⚠️ REQUIRED: Configure Settings in Admin Panel
+
+> **Critical:** Booklix stores all business configuration in the **database**, not in `.env` files. Every fresh deployment seeds **default/empty values**. You MUST reconfigure these after every new deployment before the app works correctly.
+
+Log in as `super_admin` and fill in each section:
+
+#### 1. General Settings → `Admin → Settings → General`
+
+| Field | What to enter |
+|---|---|
+| Company Name | e.g. `Booklix` |
+| **Company Email** | ⚠️ The address that receives all admin notifications (e.g. new partner bookings). Use your real inbox. |
+| Phone Number | Your company phone |
+| Company Address | Your company address |
+
+> **Why this matters:** The `Company Email` field is where all system notifications are sent (new booking alerts, dispatch confirmations, etc.). If it's empty or wrong, no emails will be received — even if SMTP is configured correctly.
+
+#### 2. Email (SMTP) Settings → `Admin → Settings → Email (SMTP)`
+
+| Field | Example (Zoho) |
+|---|---|
+| SMTP Host | `smtppro.zoho.com` |
+| SMTP Port | `465` |
+| Username | `contact@yourdomain.com` |
+| Password | your SMTP / App Password |
+| Encryption | `SSL` |
+| From Email Address | `contact@yourdomain.com` |
+| From Name | `Booklix` |
+
+After saving, click **Send Test Email** to confirm the connection works.
+
+> **Zoho tip:** If you get `530 5.7.1 Authentication required`, ensure:
+> - SMTP access is enabled in your Zoho account settings
+> - If 2FA is on, generate an **App Password** and use that instead of your login password
+> - Use `smtppro.zoho.com` for Zoho Workplace (paid), `smtp.zoho.com` for free Zoho Mail
+
+#### 3. Retry Any Stuck Queue Jobs
+
+After configuring SMTP, retry any failed notification jobs:
+```bash
+php artisan queue:retry all
+```
+
+---
+
+### Step 7 — Post-Deploy Health Checks
 
 In Coolify → your app → **Terminal**, run these to verify everything is healthy:
 
 ```bash
 # Check all supervisor processes are running
 supervisorctl status
+# Expected output:
+#   nginx          RUNNING
+#   php-fpm        RUNNING
+#   queue-worker   RUNNING
+#   scheduler      RUNNING
 
-# Check Laravel logs
+# Check Laravel logs for errors
 tail -50 /var/www/html/storage/logs/laravel.log
 
 # Test database connection
@@ -209,6 +256,12 @@ php artisan migrate:status
 
 # Check roles were seeded
 php artisan tinker --execute="echo \Spatie\Permission\Models\Role::count();"
+
+# Verify queue worker is processing jobs (check queue counts)
+php artisan tinker --execute="
+echo 'Pending: ' . DB::table('jobs')->count() . PHP_EOL;
+echo 'Failed : ' . DB::table('failed_jobs')->count() . PHP_EOL;
+"
 
 # Verify Livewire assets are published
 ls /var/www/html/public/vendor/livewire/
@@ -275,9 +328,22 @@ php artisan db:seed --class=AdminUserSeeder --force
 
 ### Queue worker not processing jobs
 
-**Cause:** `QUEUE_CONNECTION` mismatch.
+**Cause 1:** `QUEUE_CONNECTION` mismatch.
 
-**Fix:** Ensure `QUEUE_CONNECTION=database` in env vars (or `redis` if you have Redis configured). The queue worker reads this env var automatically.
+**Fix:** Ensure `QUEUE_CONNECTION=database` in env vars (or `redis` if you have Redis configured).
+
+**Cause 2:** Queue worker only processes the `default` queue but notifications go to `notifications` queue.
+
+**Fix:** Already handled in `docker/supervisord.conf` — the worker runs with `--queue=notifications,default`.
+
+**Cause 3:** Max-time reached (worker restarts every hour via `--max-time=3600`).
+
+**Fix:** Supervisor auto-restarts it. Check with `supervisorctl status queue-worker`.
+
+**Retry all stuck jobs:**
+```bash
+php artisan queue:retry all
+```
 
 ---
 
@@ -287,6 +353,42 @@ php artisan db:seed --class=AdminUserSeeder --force
 ```bash
 php artisan storage:link --force
 ```
+
+---
+
+### Emails not sending (SMTP)
+
+**Symptom:** `Connection could not be established with host "smtp.example.com:587"`
+
+**Cause:** SMTP settings haven't been configured in the admin panel yet. The `.env` has only a fallback `MAIL_MAILER=log`. The real credentials live in the database.
+
+**Fix:** Go to **Admin → Settings → Email (SMTP)** and save your SMTP credentials. See Step 6.5 above.
+
+---
+
+**Symptom:** `530 5.7.1 Authentication required` from Zoho
+
+**Cause:** Either credentials are missing/wrong in Email Settings, or Zoho SMTP access isn't enabled.
+
+**Diagnostic:**
+```bash
+php artisan tinker --execute="
+\$s = app(App\Settings\EmailSettings::class);
+echo 'Host: ' . \$s->host . PHP_EOL;
+echo 'User: ' . (\$s->username ?: '*** EMPTY ***') . PHP_EOL;
+echo 'Pass: ' . (empty(\$s->password) ? '*** EMPTY ***' : 'SET') . PHP_EOL;
+"
+```
+If credentials show **EMPTY** → re-save the settings in the admin panel.
+If credentials show **SET** → enable SMTP in your Zoho account or use an App Password.
+
+---
+
+**Symptom:** Emails work via Send Test Email but not for new bookings
+
+**Cause:** The `Company Email` in **General Settings** is empty. This is the recipient address for booking notifications.
+
+**Fix:** Go to **Admin → Settings → General** and enter a real email in the **Company Email** field.
 
 ---
 
