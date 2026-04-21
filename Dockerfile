@@ -1,4 +1,18 @@
-# ─── Stage 1: Node/Vite Asset Build ────────────────────────────────────────────
+# ─── Stage 0: PHP Composer Dependencies ─────────────────────────────────────────
+# Runs first so vendor/ is available to the Vite build (theme CSS imports vendor/filament)
+FROM composer:2 AS deps
+
+WORKDIR /app
+
+COPY composer*.json ./
+RUN composer install \
+        --no-dev \
+        --no-scripts \
+        --no-interaction \
+        --optimize-autoloader \
+        --prefer-dist
+
+# ─── Stage 1: Node/Vite Asset Build ─────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -7,6 +21,10 @@ COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . .
+# Copy vendor from composer stage so Vite can resolve @import paths in theme CSS
+# (e.g. @import '../../../../vendor/filament/filament/resources/css/theme.css')
+COPY --from=deps /app/vendor ./vendor
+
 RUN npm run build
 
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
