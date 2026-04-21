@@ -3,11 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy lockfile + manifests first for layer caching
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
-# Copy full source and build frontend assets
 COPY . .
 RUN npm run build
 
@@ -53,22 +51,20 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # ── Application source ────────────────────────────────────────────────────────────
-# Copy everything first — we can't split composer install from source
-# because post-autoload-dump scripts (package:discover) need the full app
 COPY . .
-
-# ── Built frontend assets from Stage 1 ───────────────────────────────────────────
 COPY --from=builder /app/public/build ./public/build
 
-# ── Install PHP deps + run all scripts (package:discover, filament:upgrade) ──────
-# We need a temporary .env for artisan commands to work during build
-RUN cp .env.example .env \
-    && echo "APP_KEY=base64:$(head -c 32 /dev/urandom | base64)" >> .env \
-    && composer install \
+# ── Install PHP deps (no-scripts to avoid filament:upgrade needing DB) ────────────
+# Then manually run ONLY package:discover for Livewire component registration.
+# A dummy .env + APP_KEY is needed for artisan to boot.
+RUN composer install \
         --no-dev \
+        --no-scripts \
         --no-interaction \
         --optimize-autoloader \
         --prefer-dist \
+    && cp .env.example .env \
+    && sed -i 's|APP_KEY=|APP_KEY=base64:dGVtcEJ1aWxkS2V5MTIzNDU2Nzg5MDEyMzQ1Njc=|' .env \
     && php artisan package:discover --ansi \
     && rm .env
 
