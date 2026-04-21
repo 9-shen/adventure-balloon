@@ -18,40 +18,41 @@ chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 echo "   ✔ Done"
 echo ""
 
-# ── 2. Clear stale/baked caches ────────────────────────────────────────────────
+# ── 2. Clear stale caches ──────────────────────────────────────────────────────
 echo "▶ [2/10] Clearing stale caches..."
-php artisan config:clear --no-interaction || true
-php artisan route:clear  --no-interaction || true
-php artisan view:clear   --no-interaction || true
-php artisan cache:clear  --no-interaction || true
+php artisan config:clear --no-interaction 2>/dev/null || true
+php artisan route:clear  --no-interaction 2>/dev/null || true
+php artisan view:clear   --no-interaction 2>/dev/null || true
+php artisan cache:clear  --no-interaction 2>/dev/null || true
 echo "   ✔ Done"
 echo ""
 
-# ── 3. Run migrations ──────────────────────────────────────────────────────────
-echo "▶ [3/10] Running database migrations..."
+# ── 3. Discover packages & components ──────────────────────────────────────────
+echo "▶ [3/10] Discovering packages and Livewire components..."
+php artisan package:discover --ansi --no-interaction
+echo "   ✔ Done"
+echo ""
+
+# ── 4. Run migrations ──────────────────────────────────────────────────────────
+echo "▶ [4/10] Running database migrations..."
 php artisan migrate --force --no-interaction
 echo "   ✔ Done"
 echo ""
 
-# ── 4. Seed database ───────────────────────────────────────────────────────────
-echo "▶ [4/10] Seeding database..."
-php artisan db:seed --force --no-interaction || echo "   ⚠ Seeding skipped or partially failed (non-fatal)"
+# ── 5. Seed database ───────────────────────────────────────────────────────────
+echo "▶ [5/10] Seeding database..."
+php artisan db:seed --force --no-interaction || echo "   ⚠ Seeding skipped (non-fatal)"
 echo ""
 
-# ── 5. Storage link ────────────────────────────────────────────────────────────
-echo "▶ [5/10] Linking public storage..."
+# ── 6. Storage link ────────────────────────────────────────────────────────────
+echo "▶ [6/10] Linking public storage..."
 php artisan storage:link --force --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
-# ── 6. Publish Livewire assets (static JS served by Nginx) ─────────────────────
-echo "▶ [6/10] Publishing Livewire assets..."
+# ── 7. Publish vendor assets ───────────────────────────────────────────────────
+echo "▶ [7/10] Publishing Livewire & Filament assets..."
 php artisan vendor:publish --tag=livewire:assets --force --no-interaction || true
-echo "   ✔ Done"
-echo ""
-
-# ── 7. Publish Filament assets ─────────────────────────────────────────────────
-echo "▶ [7/10] Publishing Filament assets..."
 php artisan filament:assets --no-interaction || true
 echo "   ✔ Done"
 echo ""
@@ -62,15 +63,17 @@ php artisan config:cache --no-interaction
 echo "   ✔ Done"
 echo ""
 
-# ── 9. Cache routes ────────────────────────────────────────────────────────────
-echo "▶ [9/10] Caching routes..."
-php artisan route:cache --no-interaction
+# ── 9. Cache views ─────────────────────────────────────────────────────────────
+echo "▶ [9/10] Caching views..."
+php artisan view:cache --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
-# ── 10. Cache views ────────────────────────────────────────────────────────────
-echo "▶ [10/10] Caching views..."
-php artisan view:cache --no-interaction || true
+# ── 10. NOTE: route:cache is intentionally skipped ─────────────────────────────
+# Filament & Livewire register routes dynamically via service providers.
+# route:cache bakes a static snapshot that misses these dynamic routes,
+# causing "Unable to find component" errors. Performance impact is negligible.
+echo "▶ [10/10] Skipping route cache (Filament requires dynamic route registration)"
 echo "   ✔ Done"
 echo ""
 

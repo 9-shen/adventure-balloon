@@ -52,24 +52,25 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
-# ── PHP dependencies ──────────────────────────────────────────────────────────────
-# Copy composer files first for better layer caching
-COPY composer.json composer.lock ./
-RUN composer install \
-    --no-dev \
-    --no-scripts \
-    --no-interaction \
-    --optimize-autoloader \
-    --prefer-dist
-
 # ── Application source ────────────────────────────────────────────────────────────
+# Copy everything first — we can't split composer install from source
+# because post-autoload-dump scripts (package:discover) need the full app
 COPY . .
 
 # ── Built frontend assets from Stage 1 ───────────────────────────────────────────
 COPY --from=builder /app/public/build ./public/build
 
-# ── Run composer scripts (package:discover, filament:upgrade) ─────────────────────
-RUN composer run-script post-autoload-dump --no-interaction || true
+# ── Install PHP deps + run all scripts (package:discover, filament:upgrade) ──────
+# We need a temporary .env for artisan commands to work during build
+RUN cp .env.example .env \
+    && echo "APP_KEY=base64:$(head -c 32 /dev/urandom | base64)" >> .env \
+    && composer install \
+        --no-dev \
+        --no-interaction \
+        --optimize-autoloader \
+        --prefer-dist \
+    && php artisan package:discover --ansi \
+    && rm .env
 
 # ── Docker config files ───────────────────────────────────────────────────────────
 COPY docker/nginx.conf      /etc/nginx/http.d/default.conf
@@ -78,7 +79,7 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/start.sh        /start.sh
 RUN chmod +x /start.sh
 
-# ── Storage & cache directory setup (writeable at build time) ─────────────────────
+# ── Storage & cache directory setup ───────────────────────────────────────────────
 RUN mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
