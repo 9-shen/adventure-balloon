@@ -7,7 +7,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # ── 1. Directory structure ──────────────────────────────────────────────────────
-echo "▶ [1/9] Ensuring storage directories exist..."
+echo "▶ [1/10] Ensuring storage directories exist..."
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/framework/cache
@@ -19,7 +19,7 @@ echo "   ✔ Done"
 echo ""
 
 # ── 2. Clear stale/baked caches ────────────────────────────────────────────────
-echo "▶ [2/9] Clearing stale caches..."
+echo "▶ [2/10] Clearing stale caches..."
 php artisan config:clear --no-interaction || true
 php artisan route:clear  --no-interaction || true
 php artisan view:clear   --no-interaction || true
@@ -28,42 +28,48 @@ echo "   ✔ Done"
 echo ""
 
 # ── 3. Run migrations ──────────────────────────────────────────────────────────
-echo "▶ [3/9] Running database migrations..."
+echo "▶ [3/10] Running database migrations..."
 php artisan migrate --force --no-interaction
 echo "   ✔ Done"
 echo ""
 
-# ── 4. Seed database (idempotent — skips if already seeded) ────────────────────
-echo "▶ [4/9] Seeding database..."
-php artisan db:seed --force --no-interaction || echo "   ⚠ Seeding skipped or failed (non-fatal)"
+# ── 4. Seed database ───────────────────────────────────────────────────────────
+echo "▶ [4/10] Seeding database..."
+php artisan db:seed --force --no-interaction || echo "   ⚠ Seeding skipped or partially failed (non-fatal)"
 echo ""
 
 # ── 5. Storage link ────────────────────────────────────────────────────────────
-echo "▶ [5/9] Linking public storage..."
+echo "▶ [5/10] Linking public storage..."
 php artisan storage:link --force --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
-# ── 6. Publish Filament assets ─────────────────────────────────────────────────
-echo "▶ [6/9] Publishing Filament assets..."
+# ── 6. Publish Livewire assets (static JS served by Nginx) ─────────────────────
+echo "▶ [6/10] Publishing Livewire assets..."
+php artisan vendor:publish --tag=livewire:assets --force --no-interaction || true
+echo "   ✔ Done"
+echo ""
+
+# ── 7. Publish Filament assets ─────────────────────────────────────────────────
+echo "▶ [7/10] Publishing Filament assets..."
 php artisan filament:assets --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
-# ── 7. Cache config ────────────────────────────────────────────────────────────
-echo "▶ [7/9] Caching configuration..."
+# ── 8. Cache config ────────────────────────────────────────────────────────────
+echo "▶ [8/10] Caching configuration..."
 php artisan config:cache --no-interaction
 echo "   ✔ Done"
 echo ""
 
-# ── 8. Cache routes ────────────────────────────────────────────────────────────
-echo "▶ [8/9] Caching routes..."
+# ── 9. Cache routes ────────────────────────────────────────────────────────────
+echo "▶ [9/10] Caching routes..."
 php artisan route:cache --no-interaction
 echo "   ✔ Done"
 echo ""
 
-# ── 9. Cache views ─────────────────────────────────────────────────────────────
-echo "▶ [9/9] Caching views..."
+# ── 10. Cache views ────────────────────────────────────────────────────────────
+echo "▶ [10/10] Caching views..."
 php artisan view:cache --no-interaction || true
 echo "   ✔ Done"
 echo ""

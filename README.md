@@ -125,28 +125,59 @@ In Coolify → your app → **Environment Variables**, add **all** variables fro
 
 ---
 
-### Step 3 — Configure Domain
+### Step 3 — Add Persistent Volume (⚠ Critical)
+
+Without a persistent volume, **all uploaded files are deleted on every redeploy**.
+
+1. In Coolify → your app → **Storages** tab
+2. Click **+ Add Volume**
+3. Configure as follows:
+
+| Field | Value |
+|---|---|
+| **Source Path (Volume Name)** | `booklix-storage` |
+| **Destination Path (in container)** | `/var/www/html/storage` |
+
+4. Click **Save**
+
+> **Why this path?** The `storage/` directory holds uploaded media, logs, session files (if using `file` driver), and framework cache. Mounting it as a volume persists data across container restarts and redeployments.
+
+> **Note:** `public/storage` is a symlink to `storage/app/public` — this is created automatically by `php artisan storage:link` in the startup script.
+
+---
+
+### Step 4 — Configure Domain
 
 1. In Coolify → your app → **Domains**
-2. Add your domain: `booklix.your-domain.com`
+2. Add your domain: `https://booklix.your-domain.com`
 3. Enable **Force HTTPS**
 4. Coolify will auto-provision a Let's Encrypt SSL certificate
 
 ---
 
-### Step 4 — Deploy
+### Step 5 — Deploy
 
 1. Click **Deploy** in Coolify
 2. Watch the **Deployment Log** — it runs in ~3–5 minutes
-3. During the first deployment, the `start.sh` script will automatically:
-   - Run all database migrations
-   - Seed roles, permissions, and the default admin user
-   - Link storage
-   - Cache config and routes
+3. The `start.sh` script runs automatically on every container start:
+
+```
+[1/10]  Create storage directories & set permissions
+[2/10]  Clear stale caches
+[3/10]  Run database migrations
+[4/10]  Seed database (roles, admin user, settings)
+[5/10]  Link public storage
+[6/10]  Publish Livewire JS assets (static files)
+[7/10]  Publish Filament assets
+[8/10]  Cache configuration
+[9/10]  Cache routes
+[10/10] Cache views
+→ Start Supervisor (nginx + php-fpm + queue + scheduler)
+```
 
 ---
 
-### Step 5 — Verify Deployment
+### Step 6 — Verify Deployment
 
 Visit your domain. You should see the Booklix login page at `/admin/login`.
 
@@ -159,16 +190,16 @@ Visit your domain. You should see the Booklix login page at `/admin/login`.
 
 ---
 
-### Step 6 — Post-Deploy Checks
+### Step 7 — Post-Deploy Checks
 
 In Coolify → your app → **Terminal**, run these to verify everything is healthy:
 
 ```bash
-# Check Laravel logs
-tail -50 /var/www/html/storage/logs/laravel.log
-
 # Check all supervisor processes are running
 supervisorctl status
+
+# Check Laravel logs
+tail -50 /var/www/html/storage/logs/laravel.log
 
 # Test database connection
 php artisan tinker --execute="DB::select('SELECT 1');"
@@ -178,11 +209,26 @@ php artisan migrate:status
 
 # Check roles were seeded
 php artisan tinker --execute="echo \Spatie\Permission\Models\Role::count();"
+
+# Verify Livewire assets are published
+ls /var/www/html/public/vendor/livewire/
 ```
 
 ---
 
 ## 🐛 Troubleshooting
+
+### `livewire.min.js` returns 404
+
+**Cause:** Livewire JS assets weren't published to `public/vendor/livewire/`.
+
+**Fix (in Coolify Terminal):**
+```bash
+php artisan vendor:publish --tag=livewire:assets --force
+```
+This is now done automatically in `start.sh` step 6.
+
+---
 
 ### Livewire `/update` returns 500
 
