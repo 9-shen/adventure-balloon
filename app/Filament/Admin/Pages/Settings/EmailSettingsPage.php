@@ -161,15 +161,21 @@ class EmailSettingsPage extends Page implements HasForms
         try {
             $settings = app(EmailSettings::class);
 
-            // Apply settings at runtime
+            // Apply settings at runtime — use 'scheme' as required by Symfony Mailer
+            $scheme = match ($settings->encryption) {
+                'ssl'   => 'smtps',
+                default => null,
+            };
+
             config([
-                'mail.mailers.smtp.host'       => $settings->host,
-                'mail.mailers.smtp.port'        => $settings->port,
-                'mail.mailers.smtp.username'    => $settings->username,
-                'mail.mailers.smtp.password'    => $settings->password,
-                'mail.mailers.smtp.encryption'  => $settings->encryption,
-                'mail.from.address'             => $settings->from_address,
-                'mail.from.name'                => $settings->from_name,
+                'mail.default'               => 'smtp',
+                'mail.mailers.smtp.scheme'   => $scheme,
+                'mail.mailers.smtp.host'     => $settings->host,
+                'mail.mailers.smtp.port'     => $settings->port,
+                'mail.mailers.smtp.username' => $settings->username,
+                'mail.mailers.smtp.password' => $settings->password,
+                'mail.from.address'          => $settings->from_address,
+                'mail.from.name'             => $settings->from_name,
             ]);
 
             $recipient = auth()->user()->email;
