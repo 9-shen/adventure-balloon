@@ -4,13 +4,15 @@ FROM composer:2 AS deps
 
 WORKDIR /app
 
-COPY composer*.json ./
+COPY composer.json composer.lock ./
 RUN composer install \
         --no-dev \
         --no-scripts \
         --no-interaction \
         --optimize-autoloader \
-        --prefer-dist
+        --prefer-dist \
+        --ignore-platform-reqs \
+        --no-audit
 
 # ─── Stage 1: Node/Vite Asset Build ─────────────────────────────────────────────
 FROM node:20-alpine AS builder
