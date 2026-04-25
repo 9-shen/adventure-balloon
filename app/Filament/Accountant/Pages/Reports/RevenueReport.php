@@ -55,7 +55,7 @@ class RevenueReport extends Page implements HasTable
 
     public function getView(): string
     {
-        return 'filament.admin.pages.reports.revenue-report';
+        return 'filament.accountant.pages.reports.revenue-report';
     }
 
     protected function getHeaderWidgets(): array

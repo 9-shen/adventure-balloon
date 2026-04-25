@@ -47,7 +47,7 @@ class TransportCostReport extends Page implements HasTable
 
     public function getView(): string
     {
-        return 'filament.admin.pages.reports.transport-cost-report';
+        return 'filament.accountant.pages.reports.transport-cost-report';
     }
 
     protected function getHeaderWidgets(): array

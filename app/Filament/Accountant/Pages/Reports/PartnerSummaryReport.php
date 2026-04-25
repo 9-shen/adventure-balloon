@@ -50,7 +50,7 @@ class PartnerSummaryReport extends Page implements HasTable
     }
     public function getView(): string
     {
-        return 'filament.admin.pages.reports.partner-summary-report';
+        return 'filament.accountant.pages.reports.partner-summary-report';
     }
 
     // -------------------------------------------------------

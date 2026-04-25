@@ -53,7 +53,7 @@ class PaxStatsReport extends Page implements HasTable
 
     public function getView(): string
     {
-        return 'filament.admin.pages.reports.pax-stats-report';
+        return 'filament.accountant.pages.reports.pax-stats-report';
     }
 
     /**

@@ -52,7 +52,7 @@ class DuePaymentsReport extends Page implements HasTable
 
     public function getView(): string
     {
-        return 'filament.admin.pages.reports.due-payments-report';
+        return 'filament.accountant.pages.reports.due-payments-report';
     }
 
     protected function getHeaderWidgets(): array
