@@ -108,6 +108,10 @@ class PaxStatsReport extends Page implements HasTable
             ->query(
                 fn() => Booking::query()
                     ->select([
+                        // MIN(id) satisfies MySQL ONLY_FULL_GROUP_BY (strict mode) by making
+                        // every SELECT column either a GROUP BY column or an aggregate.
+                        // Filament also uses this as the record key fallback.
+                        DB::raw('MIN(id) as id'),
                         'flight_date',
                         'type',
                         DB::raw('COUNT(*) as total_flights'),
