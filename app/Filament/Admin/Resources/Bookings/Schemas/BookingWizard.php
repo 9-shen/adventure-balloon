@@ -51,16 +51,29 @@ class BookingWizard
                         // ── Partner Select (partner bookings only) ───────
                         Select::make('partner_id')
                             ->label('Partner')
-                            ->options(fn () => Partner::where('is_active', true)
+                            ->options(fn() => Partner::where('is_active', true)
                                 ->where('status', 'approved')
                                 ->orderBy('company_name')
                                 ->pluck('company_name', 'id'))
                             ->searchable()
                             ->native(false)
                             ->live()
-                            ->required(fn (Get $get): bool => $get('booking_type') === 'partner')
-                            ->visible(fn (Get $get): bool => $get('booking_type') === 'partner')
+                            ->required(fn(Get $get): bool => $get('booking_type') === 'partner')
+                            ->visible(fn(Get $get): bool => $get('booking_type') === 'partner')
                             ->placeholder('Search for a partner…')
+                            ->columnSpanFull(),
+
+                        // ── Partner / External Reference ─────────────────
+                        TextInput::make('partner_reference')
+                            ->label('Booking Reference')
+                            ->maxLength(100)
+                            ->nullable()
+                            ->required(fn(Get $get): bool => $get('booking_type') === 'partner')
+                            ->hint(
+                                fn(Get $get): string => $get('booking_type') === 'partner'
+                                    ? "Required — enter the partner's own booking reference"
+                                    : 'Optional — external or partner reference number'
+                            )
                             ->columnSpanFull(),
 
                         Grid::make(2)->components([
@@ -75,7 +88,7 @@ class BookingWizard
                                     if ($type === 'partner' && $partnerId) {
                                         // Only products assigned to this partner (via pivot)
                                         return Product::where('is_active', true)
-                                            ->whereHas('partners', fn ($q) => $q->where('partners.id', $partnerId))
+                                            ->whereHas('partners', fn($q) => $q->where('partners.id', $partnerId))
                                             ->orderBy('name')
                                             ->pluck('name', 'id');
                                     }
@@ -96,8 +109,8 @@ class BookingWizard
                                 ->native(false)
                                 ->minDate(now())
                                 ->live()
-                                ->afterStateUpdated(fn () => null) // triggers re-render for PAX info
-                                ->hint(fn (Get $get): string => self::paxHint($get)),
+                                ->afterStateUpdated(fn() => null) // triggers re-render for PAX info
+                                ->hint(fn(Get $get): string => self::paxHint($get)),
 
                             TimePicker::make('flight_time')
                                 ->label('Flight Time')
@@ -106,7 +119,7 @@ class BookingWizard
                                 ->seconds(false),
 
                             TextInput::make('adult_pax')
-                                ->label('Adult Passengers')
+                                ->label('Number Of Adults')
                                 ->numeric()
                                 ->required()
                                 ->default(1)
@@ -114,25 +127,42 @@ class BookingWizard
                                 ->live(),
 
                             TextInput::make('child_pax')
-                                ->label('Child Passengers')
+                                ->label('Number Of Children')
                                 ->numeric()
                                 ->required()
                                 ->default(0)
                                 ->minValue(0)
                                 ->live(),
 
-                            Select::make('booking_source')
-                                ->label('Booking Source')
-                                ->options([
-                                    'walk-in'  => 'Walk-In',
-                                    'phone'    => 'Phone',
-                                    'website'  => 'Website',
-                                    'email'    => 'Email',
-                                    'referral' => 'Referral',
-                                    'other'    => 'Other',
-                                ])
-                                ->nullable()
-                                ->native(false),
+                            Grid::make(3)
+                                ->schema([
+                                    Select::make('booking_source')
+                                        ->label('Booking Source')
+                                        ->options([
+                                            'walk-in'  => 'Walk-In',
+                                            'phone'    => 'Phone',
+                                            'website'  => 'Website',
+                                            'email'    => 'Email',
+                                            'referral' => 'Referral',
+                                            'other'    => 'Other',
+                                        ])
+                                        ->nullable()
+                                        ->native(false),
+
+                                    TextInput::make('pickup_location')
+                                        ->label('Pick-up Location')
+                                        ->required()
+                                        ->maxLength(255)
+                                        ->placeholder('Hotel name, address or meeting point…'),
+
+
+                                    TextInput::make('dropoff_location')
+                                        ->label('Drop-off Location (optional)')
+                                        ->nullable()
+                                        ->maxLength(255)
+                                        ->placeholder('Leave empty if same as pick-up'),
+
+                                ])->columnSpanFull(),
                         ]),
                     ]),
 
@@ -144,7 +174,7 @@ class BookingWizard
 
                         Placeholder::make('pax_guide')
                             ->label('')
-                            ->content(fn (Get $get): string => sprintf(
+                            ->content(fn(Get $get): string => sprintf(
                                 'Add %d customer record(s): %d adult(s) + %d child(ren).',
                                 (int) $get('adult_pax') + (int) $get('child_pax'),
                                 (int) $get('adult_pax'),
@@ -171,7 +201,8 @@ class BookingWizard
                                     Toggle::make('is_primary')
                                         ->label('Primary Contact')
                                         ->default(false)
-                                        ->inline(false),
+                                        ->inline(false)
+                                        ->live(),
 
                                     TextInput::make('email')
                                         ->label('Email')
@@ -182,7 +213,7 @@ class BookingWizard
                                     TextInput::make('phone')
                                         ->label('Phone')
                                         ->tel()
-                                        ->nullable()
+                                        ->required(fn(Get $get): bool => (bool) $get('is_primary'))
                                         ->maxLength(50),
 
                                     TextInput::make('nationality')
@@ -211,7 +242,7 @@ class BookingWizard
                             ->addActionLabel('Add Passenger')
                             ->reorderable(false)
                             ->columnSpanFull()
-                            ->itemLabel(fn (array $state): ?string => $state['full_name'] ?? null),
+                            ->itemLabel(fn(array $state): ?string => $state['full_name'] ?? null),
                     ]),
 
                 // ─── Step 3: Pricing & Discounts ──────────────────────────
@@ -223,21 +254,21 @@ class BookingWizard
 
                             Placeholder::make('adult_total_display')
                                 ->label('Adult Total')
-                                ->content(fn (Get $get): string => self::formatCurrency(
+                                ->content(fn(Get $get): string => self::formatCurrency(
                                     self::calcAdultTotal($get)
                                 )),
 
                             Placeholder::make('child_total_display')
                                 ->label('Child Total')
-                                ->content(fn (Get $get): string => self::formatCurrency(
+                                ->content(fn(Get $get): string => self::formatCurrency(
                                     self::calcChildTotal($get)
                                 )),
 
                             // Partner price info badge
                             Placeholder::make('partner_price_info')
                                 ->label('Price Source')
-                                ->content(fn (Get $get): string => self::priceSourceInfo($get))
-                                ->visible(fn (Get $get): bool => $get('booking_type') === 'partner')
+                                ->content(fn(Get $get): string => self::priceSourceInfo($get))
+                                ->visible(fn(Get $get): bool => $get('booking_type') === 'partner')
                                 ->columnSpan(2),
 
                             TextInput::make('discount_amount')
@@ -255,7 +286,7 @@ class BookingWizard
 
                             Placeholder::make('final_amount_display')
                                 ->label('Final Amount')
-                                ->content(fn (Get $get): string => self::formatCurrency(
+                                ->content(fn(Get $get): string => self::formatCurrency(
                                     self::calcFinalAmount($get)
                                 ))
                                 ->columnSpan(2),
@@ -303,7 +334,7 @@ class BookingWizard
 
                             Placeholder::make('balance_due_display')
                                 ->label('Balance Due')
-                                ->content(fn (Get $get): string => self::formatCurrency(
+                                ->content(fn(Get $get): string => self::formatCurrency(
                                     max(0, self::calcFinalAmount($get) - (float) ($get('amount_paid') ?? 0))
                                 )),
                         ]),
@@ -320,13 +351,15 @@ class BookingWizard
 
                                     Placeholder::make('review_type')
                                         ->label('Booking Type')
-                                        ->content(fn (Get $get): string =>
+                                        ->content(
+                                            fn(Get $get): string =>
                                             $get('booking_type') === 'partner' ? '🤝 Partner Booking' : '✈️ Regular Booking'
                                         ),
 
                                     Placeholder::make('review_partner')
                                         ->label('Partner')
-                                        ->content(fn (Get $get): string =>
+                                        ->content(
+                                            fn(Get $get): string =>
                                             $get('booking_type') === 'partner'
                                                 ? (Partner::find($get('partner_id'))?->company_name ?? '—')
                                                 : '—'
@@ -334,13 +367,15 @@ class BookingWizard
 
                                     Placeholder::make('review_product')
                                         ->label('Product')
-                                        ->content(fn (Get $get): string =>
+                                        ->content(
+                                            fn(Get $get): string =>
                                             Product::find($get('product_id'))?->name ?? '—'
                                         ),
 
                                     Placeholder::make('review_flight_date')
                                         ->label('Flight Date')
-                                        ->content(fn (Get $get): string =>
+                                        ->content(
+                                            fn(Get $get): string =>
                                             $get('flight_date')
                                                 ? Carbon::parse($get('flight_date'))->format('d/m/Y')
                                                 : '—'
@@ -348,22 +383,35 @@ class BookingWizard
 
                                     Placeholder::make('review_pax')
                                         ->label('Total PAX')
-                                        ->content(fn (Get $get): string =>
+                                        ->content(
+                                            fn(Get $get): string =>
                                             (int) $get('adult_pax') + (int) $get('child_pax')
-                                            . ' (' . $get('adult_pax') . ' adults + ' . $get('child_pax') . ' children)'
+                                                . ' (' . $get('adult_pax') . ' adults + ' . $get('child_pax') . ' children)'
                                         ),
+
+                                    Placeholder::make('review_pickup')
+                                        ->label('Pick-up')
+                                        ->content(fn(Get $get): string => $get('pickup_location') ?? '—'),
+
+                                    Placeholder::make('review_dropoff')
+                                        ->label('Drop-off')
+                                        ->content(fn(Get $get): string => $get('dropoff_location') ?? '—'),
+
+                                    Placeholder::make('review_partner_ref')
+                                        ->label('Booking Reference')
+                                        ->content(fn(Get $get): string => $get('partner_reference') ?? '—'),
 
                                     Placeholder::make('review_source')
                                         ->label('Booking Source')
-                                        ->content(fn (Get $get): string => ucfirst($get('booking_source') ?? '—')),
+                                        ->content(fn(Get $get): string => ucfirst($get('booking_source') ?? '—')),
 
                                     Placeholder::make('review_payment_method')
                                         ->label('Payment Method')
-                                        ->content(fn (Get $get): string => ucfirst($get('payment_method') ?? '—')),
+                                        ->content(fn(Get $get): string => ucfirst($get('payment_method') ?? '—')),
 
                                     Placeholder::make('review_final')
                                         ->label('Final Amount')
-                                        ->content(fn (Get $get): string => self::formatCurrency(
+                                        ->content(fn(Get $get): string => self::formatCurrency(
                                             self::calcFinalAmount($get)
                                         )),
                                 ]),

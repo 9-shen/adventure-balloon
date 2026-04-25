@@ -49,9 +49,12 @@ class CreatePartnerBooking extends CreateRecord
 
                             Select::make('product_id')
                                 ->label('Experience / Product')
-                                ->options(fn () =>
+                                ->options(
+                                    fn() =>
                                     Product::where('is_active', true)
-                                        ->whereHas('partners', fn ($q) =>
+                                        ->whereHas(
+                                            'partners',
+                                            fn($q) =>
                                             $q->where('partners.id', $partnerId)
                                         )
                                         ->orderBy('name')
@@ -97,6 +100,30 @@ class CreatePartnerBooking extends CreateRecord
                                 ->default(0)
                                 ->minValue(0)
                                 ->live(),
+
+                            TextInput::make('partner_reference')
+                                ->label('Your Booking Reference')
+                                ->required()
+                                ->maxLength(100)
+                                ->placeholder('Enter your internal booking or voucher reference…')
+                                ->hint('Required — this reference will appear on all documents')
+                                ->columnSpan(2),
+
+                            Grid::make(2)->schema([
+                                TextInput::make('pickup_location')
+                                    ->label('Pick-up Location')
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->placeholder('Hotel name, address or meeting point…'),
+
+
+                                TextInput::make('dropoff_location')
+                                    ->label('Drop-off Location (optional)')
+                                    ->nullable()
+                                    ->maxLength(255)
+                                    ->placeholder('Leave empty if same as pick-up'),
+
+                            ])->columnSpanFull(),
                         ]),
                     ]),
 
@@ -107,7 +134,7 @@ class CreatePartnerBooking extends CreateRecord
                     ->schema([
                         Placeholder::make('pax_guide')
                             ->label('')
-                            ->content(fn ($get): string => sprintf(
+                            ->content(fn($get): string => sprintf(
                                 'Please add %d passenger record(s): %d adult(s) + %d child(ren).',
                                 (int) $get('adult_pax') + (int) $get('child_pax'),
                                 (int) $get('adult_pax'),
@@ -134,7 +161,8 @@ class CreatePartnerBooking extends CreateRecord
                                     Toggle::make('is_primary')
                                         ->label('Primary Contact')
                                         ->default(false)
-                                        ->inline(false),
+                                        ->inline(false)
+                                        ->live(),
 
                                     TextInput::make('email')
                                         ->label('Email')
@@ -145,7 +173,7 @@ class CreatePartnerBooking extends CreateRecord
                                     TextInput::make('phone')
                                         ->label('Phone')
                                         ->tel()
-                                        ->nullable()
+                                        ->required(fn($get): bool => (bool) $get('is_primary'))
                                         ->maxLength(50),
 
                                     TextInput::make('nationality')
@@ -199,8 +227,10 @@ class CreatePartnerBooking extends CreateRecord
 
                                         return sprintf(
                                             "%d Adult(s) × %.2f MAD + %d Child(ren) × %.2f MAD = **%.2f MAD**",
-                                            $adultPax, $pricing['base_adult_price'],
-                                            $childPax, $pricing['base_child_price'],
+                                            $adultPax,
+                                            $pricing['base_adult_price'],
+                                            $childPax,
+                                            $pricing['base_child_price'],
                                             $pricing['final_amount'],
                                         );
                                     }),
@@ -211,6 +241,22 @@ class CreatePartnerBooking extends CreateRecord
                             ->rows(3)
                             ->nullable()
                             ->columnSpanFull(),
+
+                        Section::make('Logistics')
+                            ->compact()
+                            ->components([
+                                \Filament\Forms\Components\Placeholder::make('review_partner_ref')
+                                    ->label('Your Reference')
+                                    ->content(fn($get): string => $get('partner_reference') ?? '—'),
+
+                                \Filament\Forms\Components\Placeholder::make('review_pickup')
+                                    ->label('Pick-up')
+                                    ->content(fn($get): string => $get('pickup_location') ?? '—'),
+
+                                \Filament\Forms\Components\Placeholder::make('review_dropoff')
+                                    ->label('Drop-off')
+                                    ->content(fn($get): string => $get('dropoff_location') ?? '—'),
+                            ]),
                     ]),
 
             ])->columnSpanFull(),
@@ -227,10 +273,10 @@ class CreatePartnerBooking extends CreateRecord
 
         // Calculate pricing with partner rates
         $pricing = app(BookingService::class)->calculatePricing(
-            product:   $product,
-            adultPax:  (int) ($data['adult_pax'] ?? 0),
-            childPax:  (int) ($data['child_pax'] ?? 0),
-            discount:  0,
+            product: $product,
+            adultPax: (int) ($data['adult_pax'] ?? 0),
+            childPax: (int) ($data['child_pax'] ?? 0),
+            discount: 0,
             partnerId: $partnerId,
         );
 
