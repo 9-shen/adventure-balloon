@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class BookingTypeChartWidget extends ChartWidget
 {
-    protected array|string|int $columnSpan = 1;
+    protected array|string|int $columnSpan = 'full';
     protected ?string $heading = 'Booking Type Split';
     protected ?string $maxHeight = '220px';
     protected static ?int $sort = 7;

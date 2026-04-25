@@ -11,6 +11,8 @@ class AccountantTotalRevenueWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    public int | string | array $columnSpan = 'full';
+
     public static function canView(): bool
     {
         /** @var \App\Models\User|null $user */

@@ -13,6 +13,8 @@ class GreeterTodayStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 0;
 
+    public int | string | array $columnSpan = 'full';
+
     protected static bool $isLazy = false;
 
     public static function canView(): bool

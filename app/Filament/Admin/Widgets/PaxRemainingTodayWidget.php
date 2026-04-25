@@ -13,6 +13,8 @@ class PaxRemainingTodayWidget extends BaseWidget
 {
     protected static ?int $sort = 1;
 
+    public int | string | array $columnSpan = 'full';
+
     protected ?string $pollingInterval = '60s';
 
     protected static bool $isLazy = false;

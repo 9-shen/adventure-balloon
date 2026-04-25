@@ -13,6 +13,8 @@ class ProductStatsWidget extends BaseWidget
 {
     protected static ?int $sort = 8;
 
+    public int | string | array $columnSpan = 'full';
+
     // Cycle through these colors for each product card
     private const COLORS = ['success', 'warning', 'info', 'primary', 'danger', 'gray'];
 

@@ -10,7 +10,7 @@ class RevenueChartWidget extends ChartWidget
 {
     protected static ?int    $sort        = 5;
     protected string  $color       = 'primary';
-    protected array|string|int $columnSpan = 2;
+    protected array|string|int $columnSpan = 'full';
     protected ?string $heading = 'Monthly Revenue (Current Year)';
 
     public static function canView(): bool
