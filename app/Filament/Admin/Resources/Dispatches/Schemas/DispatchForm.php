@@ -16,6 +16,7 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
@@ -67,7 +68,21 @@ class DispatchForm
                                 ->toArray();
                         })
                         ->disabled(fn(?Model $record): bool => $record !== null)
-                        ->live(),
+                        ->live()
+                        ->afterStateUpdated(function (?string $state, Set $set): void {
+                            if (! $state) {
+                                // Booking deselected — clear all logistics fields
+                                $set('pickup_location',  '');
+                                $set('dropoff_location', '');
+                                $set('pickup_time',      null);
+                                return;
+                            }
+                            $booking = Booking::find((int) $state);
+                            // Pre-fill from booking; dispatcher can still override
+                            $set('pickup_location',  $booking?->pickup_location  ?? '');
+                            $set('dropoff_location', $booking?->dropoff_location ?? '');
+                            $set('pickup_time',      $booking?->flight_time      ?? null);
+                        }),
 
                     // ── Reactive Booking Info Card (Get $get only — OOM-safe) ──
                     Placeholder::make('_booking_info_card')
@@ -111,11 +126,13 @@ class DispatchForm
 
                     TimePicker::make('pickup_time')
                         ->label('Pickup Time')
+                        ->required()
                         ->seconds(false)
                         ->native(false),
 
                     TextInput::make('pickup_location')
                         ->label('Pickup Location')
+                        ->required()
                         ->maxLength(500),
 
                     TextInput::make('dropoff_location')
@@ -199,11 +216,13 @@ class DispatchForm
 
                     TimePicker::make('pickup_time')
                         ->label('Pickup Time')
+                        ->required()
                         ->seconds(false)
                         ->native(false),
 
                     TextInput::make('pickup_location')
                         ->label('Pickup Location')
+                        ->required()
                         ->maxLength(500),
 
                     TextInput::make('dropoff_location')
