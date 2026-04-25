@@ -115,53 +115,6 @@ class BookingResource extends Resource
                                 ->formatStateUsing(fn(?string $state): string => ucfirst($state ?? '—')),
                         ]),
 
-                    // ── Partner Info section (visible only for partner bookings) ──
-                    Section::make('Partner Information')
-                        ->columns(2)
-                        ->visible(fn(Booking $record): bool => $record->type === 'partner')
-                        ->components([
-                            TextEntry::make('partner.company_name')
-                                ->label('Partner')
-                                ->placeholder('—'),
-
-                            TextEntry::make('type')
-                                ->label('Booking Type')
-                                ->badge()
-                                ->color('purple')
-                                ->formatStateUsing(fn(string $state): string => '🤝 ' . ucfirst($state)),
-                        ]),
-
-
-                    Section::make('Notes & Audit')
-                        ->columns(2)
-                        ->components([
-                            TextEntry::make('notes')
-                                ->label('Internal Notes')
-                                ->placeholder('No notes.')
-                                ->columnSpan(2),
-
-                            TextEntry::make('cancelled_reason')
-                                ->label('Cancellation Reason')
-                                ->placeholder('—')
-                                ->columnSpan(2),
-
-                            TextEntry::make('createdBy.name')
-                                ->label('Created By'),
-
-                            TextEntry::make('created_at')
-                                ->label('Created At')
-                                ->dateTime('d/m/Y H:i'),
-
-                            TextEntry::make('confirmedBy.name')
-                                ->label('Confirmed By'),
-
-                            TextEntry::make('confirmed_at')
-                                ->label('Confirmed At')
-                                ->dateTime('d/m/Y H:i'),
-                        ]),
-                ]),
-            Grid::make(1)
-                ->schema([
                     Section::make('Passengers')
                         ->columns(3)
                         ->components([
@@ -178,6 +131,52 @@ class BookingResource extends Resource
                                     (string) $record->getTotalPax()
                                 ),
                         ]),
+
+                    // ── Logistics section ────────────────────────────────────────────────────
+                    Section::make('Logistics')
+                        ->columns(3)
+                        ->components([
+                            TextEntry::make('pickup_location')
+                                ->label('Pick-up Location')
+                                ->placeholder('—')
+                                ->icon('heroicon-o-map-pin')
+                                ->columnSpan(2),
+
+                            TextEntry::make('dropoff_location')
+                                ->label('Drop-off Location')
+                                ->placeholder('Same as pick-up')
+                                ->icon('heroicon-o-flag'),
+
+                            TextEntry::make('partner_reference')
+                                ->label('Partner / Booking Reference')
+                                ->placeholder('—')
+                                ->badge()
+                                ->color('purple')
+                                ->visible(fn(Booking $record): bool => filled($record->partner_reference))
+                                ->columnSpanFull(),
+                        ]),
+
+                    Section::make('Partner Information')
+                        ->columns(2)
+                        ->visible(fn(Booking $record): bool => $record->type === 'partner')
+                        ->components([
+                            TextEntry::make('partner.company_name')
+                                ->label('Partner')
+                                ->placeholder('—'),
+
+                            TextEntry::make('type')
+                                ->label('Booking Type')
+                                ->badge()
+                                ->color('purple')
+                                ->formatStateUsing(fn(string $state): string => '🤝 ' . ucfirst($state)),
+                        ]),
+
+
+
+                ]),
+            Grid::make(1)
+                ->schema([
+
 
                     Section::make('Pricing')
                         ->columns(2)
@@ -243,6 +242,34 @@ class BookingResource extends Resource
                             TextEntry::make('balance_due')
                                 ->label('Balance Due')
                                 ->money('MAD'),
+                        ]),
+
+                    Section::make('Notes & Audit')
+                        ->columns(2)
+                        ->components([
+                            TextEntry::make('notes')
+                                ->label('Internal Notes')
+                                ->placeholder('No notes.')
+                                ->columnSpan(2),
+
+                            TextEntry::make('cancelled_reason')
+                                ->label('Cancellation Reason')
+                                ->placeholder('—')
+                                ->columnSpan(2),
+
+                            TextEntry::make('createdBy.name')
+                                ->label('Created By'),
+
+                            TextEntry::make('created_at')
+                                ->label('Created At')
+                                ->dateTime('d/m/Y H:i'),
+
+                            TextEntry::make('confirmedBy.name')
+                                ->label('Confirmed By'),
+
+                            TextEntry::make('confirmed_at')
+                                ->label('Confirmed At')
+                                ->dateTime('d/m/Y H:i'),
                         ]),
 
                 ]),

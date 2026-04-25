@@ -54,13 +54,13 @@ class BookingEditForm
                                     ->seconds(false),
 
                                 TextInput::make('adult_pax')
-                                    ->label('Adult Passengers')
+                                    ->label('Number Of Adults')
                                     ->numeric()
                                     ->required()
                                     ->minValue(1),
 
                                 TextInput::make('child_pax')
-                                    ->label('Child Passengers')
+                                    ->label('Number Of Children')
                                     ->numeric()
                                     ->required()
                                     ->minValue(0),
@@ -81,43 +81,35 @@ class BookingEditForm
                             ]),
                         ]),
 
-                    Section::make('Status & Notes')
+                    Section::make('Logistics')
+                        ->columns(2)
                         ->components([
-                            Grid::make(2)->components([
-                                Select::make('booking_status')
-                                    ->label('Booking Status')
-                                    ->options([
-                                        'pending'   => 'Pending',
-                                        'confirmed' => 'Confirmed',
-                                        'cancelled' => 'Cancelled',
-                                        'completed' => 'Completed',
-                                    ])
-                                    ->required()
-                                    ->native(false),
-
-                                Select::make('attendance')
-                                    ->label('Attendance')
-                                    ->options([
-                                        'pending' => '⏳ Pending',
-                                        'show'    => '✅ Show',
-                                        'no_show' => '❌ No-Show',
-                                    ])
-                                    ->required()
-                                    ->native(false),
-                            ]),
-
-                            Textarea::make('notes')
-                                ->label('Internal Notes')
-                                ->rows(3)
-                                ->nullable()
+                            TextInput::make('pickup_location')
+                                ->label('Pick-up Location')
+                                ->required()
+                                ->maxLength(255)
+                                ->placeholder('Hotel name, address or meeting point…')
                                 ->columnSpanFull(),
 
-                            Textarea::make('cancelled_reason')
-                                ->label('Cancellation Reason')
-                                ->rows(2)
+                            TextInput::make('dropoff_location')
+                                ->label('Drop-off Location (optional)')
                                 ->nullable()
-                                ->columnSpanFull(),
+                                ->maxLength(255)
+                                ->placeholder('Leave empty if same as pick-up'),
+
+                            TextInput::make('partner_reference')
+                                ->label('Booking Reference')
+                                ->nullable()
+                                ->maxLength(100)
+                                ->placeholder('Partner or external reference…')
+                                ->hint(
+                                    fn($record): string => $record?->type === 'partner'
+                                        ? '* Required for partner bookings'
+                                        : 'Optional'
+                                ),
                         ]),
+
+
 
                 ]),
 
@@ -215,6 +207,44 @@ class BookingEditForm
                         ]),
 
                 ]),
+
+            Section::make('Status & Notes')
+                ->components([
+                    Grid::make(2)->components([
+                        Select::make('booking_status')
+                            ->label('Booking Status')
+                            ->options([
+                                'pending'   => 'Pending',
+                                'confirmed' => 'Confirmed',
+                                'cancelled' => 'Cancelled',
+                                'completed' => 'Completed',
+                            ])
+                            ->required()
+                            ->native(false),
+
+                        Select::make('attendance')
+                            ->label('Attendance')
+                            ->options([
+                                'pending' => '⏳ Pending',
+                                'show'    => '✅ Show',
+                                'no_show' => '❌ No-Show',
+                            ])
+                            ->required()
+                            ->native(false),
+                    ]),
+
+                    Textarea::make('notes')
+                        ->label('Internal Notes')
+                        ->rows(3)
+                        ->nullable()
+                        ->columnSpanFull(),
+
+                    Textarea::make('cancelled_reason')
+                        ->label('Cancellation Reason')
+                        ->rows(2)
+                        ->nullable()
+                        ->columnSpanFull(),
+                ])->columnSpanFull(),
 
 
         ]);
