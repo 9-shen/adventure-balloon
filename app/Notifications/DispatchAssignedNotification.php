@@ -48,7 +48,7 @@ class DispatchAssignedNotification extends Notification implements ShouldQueue
 
         if ($booking && $booking->customers->isNotEmpty()) {
             $primaryPax = $booking->customers->firstWhere('is_primary', true)
-                        ?? $booking->customers->first();
+                ?? $booking->customers->first();
 
             $paxLines = $booking->customers->map(function ($c) {
                 $star = $c->is_primary ? ' ⭐ Primary' : '';
@@ -65,7 +65,7 @@ class DispatchAssignedNotification extends Notification implements ShouldQueue
 
         // ── Driver assignments ─────────────────────────────────────────────────
         $rows        = $dispatch->dispatchDriverRows->load(['driver', 'vehicle']);
-        $driverLines = $rows->map(fn ($row) => sprintf(
+        $driverLines = $rows->map(fn($row) => sprintf(
             "• %s — %s %s (Plate: %s) — %d PAX assigned",
             $row->driver?->name ?? 'N/A',
             $row->vehicle?->make ?? '',
@@ -99,8 +99,7 @@ class DispatchAssignedNotification extends Notification implements ShouldQueue
             ->line($driverLines ?: 'No drivers assigned yet.')
             ->line('')
             ->line('---')
-            ->line("Please ensure all drivers are briefed and vehicles are ready before the pickup time.")
-            ->salutation("— {$appName} Operations Team");
+            ->line("Please ensure all drivers are briefed and vehicles are ready before the pickup time.");
     }
 
     public function toArray(object $notifiable): array

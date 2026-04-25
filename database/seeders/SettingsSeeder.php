@@ -16,9 +16,9 @@ class SettingsSeeder extends Seeder
     {
         // ── App Settings ─────────────────────────────────────────────────────────
         $app = app(AppSettings::class);
-        $app->company_name    = 'Booklix';
-        $app->company_email   = 'info@booklix.com';
-        $app->company_phone   = '+212 600 000 000';
+        $app->company_name    = 'Adventure Balloon';
+        $app->company_email   = 'nouaman.bentaj@gmail.com';
+        $app->company_phone   = '+212707962826';
         $app->company_address = 'Marrakech, Morocco';
         $app->logo_path       = null;
         $app->save();
@@ -49,17 +49,21 @@ class SettingsSeeder extends Seeder
         $bank->save();
 
         // ── Email Settings ────────────────────────────────────────────────────────
+        // ⚠️  Do NOT commit real credentials here.
+        //     Configure SMTP via Admin → Settings → Email after deployment.
         $email = app(EmailSettings::class);
-        $email->host         = 'smtp.mailtrap.io';
+        $email->host         = null;
         $email->port         = 587;
         $email->username     = null;
         $email->password     = null;
         $email->encryption   = 'tls';
-        $email->from_address = 'noreply@booklix.com';
-        $email->from_name    = 'Booklix';
+        $email->from_address = null;
+        $email->from_name    = 'Adventure Balloon';
         $email->save();
 
         // ── WhatsApp Settings ─────────────────────────────────────────────────────
+        // ⚠️  Do NOT commit real Twilio credentials here.
+        //     Configure via Admin → Settings → WhatsApp after deployment.
         $wa = app(WhatsAppSettings::class);
         $wa->account_sid = null;
         $wa->auth_token  = null;

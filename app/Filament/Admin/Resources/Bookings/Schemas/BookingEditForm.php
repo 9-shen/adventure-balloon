@@ -83,19 +83,20 @@ class BookingEditForm
 
                     Section::make('Logistics')
                         ->columns(2)
-                        ->components([
+                        ->schema([
                             TextInput::make('pickup_location')
                                 ->label('Pick-up Location')
                                 ->required()
                                 ->maxLength(255)
                                 ->placeholder('Hotel name, address or meeting point…')
-                                ->columnSpanFull(),
+                                ->columnSpan(1), // Takes 1 column (left side)
 
                             TextInput::make('dropoff_location')
                                 ->label('Drop-off Location (optional)')
                                 ->nullable()
                                 ->maxLength(255)
-                                ->placeholder('Leave empty if same as pick-up'),
+                                ->placeholder('Leave empty if same as pick-up')
+                                ->columnSpan(1), // Takes 1 column (right side)
 
                             TextInput::make('partner_reference')
                                 ->label('Booking Reference')
@@ -106,9 +107,9 @@ class BookingEditForm
                                     fn($record): string => $record?->type === 'partner'
                                         ? '* Required for partner bookings'
                                         : 'Optional'
-                                ),
+                                )
+                                ->columnSpan(2), // Takes full width (both columns)
                         ]),
-
 
 
                 ]),
