@@ -77,6 +77,7 @@ class UniversalLoginController extends Controller
             $user->hasRole('transport')                 => '/transport',
             $user->hasRole('driver')                    => '/driver',
             $user->hasRole('partner')                   => '/partner',
+            $user->hasRole('guide')                     => '/guide',
             default                                     => '/admin',
         };
     }
