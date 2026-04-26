@@ -131,27 +131,31 @@ class GreeterBookingResource extends Resource
                         default => 'warning',
                     }),
 
-                // ── Vehicle assigned via Dispatch ──────────────────────────────
+                // ── Vehicles assigned via Dispatch (all rows) ─────────────────
                 TextColumn::make('vehicle_name')
                     ->label('Vehicle')
                     ->icon('heroicon-o-truck')
                     ->getStateUsing(function (Booking $record): string {
-                        $row = $record->dispatch?->dispatchDriverRows->first();
-                        if (!$row?->vehicle) return '—';
-                        return trim(($row->vehicle->make ?? '') . ' ' . ($row->vehicle->model ?? ''));
+                        $rows = $record->dispatch?->dispatchDriverRows ?? collect();
+                        if ($rows->isEmpty()) return '—';
+                        return $rows->map(fn ($row) => $row->vehicle
+                            ? trim(($row->vehicle->make ?? '') . ' ' . ($row->vehicle->model ?? ''))
+                            : '—'
+                        )->join(' · ');
                     })
                     ->placeholder('—')
                     ->toggleable(),
 
                 TextColumn::make('vehicle_plate')
-                    ->label('Plate')
-                    ->badge()
-                    ->color('gray')
+                    ->label('Plate(s)')
                     ->getStateUsing(function (Booking $record): string {
-                        $row = $record->dispatch?->dispatchDriverRows->first();
-                        return $row?->vehicle?->plate_number ?? '—';
+                        $rows = $record->dispatch?->dispatchDriverRows ?? collect();
+                        if ($rows->isEmpty()) return '—';
+                        return $rows->map(fn ($row) => $row->vehicle?->plate_number ?? '—')->join(' · ');
                     })
                     ->placeholder('—')
+                    ->badge()
+                    ->color('gray')
                     ->toggleable(),
             ])
             ->filters([
