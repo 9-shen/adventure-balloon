@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Bookings\RelationManagers;
 
+use App\Models\Booking;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -24,6 +25,39 @@ class BookingCustomersRelationManager extends RelationManager
     protected static ?string $title = 'Passengers';
 
     protected static ?string $recordTitleAttribute = 'full_name';
+
+    // ─── Sync pax counts & pricing back to the booking ───────────────────────
+
+    /**
+     * Recalculate adult_pax, child_pax, totals, and final_amount on the parent booking.
+     */
+    private function syncBookingPax(): void
+    {
+        /** @var Booking $booking */
+        $booking = $this->getOwnerRecord();
+        $booking->refresh();
+
+        $adultPax = $booking->customers()->where('type', 'adult')->count();
+        $childPax = $booking->customers()->where('type', 'child')->count();
+
+        $adultPrice  = (float) $booking->base_adult_price;
+        $childPrice  = (float) $booking->base_child_price;
+        $discount    = (float) ($booking->discount_amount ?? 0);
+
+        $adultTotal  = round($adultPrice * $adultPax, 2);
+        $childTotal  = round($childPrice * $childPax, 2);
+        $finalAmount = max(0, round($adultTotal + $childTotal - $discount, 2));
+        $balanceDue  = max(0, round($finalAmount - (float) $booking->amount_paid, 2));
+
+        $booking->update([
+            'adult_pax'    => $adultPax,
+            'child_pax'    => $childPax,
+            'adult_total'  => $adultTotal,
+            'child_total'  => $childTotal,
+            'final_amount' => $finalAmount,
+            'balance_due'  => $balanceDue,
+        ]);
+    }
 
     public function form(Schema $form): Schema
     {
@@ -110,13 +144,18 @@ class BookingCustomersRelationManager extends RelationManager
                     ->boolean(),
             ])
             ->recordActions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->after(fn () => $this->syncBookingPax()),
+                DeleteAction::make()
+                    ->after(fn () => $this->syncBookingPax()),
             ])
             ->toolbarActions([
-                CreateAction::make()->label('Add Passenger'),
+                CreateAction::make()
+                    ->label('Add Passenger')
+                    ->after(fn () => $this->syncBookingPax()),
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->after(fn () => $this->syncBookingPax()),
                 ]),
             ]);
     }
