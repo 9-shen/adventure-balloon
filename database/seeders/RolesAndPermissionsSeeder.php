@@ -112,6 +112,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_customers',
                 'view_payments',
             ],
+
+            // ── Guide — belongs to a partner, creates bookings via /guide panel
+            'guide' => [
+                'view_bookings', 'create_bookings',
+                'view_customers',
+            ],
         ];
 
         foreach ($roles as $roleName => $rolePermissions) {

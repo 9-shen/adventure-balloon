@@ -40,6 +40,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'partner_id',
         'transport_company_id',
         'driver_id',
+        'guide_id',
     ];
 
     /**
@@ -91,6 +92,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return $this->hasRole('driver') && $this->driver_id !== null;
         }
 
+        if ($panel->getId() === 'guide') {
+            return $this->hasRole('guide') && $this->guide_id !== null;
+        }
+
         if ($panel->getId() === 'greeter') {
             return $this->hasRole('greeter');
         }
@@ -129,6 +134,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     public function driver(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Driver::class);
+    }
+
+    public function guide(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Guide::class);
     }
 
     public function registerMediaCollections(): void

@@ -46,10 +46,9 @@ class DriversRelationManager extends RelationManager
             TextInput::make('email')
                 ->label('Email (for portal access)')
                 ->email()
-                ->nullable()
-                ->unique('drivers', 'email', ignorable: fn ($record) => $record)
-                ->maxLength(255)
-                ->helperText('If provided, a driver portal account will be created automatically.'),
+                ->required()
+                ->unique('drivers', 'email', ignorable: fn($record) => $record)
+                ->maxLength(255),
 
             TextInput::make('national_id')
                 ->label('National ID (CIN)')
@@ -98,7 +97,7 @@ class DriversRelationManager extends RelationManager
                 TextColumn::make('license_expiry')
                     ->label('Expiry')
                     ->date('d/m/Y')
-                    ->color(fn ($record) => $record?->isLicenseExpiringSoon() ? 'danger' : null),
+                    ->color(fn($record) => $record?->isLicenseExpiringSoon() ? 'danger' : null),
 
                 IconColumn::make('is_active')
                     ->label('Active')

@@ -76,6 +76,11 @@ class Partner extends Model implements HasMedia
         return $this->hasMany(User::class, 'partner_id');
     }
 
+    public function guides(): HasMany
+    {
+        return $this->hasMany(Guide::class);
+    }
+
     // ─── Media ───────────────────────────────────────────────────────────────
 
     public function registerMediaCollections(): void

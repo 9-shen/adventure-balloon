@@ -18,6 +18,7 @@ class Booking extends Model
         'booking_ref',
         'type',
         'partner_id',
+        'guide_id',
         'product_id',
         'flight_date',
         'flight_time',
@@ -115,6 +116,11 @@ class Booking extends Model
     public function invoice(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Invoice::class);
+    }
+
+    public function guide(): BelongsTo
+    {
+        return $this->belongsTo(Guide::class);
     }
 
     // ─── Helpers ─────────────────────────────────────────────────────────────

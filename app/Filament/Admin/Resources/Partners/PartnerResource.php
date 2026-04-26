@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\Partners\Pages\CreatePartner;
 use App\Filament\Admin\Resources\Partners\Pages\EditPartner;
 use App\Filament\Admin\Resources\Partners\Pages\ListPartners;
 use App\Filament\Admin\Resources\Partners\Pages\ViewPartner;
+use App\Filament\Admin\Resources\Partners\RelationManagers\GuidesRelationManager;
 use App\Filament\Admin\Resources\Partners\RelationManagers\PartnerProductsRelationManager;
 use App\Filament\Admin\Resources\Partners\Schemas\PartnerForm;
 use App\Filament\Admin\Resources\Partners\Schemas\PartnerInfolist;
@@ -75,6 +76,7 @@ class PartnerResource extends Resource
     {
         return [
             PartnerProductsRelationManager::class,
+            GuidesRelationManager::class,
         ];
     }
 
