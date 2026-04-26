@@ -105,6 +105,13 @@ class PartnerBookingResource extends Resource
                         'danger'  => 'due',
                     ]),
 
+                TextColumn::make('guide.name')
+                    ->label('Guide')
+                    ->placeholder('—')
+                    ->icon('heroicon-o-user')
+                    ->searchable()
+                    ->toggleable(),
+
                 TextColumn::make('booking_status')
                     ->label('Status')
                     ->badge()
