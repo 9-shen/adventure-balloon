@@ -51,7 +51,13 @@ class GreeterBookingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('customers', 'product', 'partner')
+            ->with([
+                'customers',
+                'product',
+                'partner',
+                'dispatch.dispatchDriverRows.vehicle',
+                'dispatch.dispatchDriverRows.driver',
+            ])
             ->whereIn('booking_status', ['confirmed', 'pending', 'completed'])
             ->withoutGlobalScopes();
     }
@@ -124,6 +130,29 @@ class GreeterBookingResource extends Resource
                         $record->customers->where('attendance', 'pending')->count() === $record->customers->count() => 'gray',
                         default => 'warning',
                     }),
+
+                // ── Vehicle assigned via Dispatch ──────────────────────────────
+                TextColumn::make('vehicle_name')
+                    ->label('Vehicle')
+                    ->icon('heroicon-o-truck')
+                    ->getStateUsing(function (Booking $record): string {
+                        $row = $record->dispatch?->dispatchDriverRows->first();
+                        if (!$row?->vehicle) return '—';
+                        return trim(($row->vehicle->make ?? '') . ' ' . ($row->vehicle->model ?? ''));
+                    })
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('vehicle_plate')
+                    ->label('Plate')
+                    ->badge()
+                    ->color('gray')
+                    ->getStateUsing(function (Booking $record): string {
+                        $row = $record->dispatch?->dispatchDriverRows->first();
+                        return $row?->vehicle?->plate_number ?? '—';
+                    })
+                    ->placeholder('—')
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('flight_date_range')

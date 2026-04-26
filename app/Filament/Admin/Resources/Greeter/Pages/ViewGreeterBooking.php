@@ -16,6 +16,7 @@ class ViewGreeterBooking extends ViewRecord
     {
         return $infolist
             ->components([
+                // ── Booking Summary ──────────────────────────────────────────────
                 Section::make('Booking Summary')
                     ->columns(4)
                     ->components([
@@ -63,6 +64,54 @@ class ViewGreeterBooking extends ViewRecord
                         TextEntry::make('partner.company_name')
                             ->label('Partner')
                             ->placeholder('Individual Booking'),
+                    ])->columnSpanFull(),
+
+                // ── Transport Assignment ─────────────────────────────────────────
+                Section::make('Transport Assignment')
+                    ->icon('heroicon-o-truck')
+                    ->columns(2)
+                    ->visible(fn ($record): bool => $record->dispatch?->dispatchDriverRows->isNotEmpty() ?? false)
+                    ->components([
+                        // Vehicle
+                        TextEntry::make('vehicle_name')
+                            ->label('Vehicle')
+                            ->icon('heroicon-o-truck')
+                            ->getStateUsing(function ($record): string {
+                                $row = $record->dispatch?->dispatchDriverRows->first();
+                                if (!$row?->vehicle) return '—';
+                                return trim(($row->vehicle->make ?? '') . ' ' . ($row->vehicle->model ?? ''));
+                            })
+                            ->placeholder('—'),
+
+                        TextEntry::make('vehicle_plate')
+                            ->label('License Plate')
+                            ->icon('heroicon-o-identification')
+                            ->badge()
+                            ->color('gray')
+                            ->getStateUsing(function ($record): string {
+                                $row = $record->dispatch?->dispatchDriverRows->first();
+                                return $row?->vehicle?->plate_number ?? '—';
+                            })
+                            ->placeholder('—'),
+
+                        // Driver
+                        TextEntry::make('driver_name')
+                            ->label('Driver')
+                            ->icon('heroicon-o-user')
+                            ->getStateUsing(function ($record): string {
+                                $row = $record->dispatch?->dispatchDriverRows->first();
+                                return $row?->driver?->name ?? '—';
+                            })
+                            ->placeholder('—'),
+
+                        TextEntry::make('driver_phone')
+                            ->label('Driver Phone')
+                            ->icon('heroicon-o-phone')
+                            ->getStateUsing(function ($record): string {
+                                $row = $record->dispatch?->dispatchDriverRows->first();
+                                return $row?->driver?->phone ?? '—';
+                            })
+                            ->placeholder('—'),
                     ])->columnSpanFull(),
             ]);
     }
