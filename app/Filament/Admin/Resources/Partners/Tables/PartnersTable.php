@@ -59,6 +59,13 @@ class PartnersTable
                     ->counts('products')
                     ->sortable(),
 
+                TextColumn::make('guides_count')
+                    ->label('Guides')
+                    ->counts('guides')
+                    ->sortable()
+                    ->badge()
+                    ->color('info'),
+
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
