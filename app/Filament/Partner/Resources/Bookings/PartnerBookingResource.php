@@ -112,6 +112,12 @@ class PartnerBookingResource extends Resource
                     ->searchable()
                     ->toggleable(),
 
+                TextColumn::make('partner_reference')
+                    ->label('Your Ref')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(),
+
                 TextColumn::make('booking_status')
                     ->label('Status')
                     ->badge()

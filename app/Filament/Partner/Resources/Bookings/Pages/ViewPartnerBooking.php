@@ -31,6 +31,7 @@ class ViewPartnerBooking extends ViewRecord
                 ->columns(2)
                 ->schema([
                     TextEntry::make('booking_ref')->label('Reference')->copyable()->weight('bold'),
+                    TextEntry::make('partner_reference')->label('Your Reference')->copyable(),
                     TextEntry::make('booking_status')->label('Status')->badge(),
                     TextEntry::make('product.name')->label('Experience'),
                     TextEntry::make('flight_date')->label('Flight Date')->date('d/m/Y'),
