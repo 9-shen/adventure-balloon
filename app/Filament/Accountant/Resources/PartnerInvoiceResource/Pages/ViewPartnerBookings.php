@@ -107,6 +107,12 @@ class ViewPartnerBookings extends ManageRelatedRecords
                     ->weight('bold')
                     ->color(fn (Booking $b) => $b->isInvoiced() ? 'gray' : 'primary'),
 
+                TextColumn::make('partner_reference')
+                    ->label('Partner Ref')
+                    ->searchable()
+                    ->copyable()
+                    ->toggleable(),
+
                 TextColumn::make('flight_date')
                     ->label('Flight Date')
                     ->date('d/m/Y')
