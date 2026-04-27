@@ -162,8 +162,29 @@ class PartnerSummaryReport extends Page implements HasTable
                             $query->whereHas('bookings', fn($q) => $q->whereDate('flight_date', '<=', $data['date_until']));
                         }
                     }),
+                    
+                \Filament\Tables\Filters\SelectFilter::make('status')
+                    ->label('Partner Status')
+                    ->options([
+                        'approved' => 'Approved',
+                        'pending'  => 'Pending',
+                        'rejected' => 'Rejected',
+                    ]),
             ])
-            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
+            ->bulkActions([
+                \Filament\Actions\BulkAction::make('export_selected')
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $ids = $records->pluck('id')->toArray();
+                        return Excel::download(
+                            new PartnerSummaryExport(['ids' => $ids]),
+                            'partner-summary-selected-' . now()->format('Y-m-d') . '.csv',
+                            \Maatwebsite\Excel\Excel::CSV
+                        );
+                    }),
+            ])
             ->striped()
             ->paginated([25, 50]);
     }
