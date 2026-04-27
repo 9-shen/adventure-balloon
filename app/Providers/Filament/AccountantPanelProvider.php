@@ -42,7 +42,7 @@ class AccountantPanelProvider extends PanelProvider
             )
             ->pages([
                 Dashboard::class,
-                \App\Filament\Admin\Pages\BookingCalendarPage::class,
+                \App\Filament\Accountant\Pages\BookingCalendarPage::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Accountant/Widgets'),
