@@ -21,22 +21,22 @@ class RevenueStatsWidget extends BaseWidget
         $totalPax       = (int) (clone $query)->sum(DB::raw('adult_pax + child_pax'));
 
         return [
-            Stat::make('Total Revenue', 'MAD ' . number_format($totalRevenue, 2))
+            Stat::make('Total Revenue', new \Illuminate\Support\HtmlString('<span class="text-xl font-bold">MAD ' . number_format($totalRevenue, 2) . '</span>'))
                 ->description('All active bookings')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('primary'),
 
-            Stat::make('Collected', 'MAD ' . number_format($collected, 2))
+            Stat::make('Collected', new \Illuminate\Support\HtmlString('<span class="text-xl font-bold">MAD ' . number_format($collected, 2) . '</span>'))
                 ->description('Total payments received')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Outstanding', 'MAD ' . number_format($outstanding, 2))
+            Stat::make('Outstanding', new \Illuminate\Support\HtmlString('<span class="text-xl font-bold">MAD ' . number_format($outstanding, 2) . '</span>'))
                 ->description('Pending balance due')
                 ->descriptionIcon('heroicon-m-exclamation-circle')
                 ->color('danger'),
 
-            Stat::make('Total Bookings', $bookingsCount)
+            Stat::make('Total Bookings', new \Illuminate\Support\HtmlString('<span class="text-xl font-bold">' . $bookingsCount . '</span>'))
                 ->description($totalPax . ' total PAX')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('info'),
