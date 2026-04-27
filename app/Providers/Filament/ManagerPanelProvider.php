@@ -46,6 +46,7 @@ class ManagerPanelProvider extends PanelProvider
                 \Filament\Navigation\NavigationGroup::make('Bookings'),
                 \Filament\Navigation\NavigationGroup::make('Operations'),
                 \Filament\Navigation\NavigationGroup::make('Directory'),
+                \Filament\Navigation\NavigationGroup::make('Greeter'),
             ])
             ->middleware([
                 EncryptCookies::class,
