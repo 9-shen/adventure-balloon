@@ -180,6 +180,8 @@ class AccountantBookingResource extends Resource
                         'cash' => 'Cash',
                         'online' => 'Online',
                         'wire' => 'Wire Transfer',
+                        'l_c'     => 'L.C',
+                        'voucher' => 'Voucher',
                     ]),
                 Filter::make('outstanding_balance')
                     ->label('Has Outstanding Balance')
@@ -210,9 +212,11 @@ class AccountantBookingResource extends Resource
                         Select::make('payment_method')
                             ->label('Payment Method')
                             ->options([
-                                'cash' => 'Cash',
-                                'online' => 'Online',
-                                'wire' => 'Wire Transfer',
+                                'cash'    => 'Cash',
+                                'online'  => 'Online',
+                                'wire'    => 'Wire Transfer',
+                                'l_c'     => 'L.C',
+                                'voucher' => 'Voucher',
                             ])
                             ->required(),
                         TextInput::make('payment_amount')

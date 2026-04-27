@@ -303,9 +303,11 @@ class BookingWizard
                             Select::make('payment_method')
                                 ->label('Payment Method')
                                 ->options([
-                                    'cash'   => 'Cash',
-                                    'wire'   => 'Wire Transfer',
-                                    'online' => 'Online',
+                                    'cash'    => 'Cash',
+                                    'wire'    => 'Wire Transfer',
+                                    'online'  => 'Online',
+                                    'l_c'     => 'L.C',
+                                    'voucher' => 'Voucher',
                                 ])
                                 ->default('cash')
                                 ->required()

@@ -46,9 +46,11 @@ class ViewAccountantBooking extends ViewRecord
                     Select::make('payment_method')
                         ->label('Payment Method')
                         ->options([
-                            'cash'   => 'Cash',
-                            'online' => 'Online',
-                            'wire'   => 'Wire Transfer',
+                            'cash'    => 'Cash',
+                            'online'  => 'Online',
+                            'wire'    => 'Wire Transfer',
+                            'l_c'     => 'L.C',
+                            'voucher' => 'Voucher',
                         ])
                         ->required(),
                     TextInput::make('payment_amount')
