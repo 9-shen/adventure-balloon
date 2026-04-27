@@ -53,7 +53,7 @@ class InvoiceResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->query(Invoice::query()->with(['partner'])->withCount('items'))
+            ->query(Invoice::query()->with(['partner', 'items.booking'])->withCount('items'))
             ->columns([
                 TextColumn::make('invoice_ref')
                     ->label('Invoice #')
@@ -67,6 +67,20 @@ class InvoiceResource extends Resource
                     ->label('Partner')
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('partner_references')
+                    ->label('Partner Ref(s)')
+                    ->getStateUsing(function (Invoice $record) {
+                        return $record->items
+                            ->pluck('booking.partner_reference')
+                            ->filter()
+                            ->unique()
+                            ->join(', ') ?: '—';
+                    })
+                    ->badge()
+                    ->color('purple')
+                    ->copyable()
+                    ->wrap(),
 
                 TextColumn::make('period')
                     ->label('Period')

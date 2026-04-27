@@ -197,7 +197,7 @@ class ViewInvoice extends ViewRecord
                 ->components([
                     RepeatableEntry::make('items')
                         ->label('')
-                        ->columns(7)
+                        ->columns(8)
                         ->contained(false)
                         ->schema([
                             TextEntry::make('flight_date')
@@ -208,6 +208,12 @@ class ViewInvoice extends ViewRecord
                                 ->label('Booking Ref')
                                 ->badge()
                                 ->color('primary'),
+
+                            TextEntry::make('booking.partner_reference')
+                                ->label('Partner Ref')
+                                ->placeholder('—')
+                                ->badge()
+                                ->color('purple'),
 
                             TextEntry::make('description')
                                 ->label('Description'),
