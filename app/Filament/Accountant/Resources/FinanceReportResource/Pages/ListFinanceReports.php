@@ -13,8 +13,17 @@ class ListFinanceReports extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            \Filament\Actions\ExportAction::make()
-                ->exporter(\App\Filament\Exports\BookingExporter::class),
+            \Filament\Actions\Action::make('export_csv')
+                ->label('Export Finance Reports')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->action(function () {
+                    return \Maatwebsite\Excel\Facades\Excel::download(
+                        new \App\Exports\FinanceReportQueryExport($this->getFilteredTableQuery()),
+                        'finance_reports.csv',
+                        \Maatwebsite\Excel\Excel::CSV
+                    );
+                }),
         ];
     }
 

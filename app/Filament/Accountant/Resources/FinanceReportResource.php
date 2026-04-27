@@ -194,8 +194,18 @@ class FinanceReportResource extends Resource
             ])
             ->toolbarActions([
                 \Filament\Actions\BulkActionGroup::make([
-                    \Filament\Actions\ExportBulkAction::make()
-                        ->exporter(\App\Filament\Exports\BookingExporter::class),
+                    \Filament\Actions\BulkAction::make('export_csv')
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $query = \App\Models\Booking::query()->whereIn('id', $records->pluck('id'));
+                            return \Maatwebsite\Excel\Facades\Excel::download(
+                                new \App\Exports\FinanceReportQueryExport($query),
+                                'finance_reports_selected.csv',
+                                \Maatwebsite\Excel\Excel::CSV
+                            );
+                        }),
                 ]),
             ]);
     }
