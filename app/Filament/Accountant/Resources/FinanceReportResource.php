@@ -24,7 +24,7 @@ class FinanceReportResource extends Resource
     
     public static function getNavigationIcon(): string|\BackedEnum|null
     {
-        return 'heroicon-o-currency-dollar';
+        return 'heroicon-o-document-text';
     }
     public static function getNavigationGroup(): ?string
     {
@@ -33,12 +33,12 @@ class FinanceReportResource extends Resource
     
     public static function getNavigationLabel(): string
     {
-        return 'Finance Bookings';
+        return 'Finance Reports';
     }
     
     public static function getModelLabel(): string
     {
-        return 'Financial Booking';
+        return 'Finance Report';
     }
     
     public static function getPluralModelLabel(): string
