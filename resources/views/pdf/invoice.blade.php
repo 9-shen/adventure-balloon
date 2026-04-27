@@ -186,9 +186,9 @@
         }
 
         table.items thead th {
-            padding: 9px 10px;
+            padding: 7px 5px;
             text-align: left;
-            font-size: 9px;
+            font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
@@ -206,8 +206,8 @@
         }
 
         table.items tbody td {
-            padding: 8px 10px;
-            font-size: 10px;
+            padding: 6px 5px;
+            font-size: 9px;
             color: #333;
             border-bottom: 1px solid #ecf0f1;
             vertical-align: top;
@@ -429,14 +429,15 @@
     <table class="items">
         <thead>
             <tr>
-                <th style="width:11%">Date</th>
+                <th style="width:10%">Date</th>
                 <th style="width:12%">Booking Ref</th>
                 <th style="width:12%">Partner Ref</th>
                 <th>Description</th>
-                <th class="right" style="width:7%">Adults</th>
-                <th class="right" style="width:7%">Children</th>
-                <th class="right" style="width:12%">Unit Price</th>
-                <th class="right" style="width:12%">Amount</th>
+                <th class="right" style="width:6%">Adults</th>
+                <th class="right" style="width:6%">Children</th>
+                <th class="right" style="width:11%">Adult Price</th>
+                <th class="right" style="width:11%">Child Price</th>
+                <th class="right" style="width:11%">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -448,7 +449,8 @@
                 <td>{{ $item->description }}</td>
                 <td class="right">{{ $item->adult_pax }}</td>
                 <td class="right">{{ $item->child_pax }}</td>
-                <td class="right">MAD {{ number_format($item->unit_price, 2) }}</td>
+                <td class="right">MAD {{ number_format($item->booking->base_adult_price ?? 0, 2) }}</td>
+                <td class="right">MAD {{ number_format($item->booking->base_child_price ?? 0, 2) }}</td>
                 <td class="right"><strong>MAD {{ number_format($item->line_total, 2) }}</strong></td>
             </tr>
             @endforeach
