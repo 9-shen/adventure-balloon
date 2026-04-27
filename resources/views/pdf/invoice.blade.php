@@ -17,6 +17,13 @@
             background: #fff;
         }
 
+        .page { 
+            max-width: 720px; 
+            margin: 30px auto; 
+            padding: 40px 50px; 
+            background: #fff; 
+        }
+
         .header {
             display: table;
             width: 100%;
@@ -360,6 +367,8 @@
 
 <body>
 
+<div class="page">
+
     <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
     <div class="header">
         <div class="header-left">
@@ -583,6 +592,8 @@
         </div>{{-- .footer-company --}}
 
     </div>{{-- .footer --}}
+
+</div>{{-- .page --}}
 
 </body>
 
