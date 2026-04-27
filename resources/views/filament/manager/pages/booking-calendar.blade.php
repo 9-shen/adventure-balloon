@@ -161,33 +161,38 @@
                             <p class="text-sm text-gray-400 dark:text-gray-500">No bookings for this day</p>
                         </div>
                     @else
-                        {{-- Booking type row --}}
-                        <div class="grid grid-cols-3 gap-3 mb-4">
-                            <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-3 text-center">
-                                <p class="text-2xl font-extrabold text-amber-700 dark:text-amber-300 leading-none">
-                                    {{ $selectedDayStats['totalCount'] }}
-                                </p>
-                                <p class="text-[10px] font-medium text-amber-500 dark:text-amber-400 mt-1 uppercase tracking-wide">Total</p>
-                            </div>
-                            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
-                                <p class="text-2xl font-extrabold text-blue-700 dark:text-blue-300 leading-none">
+                        {{-- Total — full-width pill (amber = manager theme) --}}
+                        <div class="bg-amber-50 dark:bg-amber-900/20 rounded-xl p-4 text-center mb-3">
+                            <p class="text-3xl font-extrabold text-amber-700 dark:text-amber-300 leading-none">
+                                {{ $selectedDayStats['totalCount'] }}
+                            </p>
+                            <p class="text-[10px] font-semibold text-amber-500 dark:text-amber-400 mt-1.5 uppercase tracking-widest">Total</p>
+                        </div>
+
+                        {{-- Regular + Partner side by side --}}
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="rounded-xl p-3 text-center border border-gray-100 dark:border-gray-800">
+                                <p class="text-2xl font-extrabold text-gray-800 dark:text-gray-100 leading-none">
                                     {{ $selectedDayStats['regularCount'] }}
                                 </p>
-                                <p class="text-[10px] font-medium text-blue-500 dark:text-blue-400 mt-1 uppercase tracking-wide">Regular</p>
+                                <p class="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mt-1.5 uppercase tracking-widest">Regular</p>
                             </div>
-                            <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
-                                <p class="text-2xl font-extrabold text-purple-700 dark:text-purple-300 leading-none">
+                            <div class="rounded-xl p-3 text-center border border-gray-100 dark:border-gray-800">
+                                <p class="text-2xl font-extrabold text-amber-600 dark:text-amber-400 leading-none">
                                     {{ $selectedDayStats['partnerCount'] }}
                                 </p>
-                                <p class="text-[10px] font-medium text-purple-500 dark:text-purple-400 mt-1 uppercase tracking-wide">Partner</p>
+                                <p class="text-[10px] font-semibold text-amber-500 dark:text-amber-400 mt-1.5 uppercase tracking-widest">Partner</p>
                             </div>
                         </div>
+
+                        {{-- Divider --}}
+                        <div class="border-t border-gray-100 dark:border-gray-800 mb-3"></div>
 
                         {{-- PAX --}}
                         <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
                             <div class="flex items-center gap-2">
                                 <x-heroicon-o-users class="w-4 h-4 text-gray-400" />
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Total PAX</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Total PAX</span>
                             </div>
                             <span class="text-sm font-bold text-gray-900 dark:text-white">
                                 {{ number_format($selectedDayStats['totalPax']) }}
@@ -199,7 +204,7 @@
                         <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
                             <div class="flex items-center gap-2">
                                 <x-heroicon-o-banknotes class="w-4 h-4 text-gray-400" />
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Amount</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Amount</span>
                             </div>
                             <span class="text-sm font-bold text-gray-900 dark:text-white">
                                 {{ number_format($selectedDayStats['totalAmount'], 0) }}
@@ -211,7 +216,7 @@
                         <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
                             <div class="flex items-center gap-2">
                                 <x-heroicon-o-check-circle class="w-4 h-4 text-green-500" />
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Paid</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Paid</span>
                             </div>
                             <span class="text-sm font-bold text-green-600 dark:text-green-400">
                                 {{ number_format($selectedDayStats['totalPaid'], 0) }}
@@ -227,7 +232,7 @@
                                 @else
                                     <x-heroicon-o-check-badge class="w-4 h-4 text-green-500" />
                                 @endif
-                                <span class="text-sm text-gray-600 dark:text-gray-400">Due</span>
+                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Due</span>
                             </div>
                             <span class="text-sm font-bold {{ $selectedDayStats['totalDue'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
                                 {{ number_format($selectedDayStats['totalDue'], 0) }}
