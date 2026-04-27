@@ -26,7 +26,6 @@ class ManagerDashboard extends BaseDashboard
     {
         return [
             \App\Filament\Manager\Widgets\OperationsHealthWidget::class,
-            \App\Filament\Manager\Widgets\TopPartnersWidget::class,
             \App\Filament\Manager\Widgets\RevenueChartWidget::class,
         ];
     }
