@@ -217,7 +217,7 @@ class RevenueReport extends Page implements HasTable
                 SelectFilter::make('booking_status')
                     ->options(['confirmed' => 'Confirmed', 'pending' => 'Pending', 'completed' => 'Completed']),
             ])
-            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
+
             ->bulkActions([
                 \Filament\Actions\BulkAction::make('export_selected')
                     ->label('Export Selected')
@@ -237,4 +237,3 @@ class RevenueReport extends Page implements HasTable
             ->paginated([25, 50, 100]);
     }
 }
-
