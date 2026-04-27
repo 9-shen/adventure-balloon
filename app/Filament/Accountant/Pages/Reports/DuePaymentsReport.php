@@ -172,6 +172,29 @@ class DuePaymentsReport extends Page implements HasTable
                 SelectFilter::make('type')
                     ->label('Booking Type')
                     ->options(['regular' => 'Regular', 'partner' => 'Partner']),
+
+                SelectFilter::make('product_id')
+                    ->label('Product')
+                    ->relationship('product', 'name')
+                    ->searchable()
+                    ->preload(),
+
+                SelectFilter::make('payment_status')
+                    ->options(['paid' => 'Paid', 'partial' => 'Partial', 'due' => 'Due', 'on_site' => 'On-Site']),
+            ])
+            ->bulkActions([
+                \Filament\Actions\BulkAction::make('export_selected')
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $ids = $records->pluck('id')->toArray();
+                        return Excel::download(
+                            new DuePaymentsExport(['ids' => $ids]),
+                            'due-payments-selected-' . now()->format('Y-m-d') . '.csv',
+                            \Maatwebsite\Excel\Excel::CSV
+                        );
+                    }),
             ])
             ->defaultSort('balance_due', 'desc')
             ->striped()

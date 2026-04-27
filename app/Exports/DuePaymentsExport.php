@@ -25,6 +25,7 @@ class DuePaymentsExport implements FromQuery, WithHeadings, WithMapping, ShouldA
             ->when($this->filters['type'] ?? null, fn($q, $v) => $q->where('type', $v))
             ->when($this->filters['date_from'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '>=', $v))
             ->when($this->filters['date_until'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '<=', $v))
+            ->when($this->filters['ids'] ?? null, fn($q, $v) => $q->whereIn('id', $v))
             ->whereIn('booking_status', ['confirmed', 'pending'])
             ->orderByDesc('balance_due');
     }
