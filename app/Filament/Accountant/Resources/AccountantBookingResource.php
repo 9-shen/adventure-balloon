@@ -122,6 +122,52 @@ class AccountantBookingResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
             ])
             ->filters([
+                SelectFilter::make('type')
+                    ->label('Booking Type')
+                    ->options([
+                        'regular' => 'Regular',
+                        'partner' => 'Partner',
+                    ]),
+
+                SelectFilter::make('partner_id')
+                    ->label('Partner Name')
+                    ->relationship('partner', 'company_name')
+                    ->searchable()
+                    ->preload(),
+
+                Filter::make('flight_date')
+                    ->form([
+                        \Filament\Forms\Components\DatePicker::make('flight_from')
+                            ->label('Flight Date From')
+                            ->native(false),
+                        \Filament\Forms\Components\DatePicker::make('flight_until')
+                            ->label('Flight Date Until')
+                            ->native(false),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['flight_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['flight_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['flight_from'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Flight from: ' . \Carbon\Carbon::parse($data['flight_from'])->toFormattedDateString())
+                                ->removeField('flight_from');
+                        }
+                        if ($data['flight_until'] ?? null) {
+                            $indicators[] = \Filament\Tables\Filters\Indicator::make('Flight until: ' . \Carbon\Carbon::parse($data['flight_until'])->toFormattedDateString())
+                                ->removeField('flight_until');
+                        }
+                        return $indicators;
+                    }),
+
                 SelectFilter::make('payment_status')
                     ->options([
                         'due' => 'Due',
