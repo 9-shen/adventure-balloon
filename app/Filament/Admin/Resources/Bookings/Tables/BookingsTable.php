@@ -52,6 +52,13 @@ class BookingsTable
                     ->toggleable()
                     ->placeholder('—'),
 
+                TextColumn::make('partner_reference')
+                    ->label('Partner Ref')
+                    ->searchable()
+                    ->toggleable()
+                    ->copyable()
+                    ->placeholder('—'),
+
                 TextColumn::make('flight_date')
                     ->label('Flight Date')
                     ->date('d/m/Y')
