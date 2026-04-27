@@ -176,28 +176,33 @@ class BookingCalendarPage extends Page
 
     // ── Data: Selected Day Detail ─────────────────────────────────────────────
 
-    protected function getSelectedDayBookings(): array
+    protected function getSelectedDayStats(): array
     {
         if (! $this->selectedDate) {
             return [];
         }
 
-        return Booking::query()
-            ->with('product:id,name')
+        $bookings = Booking::query()
             ->whereDate('flight_date', $this->selectedDate)
             ->whereNotIn('booking_status', ['cancelled'])
-            ->orderBy('flight_time')
-            ->get()
-            ->map(fn($b) => [
-                'ref'            => $b->booking_ref,
-                'product'        => $b->product?->name ?? '—',
-                'type'           => $b->type,
-                'pax'            => $b->adult_pax + $b->child_pax,
-                'amount'         => $b->final_amount,
-                'payment_status' => $b->payment_status,
-                'booking_status' => $b->booking_status,
-            ])
-            ->toArray();
+            ->get();
+
+        if ($bookings->isEmpty()) {
+            return [];
+        }
+
+        $totalPax     = $bookings->sum(fn ($b) => $b->adult_pax + $b->child_pax);
+        $totalAmount  = $bookings->sum('final_amount');
+        $totalPaid    = $bookings->sum('paid_amount');
+        $totalDue     = $totalAmount - $totalPaid;
+        $regularCount = $bookings->where('type', 'regular')->count();
+        $partnerCount = $bookings->where('type', 'partner')->count();
+        $totalCount   = $bookings->count();
+
+        return compact(
+            'totalCount', 'regularCount', 'partnerCount',
+            'totalPax', 'totalAmount', 'totalPaid', 'totalDue'
+        );
     }
 
     // ── View Data ─────────────────────────────────────────────────────────────
@@ -205,11 +210,11 @@ class BookingCalendarPage extends Page
     protected function getViewData(): array
     {
         return [
-            'calendarDays'        => $this->buildCalendarDays(),
-            'monthStats'          => $this->getMonthStats(),
-            'todayBreakdown'      => $this->getTodayBreakdown(),
-            'selectedDayBookings' => $this->getSelectedDayBookings(),
-            'currentDate'         => Carbon::create($this->year, $this->month, 1),
+            'calendarDays'     => $this->buildCalendarDays(),
+            'monthStats'       => $this->getMonthStats(),
+            'todayBreakdown'   => $this->getTodayBreakdown(),
+            'selectedDayStats' => $this->getSelectedDayStats(),
+            'currentDate'      => Carbon::create($this->year, $this->month, 1),
         ];
     }
 

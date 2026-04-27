@@ -143,57 +143,98 @@
                 </div>
             </div>
 
-            {{-- ── Selected Day Details (shown when a date is clicked) ── --}}
+            {{-- ── Selected Day Stats (shown when a date is clicked) ── --}}
             @if($selectedDate)
                 <div class="bg-white dark:bg-gray-900 rounded-2xl border-2 border-violet-300 dark:border-violet-700 shadow-sm p-5">
+                    {{-- Header --}}
                     <div class="flex items-center gap-2 mb-1">
                         <x-heroicon-o-calendar-days class="w-4 h-4 text-violet-500" />
                         <h3 class="font-bold text-gray-900 dark:text-white text-sm">
                             {{ \Carbon\Carbon::parse($selectedDate)->format('F j, Y') }}
                         </h3>
                     </div>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">Day booking details</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">Day booking summary</p>
 
-                    @forelse($selectedDayBookings as $booking)
-                        <div class="flex items-start justify-between py-2.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                            <div class="flex-1 min-w-0">
-                                <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">
-                                    {{ $booking['ref'] }}
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                    {{ $booking['product'] }}
-                                </p>
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span @class([
-                                        'inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium',
-                                        'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' => $booking['payment_status'] === 'paid',
-                                        'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400' => $booking['payment_status'] === 'partial',
-                                        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' => $booking['payment_status'] === 'due',
-                                        'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' => ! in_array($booking['payment_status'], ['paid', 'partial', 'due']),
-                                    ])>
-                                        {{ ucfirst($booking['payment_status']) }}
-                                    </span>
-                                    @if($booking['type'] === 'partner')
-                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                                            Partner
-                                        </span>
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="text-right ml-2 shrink-0">
-                                <p class="text-sm font-bold text-gray-900 dark:text-white">
-                                    {{ number_format($booking['amount'], 0) }}
-                                    <span class="text-xs font-normal text-gray-400">MAD</span>
-                                </p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ $booking['pax'] }} PAX</p>
-                            </div>
-                        </div>
-                    @empty
+                    @if(empty($selectedDayStats))
                         <div class="text-center py-6">
                             <x-heroicon-o-x-circle class="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                             <p class="text-sm text-gray-400 dark:text-gray-500">No bookings for this day</p>
                         </div>
-                    @endforelse
+                    @else
+                        {{-- Booking type row --}}
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <div class="bg-violet-50 dark:bg-violet-900/20 rounded-xl p-3 text-center">
+                                <p class="text-2xl font-extrabold text-violet-700 dark:text-violet-300 leading-none">
+                                    {{ $selectedDayStats['totalCount'] }}
+                                </p>
+                                <p class="text-[10px] font-medium text-violet-500 dark:text-violet-400 mt-1 uppercase tracking-wide">Total</p>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-3 text-center">
+                                <p class="text-2xl font-extrabold text-blue-700 dark:text-blue-300 leading-none">
+                                    {{ $selectedDayStats['regularCount'] }}
+                                </p>
+                                <p class="text-[10px] font-medium text-blue-500 dark:text-blue-400 mt-1 uppercase tracking-wide">Regular</p>
+                            </div>
+                            <div class="bg-purple-50 dark:bg-purple-900/20 rounded-xl p-3 text-center">
+                                <p class="text-2xl font-extrabold text-purple-700 dark:text-purple-300 leading-none">
+                                    {{ $selectedDayStats['partnerCount'] }}
+                                </p>
+                                <p class="text-[10px] font-medium text-purple-500 dark:text-purple-400 mt-1 uppercase tracking-wide">Partner</p>
+                            </div>
+                        </div>
+
+                        {{-- PAX --}}
+                        <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <x-heroicon-o-users class="w-4 h-4 text-gray-400" />
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total PAX</span>
+                            </div>
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">
+                                {{ number_format($selectedDayStats['totalPax']) }}
+                                <span class="text-xs font-normal text-gray-400">pax</span>
+                            </span>
+                        </div>
+
+                        {{-- Total Amount --}}
+                        <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <x-heroicon-o-banknotes class="w-4 h-4 text-gray-400" />
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Total Amount</span>
+                            </div>
+                            <span class="text-sm font-bold text-gray-900 dark:text-white">
+                                {{ number_format($selectedDayStats['totalAmount'], 0) }}
+                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                            </span>
+                        </div>
+
+                        {{-- Paid --}}
+                        <div class="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-gray-800">
+                            <div class="flex items-center gap-2">
+                                <x-heroicon-o-check-circle class="w-4 h-4 text-green-500" />
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Paid</span>
+                            </div>
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400">
+                                {{ number_format($selectedDayStats['totalPaid'], 0) }}
+                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                            </span>
+                        </div>
+
+                        {{-- Due --}}
+                        <div class="flex items-center justify-between py-2.5">
+                            <div class="flex items-center gap-2">
+                                @if($selectedDayStats['totalDue'] > 0)
+                                    <x-heroicon-o-exclamation-circle class="w-4 h-4 text-red-500" />
+                                @else
+                                    <x-heroicon-o-check-badge class="w-4 h-4 text-green-500" />
+                                @endif
+                                <span class="text-sm text-gray-600 dark:text-gray-400">Due</span>
+                            </div>
+                            <span class="text-sm font-bold {{ $selectedDayStats['totalDue'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
+                                {{ number_format($selectedDayStats['totalDue'], 0) }}
+                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                            </span>
+                        </div>
+                    @endif
 
                     {{-- Deselect button --}}
                     <button
@@ -203,6 +244,7 @@
                         ✕ Clear selection
                     </button>
                 </div>
+
 
             {{-- ── Today's Bookings (default, no date selected) ──────── --}}
             @else
