@@ -3,10 +3,11 @@
 namespace App\Filament\Greeter\Resources\GreeterBookingResource\Pages;
 
 use App\Filament\Greeter\Resources\GreeterBookingResource;
-use Filament\Resources\Pages\ViewRecord;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Resources\Pages\ViewRecord;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
 
 class ViewGreeterBooking extends ViewRecord
 {
@@ -16,6 +17,7 @@ class ViewGreeterBooking extends ViewRecord
     {
         return $infolist
             ->components([
+                // ── Booking Summary ───────────────────────────────────────────
                 Section::make('Booking Summary')
                     ->columns(4)
                     ->components([
@@ -63,7 +65,46 @@ class ViewGreeterBooking extends ViewRecord
                         TextEntry::make('partner.company_name')
                             ->label('Partner')
                             ->placeholder('Individual Booking'),
-                    ]),
+                    ])->columnSpanFull(),
+
+                // ── Transport Assignment ──────────────────────────────────────
+                Section::make('Transport Assignment')
+                    ->icon('heroicon-o-truck')
+                    ->visible(fn ($record): bool => $record->dispatch?->dispatchDriverRows->isNotEmpty() ?? false)
+                    ->components([
+                        RepeatableEntry::make('dispatch_rows')
+                            ->label('')
+                            ->getStateUsing(
+                                fn ($record) => $record->dispatch?->dispatchDriverRows->load(['vehicle', 'driver']) ?? collect()
+                            )
+                            ->columns(4)
+                            ->schema([
+                                TextEntry::make('vehicle.make')
+                                    ->label('Vehicle')
+                                    ->icon('heroicon-o-truck')
+                                    ->formatStateUsing(fn ($state, $record) =>
+                                        trim(($record->vehicle?->make ?? '') . ' ' . ($record->vehicle?->model ?? '')) ?: '—'
+                                    ),
+
+                                TextEntry::make('vehicle.plate_number')
+                                    ->label('License Plate')
+                                    ->icon('heroicon-o-identification')
+                                    ->badge()
+                                    ->color('gray')
+                                    ->placeholder('—'),
+
+                                TextEntry::make('driver.name')
+                                    ->label('Driver')
+                                    ->icon('heroicon-o-user')
+                                    ->placeholder('—'),
+
+                                TextEntry::make('driver.phone')
+                                    ->label('Phone')
+                                    ->icon('heroicon-o-phone')
+                                    ->placeholder('—'),
+                            ])
+                            ->columnSpanFull(),
+                    ])->columnSpanFull(),
             ]);
     }
 }

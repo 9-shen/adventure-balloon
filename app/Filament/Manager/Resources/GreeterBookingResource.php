@@ -40,6 +40,20 @@ class GreeterBookingResource extends BaseResource
     }
 
     /**
+     * Eager-load dispatch relations so Vehicle & Plate columns resolve without N+1.
+     */
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->with([
+            'customers',
+            'product',
+            'partner',
+            'dispatch.dispatchDriverRows.vehicle',
+            'dispatch.dispatchDriverRows.driver',
+        ]);
+    }
+
+    /**
      * Override to fix the ViewAction URL — the base resource points to the Greeter
      * panel's ViewGreeterBooking page; here we redirect to the manager-scoped page.
      */

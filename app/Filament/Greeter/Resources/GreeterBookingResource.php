@@ -49,7 +49,13 @@ class GreeterBookingResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('customers', 'product', 'partner')
+            ->with([
+                'customers',
+                'product',
+                'partner',
+                'dispatch.dispatchDriverRows.vehicle',
+                'dispatch.dispatchDriverRows.driver',
+            ])
             ->whereIn('booking_status', ['confirmed', 'pending', 'completed'])
             ->withoutGlobalScopes();
     }
@@ -121,6 +127,33 @@ class GreeterBookingResource extends Resource
                         $record->customers->where('attendance', 'pending')->count() === $record->customers->count() => 'gray',
                         default => 'warning',
                     }),
+
+                // ── Vehicles assigned via Dispatch ────────────────────────────
+                TextColumn::make('vehicle_name')
+                    ->label('Vehicle')
+                    ->icon('heroicon-o-truck')
+                    ->getStateUsing(function (Booking $record): string {
+                        $rows = $record->dispatch?->dispatchDriverRows ?? collect();
+                        if ($rows->isEmpty()) return '—';
+                        return $rows->map(fn ($row) => $row->vehicle
+                            ? trim(($row->vehicle->make ?? '') . ' ' . ($row->vehicle->model ?? ''))
+                            : '—'
+                        )->join(' · ');
+                    })
+                    ->placeholder('—')
+                    ->toggleable(),
+
+                TextColumn::make('vehicle_plate')
+                    ->label('Plate(s)')
+                    ->getStateUsing(function (Booking $record): string {
+                        $rows = $record->dispatch?->dispatchDriverRows ?? collect();
+                        if ($rows->isEmpty()) return '—';
+                        return $rows->map(fn ($row) => $row->vehicle?->plate_number ?? '—')->join(' · ');
+                    })
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('flight_date_range')
