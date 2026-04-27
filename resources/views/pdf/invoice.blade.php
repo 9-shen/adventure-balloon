@@ -17,11 +17,11 @@
             background: #fff;
         }
 
-        .page { 
-            max-width: 720px; 
-            margin: 30px auto; 
-            padding: 40px 50px; 
-            background: #fff; 
+        .page {
+            max-width: 720px;
+            margin: 30px auto;
+            padding: 40px 50px;
+            background: #fff;
         }
 
         .header {
@@ -367,237 +367,239 @@
 
 <body>
 
-<div class="page">
+    <div class="page">
 
-    <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
-    <div class="header">
-        <div class="header-left">
-            <div class="company-name"> {{ $appSettings->company_name }}</div>
-            <div class="company-tagline">Hot Air Balloon Experiences · Morocco</div>
-        </div>
-        <div class="header-right">
-            <div class="invoice-title">INVOICE</div>
-            <div class="invoice-ref">{{ $invoice->invoice_ref }}</div>
-            <div class="invoice-date">
-                Date: {{ $invoice->created_at->format('d/m/Y') }}<br>
-                Period: {{ $invoice->period_from->format('d/m/Y') }} — {{ $invoice->period_to->format('d/m/Y') }}
+        <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+        <div class="header">
+            <div class="header-left">
+                <div class="company-name"> {{ $appSettings->company_name }}</div>
+                <div class="company-tagline">Hot Air Balloon Experiences · Morocco</div>
             </div>
-            <div>
-                <span class="status-badge status-{{ $invoice->status }}">{{ ucfirst($invoice->status) }}</span>
+            <div class="header-right">
+                <div class="invoice-title">INVOICE</div>
+                <div class="invoice-ref">{{ $invoice->invoice_ref }}</div>
+                <div class="invoice-date">
+                    Date: {{ $invoice->created_at->format('d/m/Y') }}<br>
+                    Period: {{ $invoice->period_from->format('d/m/Y') }} — {{ $invoice->period_to->format('d/m/Y') }}
+                </div>
+                <div>
+                    <span class="status-badge status-{{ $invoice->status }}">{{ ucfirst($invoice->status) }}</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ═══ BILL TO / FROM ════════════════════════════════════════════════════ -->
-    <div class="bill-section">
-        <div class="bill-to">
-            <div class="section-label">Bill To</div>
-            <div class="bill-name">{{ $partner->company_name }}</div>
-            @if($partner->trade_name)
-            <div class="bill-detail">{{ $partner->trade_name }}</div>
-            @endif
-            @if($partner->address)
-            <div class="bill-detail">{{ $partner->address }}@if($partner->city), {{ $partner->city }}@endif</div>
-            @endif
-            @if($partner->tax_number)
-            <div class="bill-detail">Tax #: {{ $partner->tax_number }}</div>
-            @endif
-            @if($partner->email)
-            <div class="bill-detail">{{ $partner->email }}</div>
-            @endif
-        </div>
-        <div class="bill-from">
-            <div class="period-box">
-                <div class="period-label">Invoice Period</div>
-                <div class="period-value">{{ $invoice->period_from->format('M d, Y') }}</div>
-                <div class="period-label" style="margin-top:4px;">To</div>
-                <div class="period-value">{{ $invoice->period_to->format('M d, Y') }}</div>
-            </div>
-            @if($invoice->paid_at)
-            <div class="period-box" style="margin-top:8px; background:#eafaf1; border-color:#a9dfbf;">
-                <div class="period-label" style="color:#27ae60;">Paid On</div>
-                <div class="period-value" style="color:#27ae60;">{{ $invoice->paid_at->format('d/m/Y') }}</div>
-                @if($invoice->payment_reference)
-                <div class="bill-detail">Ref: {{ $invoice->payment_reference }}</div>
+        <!-- ═══ BILL TO / FROM ════════════════════════════════════════════════════ -->
+        <div class="bill-section">
+            <div class="bill-to">
+                <div class="section-label">Bill To</div>
+                <div class="bill-name">{{ $partner->company_name }}</div>
+                @if($partner->trade_name)
+                <div class="bill-detail">{{ $partner->trade_name }}</div>
+                @endif
+                @if($partner->registration_number)
+                <div class="bill-detail">ICE: {{ $partner->registration_number }}</div>
+                @endif
+                @if($partner->address)
+                <div class="bill-detail">{{ $partner->address }}@if($partner->city), {{ $partner->city }}@endif</div>
+                @endif
+                @if($partner->tax_number)
+                <div class="bill-detail">Tax #: {{ $partner->tax_number }}</div>
+                @endif
+                @if($partner->email)
+                <div class="bill-detail">{{ $partner->email }}</div>
                 @endif
             </div>
-            @endif
+            <div class="bill-from">
+                <div class="period-box">
+                    <div class="period-label">Invoice Period</div>
+                    <div class="period-value">{{ $invoice->period_from->format('M d, Y') }}</div>
+                    <div class="period-label" style="margin-top:4px;">To</div>
+                    <div class="period-value">{{ $invoice->period_to->format('M d, Y') }}</div>
+                </div>
+                @if($invoice->paid_at)
+                <div class="period-box" style="margin-top:8px; background:#eafaf1; border-color:#a9dfbf;">
+                    <div class="period-label" style="color:#27ae60;">Paid On</div>
+                    <div class="period-value" style="color:#27ae60;">{{ $invoice->paid_at->format('d/m/Y') }}</div>
+                    @if($invoice->payment_reference)
+                    <div class="bill-detail">Ref: {{ $invoice->payment_reference }}</div>
+                    @endif
+                </div>
+                @endif
+            </div>
         </div>
-    </div>
 
-    <!-- ═══ LINE ITEMS ════════════════════════════════════════════════════════ -->
-    <table class="items">
-        <thead>
-            <tr>
-                <th style="width:10%">Date</th>
-                <th style="width:12%">Booking Ref</th>
-                <th style="width:12%">Partner Ref</th>
-                <th>Description</th>
-                <th class="right" style="width:6%">Adults</th>
-                <th class="right" style="width:6%">Children</th>
-                <th class="right" style="width:11%">Adult Price</th>
-                <th class="right" style="width:11%">Child Price</th>
-                <th class="right" style="width:11%">Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($items as $item)
-            <tr>
-                <td>{{ $item->flight_date->format('d/m/Y') }}</td>
-                <td class="ref">{{ $item->booking->booking_ref ?? '—' }}</td>
-                <td style="color:#8e44ad; font-weight:bold;">{{ $item->booking->partner_reference ?? '—' }}</td>
-                <td>{{ $item->description }}</td>
-                <td class="right">{{ $item->adult_pax }}</td>
-                <td class="right">{{ $item->child_pax }}</td>
-                <td class="right">MAD {{ number_format($item->booking->base_adult_price ?? 0, 2) }}</td>
-                <td class="right">MAD {{ number_format($item->booking->base_child_price ?? 0, 2) }}</td>
-                <td class="right"><strong>MAD {{ number_format($item->line_total, 2) }}</strong></td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <!-- ═══ TOTALS ════════════════════════════════════════════════════════════ -->
-    <div class="totals">
-        <table>
-            <tr class="totals-subtotal">
-                <td>Subtotal</td>
-                <td>MAD {{ number_format($invoice->subtotal, 2) }}</td>
-            </tr>
-            @if($invoice->tax_rate > 0)
-            <tr>
-                <td>Tax ({{ number_format($invoice->tax_rate, 0) }}%)</td>
-                <td>MAD {{ number_format($invoice->tax_amount, 2) }}</td>
-            </tr>
-            @endif
-            <tr class="totals-total">
-                <td>TOTAL DUE</td>
-                <td>MAD {{ number_format($invoice->total_amount, 2) }}</td>
-            </tr>
+        <!-- ═══ LINE ITEMS ════════════════════════════════════════════════════════ -->
+        <table class="items">
+            <thead>
+                <tr>
+                    <th style="width:10%">Date</th>
+                    <th style="width:12%">Booking Ref</th>
+                    <th style="width:12%">Partner Ref</th>
+                    <th>Description</th>
+                    <th class="right" style="width:6%">Adults</th>
+                    <th class="right" style="width:6%">Children</th>
+                    <th class="right" style="width:11%">Adult Price</th>
+                    <th class="right" style="width:11%">Child Price</th>
+                    <th class="right" style="width:11%">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($items as $item)
+                <tr>
+                    <td>{{ $item->flight_date->format('d/m/Y') }}</td>
+                    <td class="ref">{{ $item->booking->booking_ref ?? '—' }}</td>
+                    <td style="color:#8e44ad; font-weight:bold;">{{ $item->booking->partner_reference ?? '—' }}</td>
+                    <td>{{ $item->description }}</td>
+                    <td class="right">{{ $item->adult_pax }}</td>
+                    <td class="right">{{ $item->child_pax }}</td>
+                    <td class="right">MAD {{ number_format($item->booking->base_adult_price ?? 0, 2) }}</td>
+                    <td class="right">MAD {{ number_format($item->booking->base_child_price ?? 0, 2) }}</td>
+                    <td class="right"><strong>MAD {{ number_format($item->line_total, 2) }}</strong></td>
+                </tr>
+                @endforeach
+            </tbody>
         </table>
-    </div>
 
-    <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
-    @if($invoice->notes)
-    <div class="notes">
-        <div class="notes-label">Notes</div>
-        {{ $invoice->notes }}
-    </div>
-    @endif
-
-    <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
-    <div class="footer">
-
-        {{-- Row 1 : Payment Terms | Thank you --}}
-        <div class="footer-top">
-            <div class="footer-left">
-                <div class="footer-label">Payment Terms</div>
-                <div class="footer-text">
-                    Payment due within {{ $partner->payment_terms_days ?? 30 }} days of invoice date.<br>
-                    Please reference invoice number <strong>{{ $invoice->invoice_ref }}</strong> in your payment.
-                </div>
-            </div>
-            <div class="footer-right">
-                <div class="footer-label">Thank you for your business</div>
-                <div class="footer-text">
-                    🎈 {{ $appSettings->company_name }} · Hot Air Balloon Experiences<br>
-                    Morocco
-                </div>
-                <div class="page-number">Generated {{ now()->format('d/m/Y H:i') }}</div>
-            </div>
+        <!-- ═══ TOTALS ════════════════════════════════════════════════════════════ -->
+        <div class="totals">
+            <table>
+                <tr class="totals-subtotal">
+                    <td>Subtotal</td>
+                    <td>MAD {{ number_format($invoice->subtotal, 2) }}</td>
+                </tr>
+                @if($invoice->tax_rate > 0)
+                <tr>
+                    <td>Tax ({{ number_format($invoice->tax_rate, 0) }}%)</td>
+                    <td>MAD {{ number_format($invoice->tax_amount, 2) }}</td>
+                </tr>
+                @endif
+                <tr class="totals-total">
+                    <td>TOTAL TTC</td>
+                    <td>MAD {{ number_format($invoice->total_amount, 2) }}</td>
+                </tr>
+            </table>
         </div>
 
-        {{-- Row 2 : Company Info Bar --}}
-        <div class="footer-company">
+        <!-- ═══ NOTES ════════════════════════════════════════════════════════════ -->
+        @if($invoice->notes)
+        <div class="notes">
+            <div class="notes-label">Notes</div>
+            {{ $invoice->notes }}
+        </div>
+        @endif
 
-            @if(!empty($legalSettings->footer_info))
+        <!-- ═══ FOOTER ═══════════════════════════════════════════════════════════ -->
+        <div class="footer">
+
+            {{-- Row 1 : Payment Terms | Thank you --}}
+            <div class="footer-top">
+                <div class="footer-left">
+                    <div class="footer-label">Payment Terms</div>
+                    <div class="footer-text">
+                        Payment due within {{ $partner->payment_terms_days ?? 30 }} days of invoice date.<br>
+                        Please reference invoice number <strong>{{ $invoice->invoice_ref }}</strong> in your payment.
+                    </div>
+                </div>
+                <div class="footer-right">
+                    <div class="footer-label">Thank you for your business</div>
+                    <div class="footer-text">
+                        {{ $appSettings->company_name }}
+                    </div>
+                    <div class="page-number">Generated {{ now()->format('d/m/Y H:i') }}</div>
+                </div>
+            </div>
+
+            {{-- Row 2 : Company Info Bar --}}
+            <div class="footer-company">
+
+                @if(!empty($legalSettings->footer_info))
                 <div style="width: 100%; text-align: center; padding: 5px 0;">
                     {!! nl2br(e($legalSettings->footer_info)) !!}
                 </div>
-            @else
+                @else
                 {{-- Contact --}}
-            <div class="footer-col" style="width:30%">
-                <div class="footer-col-title">Contact</div>
-                <div class="footer-col-line">
-                    @if($appSettings->company_email)
-                    <span>Email:</span> {{ $appSettings->company_email }}<br>
-                    @endif
-                    @if($appSettings->company_phone)
-                    <span>Phone:</span> {{ $appSettings->company_phone }}<br>
-                    @endif
-                    @if($appSettings->company_address)
-                    <span>Address:</span> {{ $appSettings->company_address }}
-                    @endif
+                <div class="footer-col" style="width:30%">
+                    <div class="footer-col-title">Contact</div>
+                    <div class="footer-col-line">
+                        @if($appSettings->company_email)
+                        <span>Email:</span> {{ $appSettings->company_email }}<br>
+                        @endif
+                        @if($appSettings->company_phone)
+                        <span>Phone:</span> {{ $appSettings->company_phone }}<br>
+                        @endif
+                        @if($appSettings->company_address)
+                        <span>Address:</span> {{ $appSettings->company_address }}
+                        @endif
+                    </div>
                 </div>
-            </div>
 
-            {{-- Legal Identifiers --}}
-            @php
-            $hasLegal = $legalSettings->identifiant_fiscal
-            || $legalSettings->ice_number
-            || $legalSettings->registre_commerce
-            || $legalSettings->patente_number
-            || $legalSettings->cnss_number;
-            @endphp
-            @if($hasLegal)
-            <div class="footer-col" style="width:36%">
-                <div class="footer-col-title">Legal Information</div>
-                <div class="footer-col-line">
-                    @if($legalSettings->identifiant_fiscal)
-                    <span>IF:</span> {{ $legalSettings->identifiant_fiscal }}<br>
-                    @endif
-                    @if($legalSettings->ice_number)
-                    <span>ICE:</span> {{ $legalSettings->ice_number }}<br>
-                    @endif
-                    @if($legalSettings->registre_commerce)
-                    <span>RC:</span> {{ $legalSettings->registre_commerce }}<br>
-                    @endif
-                    @if($legalSettings->patente_number)
-                    <span>Patente:</span> {{ $legalSettings->patente_number }}<br>
-                    @endif
-                    @if($legalSettings->cnss_number)
-                    <span>CNSS:</span> {{ $legalSettings->cnss_number }}
-                    @endif
+                {{-- Legal Identifiers --}}
+                @php
+                $hasLegal = $legalSettings->identifiant_fiscal
+                || $legalSettings->ice_number
+                || $legalSettings->registre_commerce
+                || $legalSettings->patente_number
+                || $legalSettings->cnss_number;
+                @endphp
+                @if($hasLegal)
+                <div class="footer-col" style="width:36%">
+                    <div class="footer-col-title">Legal Information</div>
+                    <div class="footer-col-line">
+                        @if($legalSettings->identifiant_fiscal)
+                        <span>IF:</span> {{ $legalSettings->identifiant_fiscal }}<br>
+                        @endif
+                        @if($legalSettings->ice_number)
+                        <span>ICE:</span> {{ $legalSettings->ice_number }}<br>
+                        @endif
+                        @if($legalSettings->registre_commerce)
+                        <span>RC:</span> {{ $legalSettings->registre_commerce }}<br>
+                        @endif
+                        @if($legalSettings->patente_number)
+                        <span>Patente:</span> {{ $legalSettings->patente_number }}<br>
+                        @endif
+                        @if($legalSettings->cnss_number)
+                        <span>CNSS:</span> {{ $legalSettings->cnss_number }}
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endif
+                @endif
 
-            {{-- Bank Details --}}
-            @php
-            $hasBank = $bankSettings->bank_name
-            || $bankSettings->iban
-            || $bankSettings->swift
-            || $bankSettings->bank_account;
-            @endphp
-            @if($hasBank)
-            <div class="footer-col" style="width:34%">
-                <div class="footer-col-title">Bank Details</div>
-                <div class="footer-col-line">
-                    @if($bankSettings->bank_name)
-                    <span>Bank:</span> {{ $bankSettings->bank_name }}<br>
-                    @endif
-                    @if($bankSettings->bank_holder_name)
-                    <span>Account Name:</span> {{ $bankSettings->bank_holder_name }}<br>
-                    @endif
-                    @if($bankSettings->bank_account)
-                    <span>Account:</span> {{ $bankSettings->bank_account }}<br>
-                    @endif
-                    @if($bankSettings->iban)
-                    <span>IBAN:</span> {{ $bankSettings->iban }}<br>
-                    @endif
-                    @if($bankSettings->swift)
-                    <span>SWIFT:</span> {{ $bankSettings->swift }}
-                    @endif
+                {{-- Bank Details --}}
+                @php
+                $hasBank = $bankSettings->bank_name
+                || $bankSettings->iban
+                || $bankSettings->swift
+                || $bankSettings->bank_account;
+                @endphp
+                @if($hasBank)
+                <div class="footer-col" style="width:34%">
+                    <div class="footer-col-title">Bank Details</div>
+                    <div class="footer-col-line">
+                        @if($bankSettings->bank_name)
+                        <span>Bank:</span> {{ $bankSettings->bank_name }}<br>
+                        @endif
+                        @if($bankSettings->bank_holder_name)
+                        <span>Account Name:</span> {{ $bankSettings->bank_holder_name }}<br>
+                        @endif
+                        @if($bankSettings->bank_account)
+                        <span>Account:</span> {{ $bankSettings->bank_account }}<br>
+                        @endif
+                        @if($bankSettings->iban)
+                        <span>IBAN:</span> {{ $bankSettings->iban }}<br>
+                        @endif
+                        @if($bankSettings->swift)
+                        <span>SWIFT:</span> {{ $bankSettings->swift }}
+                        @endif
+                    </div>
                 </div>
-            </div>
-            @endif
-            @endif
+                @endif
+                @endif
 
-        </div>{{-- .footer-company --}}
+            </div>{{-- .footer-company --}}
 
-    </div>{{-- .footer --}}
+        </div>{{-- .footer --}}
 
-</div>{{-- .page --}}
+    </div>{{-- .page --}}
 
 </body>
 
