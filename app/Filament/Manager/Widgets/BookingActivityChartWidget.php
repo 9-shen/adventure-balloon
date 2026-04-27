@@ -16,12 +16,42 @@ class BookingActivityChartWidget extends ChartWidget
 
     protected int | string | array $columnSpan = 'full';
 
+    protected ?string $maxHeight = '320px';
+
+    protected function getOptions(): array
+    {
+        return [
+            'responsive'          => true,
+            'maintainAspectRatio' => false,
+            'plugins' => [
+                'legend' => [
+                    'position' => 'bottom',
+                    'labels'   => ['boxWidth' => 12, 'font' => ['size' => 11]],
+                ],
+            ],
+            'scales' => [
+                'x' => [
+                    'ticks' => [
+                        'maxRotation' => 45,
+                        'minRotation' => 0,
+                        'autoSkip'    => true,
+                        'font'        => ['size' => 10],
+                    ],
+                ],
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks'       => ['stepSize' => 1, 'font' => ['size' => 10]],
+                ],
+            ],
+        ];
+    }
+
     protected function getData(): array
     {
-        $labels      = [];
-        $confirmed   = [];
-        $cancelled   = [];
-        $pending     = [];
+        $labels    = [];
+        $confirmed = [];
+        $cancelled = [];
+        $pending   = [];
 
         for ($i = 0; $i <= 13; $i++) {
             $date = Carbon::today()->addDays($i);
@@ -39,21 +69,21 @@ class BookingActivityChartWidget extends ChartWidget
                 [
                     'label'           => 'Confirmed',
                     'data'            => $confirmed,
-                    'backgroundColor' => 'rgba(34, 197, 94, 0.8)',   // green-500
+                    'backgroundColor' => 'rgba(34, 197, 94, 0.8)',  // green-500
                     'borderColor'     => 'rgba(34, 197, 94, 1)',
                     'borderWidth'     => 1,
                 ],
                 [
                     'label'           => 'Pending',
                     'data'            => $pending,
-                    'backgroundColor' => 'rgba(245, 158, 11, 0.8)',  // amber-500
+                    'backgroundColor' => 'rgba(245, 158, 11, 0.8)', // amber-500
                     'borderColor'     => 'rgba(245, 158, 11, 1)',
                     'borderWidth'     => 1,
                 ],
                 [
                     'label'           => 'Cancelled',
                     'data'            => $cancelled,
-                    'backgroundColor' => 'rgba(239, 68, 68, 0.7)',   // red-500
+                    'backgroundColor' => 'rgba(239, 68, 68, 0.7)',  // red-500
                     'borderColor'     => 'rgba(239, 68, 68, 1)',
                     'borderWidth'     => 1,
                 ],

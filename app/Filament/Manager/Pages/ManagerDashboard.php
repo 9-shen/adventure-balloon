@@ -19,7 +19,11 @@ class ManagerDashboard extends BaseDashboard
 
     public function getColumns(): int | array
     {
-        return 2;
+        return [
+            'default' => 1,   // mobile: 1 col
+            'sm'      => 2,   // tablet: 2 col
+            'lg'      => 3,   // desktop: 3 col
+        ];
     }
 
     public function getWidgets(): array
