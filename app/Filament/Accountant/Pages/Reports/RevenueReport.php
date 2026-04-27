@@ -50,7 +50,7 @@ class RevenueReport extends Page implements HasTable
     {
         /** @var \App\Models\User|null $user */
         $user = Auth::user();
-        return $user?->hasAnyRole(['super_admin', 'admin', 'accountant', 'manager']) ?? false;
+        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
     }
 
     public function getView(): string
