@@ -14,8 +14,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\ExportBulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\ExportBulkAction;
 use App\Filament\Accountant\Resources\FinanceReportResource\Pages;
 
 class FinanceReportResource extends Resource
@@ -192,9 +192,9 @@ class FinanceReportResource extends Resource
             ->actions([
                 // Read-only report, no row actions needed
             ])
-            ->bulkActions([
-                \Filament\Tables\Actions\BulkActionGroup::make([
-                    \Filament\Tables\Actions\ExportBulkAction::make()
+            ->toolbarActions([
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\ExportBulkAction::make()
                         ->exporter(\App\Filament\Exports\BookingExporter::class),
                 ]),
             ]);
