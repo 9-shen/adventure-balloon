@@ -41,6 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->resources([
                 \App\Filament\Accountant\Resources\AccountantBookingResource::class,
+                \App\Filament\Accountant\Resources\FinanceReportResource::class,
                 \App\Filament\Accountant\Resources\InvoiceResource::class,
                 \App\Filament\Accountant\Resources\PartnerInvoiceResource::class,
                 \App\Filament\Accountant\Resources\TransportBillResource::class,
