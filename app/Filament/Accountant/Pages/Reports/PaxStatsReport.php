@@ -198,9 +198,11 @@ class PaxStatsReport extends Page implements HasTable
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
-                        $dates = $records->pluck('flight_date')->unique()->toArray();
+                        $groups = $records->map(function ($record) {
+                            return $record->flight_date . '_' . $record->type;
+                        })->toArray();
                         return Excel::download(
-                            new PaxStatsExport(['dates' => $dates]),
+                            new PaxStatsExport(['groups' => $groups]),
                             'pax-stats-selected-' . now()->format('Y-m-d') . '.csv',
                             \Maatwebsite\Excel\Excel::CSV
                         );
