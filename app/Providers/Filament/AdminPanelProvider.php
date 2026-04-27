@@ -42,6 +42,8 @@ class AdminPanelProvider extends PanelProvider
             ->resources([
                 \App\Filament\Accountant\Resources\AccountantBookingResource::class,
                 \App\Filament\Accountant\Resources\FinanceReportResource::class,
+                \App\Filament\Manager\Resources\BookingsReportResource::class,
+                \App\Filament\Manager\Resources\DispatchesReportResource::class,
                 \App\Filament\Accountant\Resources\InvoiceResource::class,
                 \App\Filament\Accountant\Resources\PartnerInvoiceResource::class,
                 \App\Filament\Accountant\Resources\TransportBillResource::class,
@@ -70,6 +72,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('Accountant Module'),
                 NavigationGroup::make('Invoicing'),
                 NavigationGroup::make('Transport Finance'),
+                NavigationGroup::make('Reports'),
                 NavigationGroup::make('Financial Reports'),
                 NavigationGroup::make('Transport Management'),
                 NavigationGroup::make('Partner Management'),
