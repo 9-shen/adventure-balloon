@@ -19,17 +19,17 @@ class DuePaymentsStatsWidget extends BaseWidget
         $highestBalance   = (float) (clone $query)->max('balance_due');
 
         return [
-            Stat::make('Total Outstanding', 'MAD ' . number_format($totalOutstanding, 2))
+            Stat::make('Total Outstanding', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalOutstanding, 2) . '</span>'))
                 ->description('Across all due bookings')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),
 
-            Stat::make('Due Bookings Count', $dueCount)
+            Stat::make('Due Bookings Count', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $dueCount . '</span>'))
                 ->description('Bookings with balance > 0')
                 ->descriptionIcon('heroicon-m-document-duplicate')
                 ->color('warning'),
 
-            Stat::make('Highest Single Balance', 'MAD ' . number_format($highestBalance, 2))
+            Stat::make('Highest Single Balance', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($highestBalance, 2) . '</span>'))
                 ->description('Max amount owed')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('danger'),

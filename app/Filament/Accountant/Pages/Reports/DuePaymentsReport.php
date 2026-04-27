@@ -173,7 +173,6 @@ class DuePaymentsReport extends Page implements HasTable
                     ->label('Booking Type')
                     ->options(['regular' => 'Regular', 'partner' => 'Partner']),
             ])
-            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
             ->defaultSort('balance_due', 'desc')
             ->striped()
             ->paginated([25, 50, 100]);
