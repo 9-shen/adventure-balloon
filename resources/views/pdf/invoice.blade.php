@@ -429,13 +429,14 @@
     <table class="items">
         <thead>
             <tr>
-                <th style="width:12%">Date</th>
-                <th style="width:14%">Booking Ref</th>
+                <th style="width:11%">Date</th>
+                <th style="width:12%">Booking Ref</th>
+                <th style="width:12%">Partner Ref</th>
                 <th>Description</th>
-                <th class="right" style="width:8%">Adults</th>
-                <th class="right" style="width:8%">Children</th>
-                <th class="right" style="width:13%">Unit Price</th>
-                <th class="right" style="width:13%">Amount</th>
+                <th class="right" style="width:7%">Adults</th>
+                <th class="right" style="width:7%">Children</th>
+                <th class="right" style="width:12%">Unit Price</th>
+                <th class="right" style="width:12%">Amount</th>
             </tr>
         </thead>
         <tbody>
@@ -443,6 +444,7 @@
             <tr>
                 <td>{{ $item->flight_date->format('d/m/Y') }}</td>
                 <td class="ref">{{ $item->booking->booking_ref ?? '—' }}</td>
+                <td style="color:#8e44ad; font-weight:bold;">{{ $item->booking->partner_reference ?? '—' }}</td>
                 <td>{{ $item->description }}</td>
                 <td class="right">{{ $item->adult_pax }}</td>
                 <td class="right">{{ $item->child_pax }}</td>
