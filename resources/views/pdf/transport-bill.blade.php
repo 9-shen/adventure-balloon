@@ -220,6 +220,12 @@
     </div>
 </div>
 
+@if(!empty($legalSettings->footer_info))
+<div style="width: 100%; text-align: center; padding-top: 15px; font-size: 8px; line-height: 1.3; margin-top: 20px; border-top: 1px dashed #ecf0f1;">
+    {!! nl2br(e($legalSettings->footer_info)) !!}
+</div>
+@endif
+
 </div><!-- /.page -->
 
 </body>

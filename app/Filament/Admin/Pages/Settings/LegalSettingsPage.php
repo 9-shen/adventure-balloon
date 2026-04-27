@@ -50,6 +50,7 @@ class LegalSettingsPage extends Page implements HasForms
             'patente_number'     => $settings->patente_number,
             'registre_commerce'  => $settings->registre_commerce,
             'ice_number'         => $settings->ice_number,
+            'footer_info'        => $settings->footer_info,
         ]);
     }
 
@@ -87,6 +88,13 @@ class LegalSettingsPage extends Page implements HasForms
                                 ->placeholder('e.g. 001234567000012')
                                 ->maxLength(15)
                                 ->helperText('15-digit Moroccan unified business identifier'),
+
+                            \Filament\Forms\Components\Textarea::make('footer_info')
+                                ->label('Footer Info')
+                                ->placeholder('e.g. Adventure Balloon | Email: contact@adventure-balloon.com | ...')
+                                ->helperText('This text will appear at the bottom of generated invoices.')
+                                ->columnSpanFull()
+                                ->rows(3),
                         ]),
                     ]),
             ])
@@ -113,6 +121,7 @@ class LegalSettingsPage extends Page implements HasForms
         $settings->patente_number     = $data['patente_number'] ?? null;
         $settings->registre_commerce  = $data['registre_commerce'] ?? null;
         $settings->ice_number         = $data['ice_number'] ?? null;
+        $settings->footer_info        = $data['footer_info'] ?? null;
         $settings->save();
 
         Notification::make()

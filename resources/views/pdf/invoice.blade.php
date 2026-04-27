@@ -497,7 +497,12 @@
         {{-- Row 2 : Company Info Bar --}}
         <div class="footer-company">
 
-            {{-- Contact --}}
+            @if(!empty($legalSettings->footer_info))
+                <div style="width: 100%; text-align: center; padding: 5px 0;">
+                    {!! nl2br(e($legalSettings->footer_info)) !!}
+                </div>
+            @else
+                {{-- Contact --}}
             <div class="footer-col" style="width:30%">
                 <div class="footer-col-title">Contact</div>
                 <div class="footer-col-line">
@@ -572,6 +577,7 @@
                     @endif
                 </div>
             </div>
+            @endif
             @endif
 
         </div>{{-- .footer-company --}}

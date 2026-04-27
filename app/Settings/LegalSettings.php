@@ -11,6 +11,7 @@ class LegalSettings extends Settings
     public ?string $patente_number;     // Patente
     public ?string $registre_commerce;  // RC - Registre de Commerce
     public ?string $ice_number;         // ICE - Identifiant Commun de l'Entreprise
+    public ?string $footer_info;        // Footer info for invoices
 
     public static function group(): string
     {

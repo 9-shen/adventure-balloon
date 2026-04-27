@@ -104,11 +104,13 @@ class TransportBillService
         $bill->load(['transportCompany', 'items.dispatch', 'createdBy']);
 
         $appSettings = app(\App\Settings\AppSettings::class);
+        $legalSettings = app(\App\Settings\LegalSettings::class);
 
         return Pdf::loadView('pdf.transport-bill', [
-            'bill'     => $bill,
-            'company'  => $bill->transportCompany,
-            'settings' => $appSettings,
+            'bill'          => $bill,
+            'company'       => $bill->transportCompany,
+            'settings'      => $appSettings,
+            'legalSettings' => $legalSettings,
         ])->setPaper('a4', 'portrait');
     }
 
