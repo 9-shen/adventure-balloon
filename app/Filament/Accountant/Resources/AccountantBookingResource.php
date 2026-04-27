@@ -192,6 +192,12 @@ class AccountantBookingResource extends Resource
                     ->icon('heroicon-o-banknotes')
                     ->color('success')
                     ->form([
+                        \Filament\Forms\Components\Placeholder::make('total_paid')
+                            ->label('Total Already Paid')
+                            ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->amount_paid, 2)),
+                        \Filament\Forms\Components\Placeholder::make('balance_due_display')
+                            ->label('Balance Due')
+                            ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->balance_due, 2)),
                         Select::make('payment_status')
                             ->label('Payment Status')
                             ->options([
@@ -209,25 +215,26 @@ class AccountantBookingResource extends Resource
                                 'wire' => 'Wire Transfer',
                             ])
                             ->required(),
-                        TextInput::make('amount_paid')
-                            ->label('Amount Paid (MAD)')
+                        TextInput::make('payment_amount')
+                            ->label('Amount to Pay (MAD)')
                             ->numeric()
                             ->prefix('MAD')
                             ->required()
                             ->rules(['min:0'])
-                            ->maxValue(fn (Booking $record) => $record->final_amount),
+                            ->maxValue(fn (Booking $record) => max(0, (float) $record->balance_due)),
                     ])
                     ->fillForm(fn (Booking $record): array => [
-                        'payment_status' => $record->payment_status,
-                        'payment_method' => $record->payment_method,
-                        'amount_paid' => $record->amount_paid,
+                        'payment_status' => $record->balance_due > 0 ? 'paid' : $record->payment_status,
+                        'payment_method' => $record->payment_method ?? 'cash',
+                        'payment_amount' => (float) $record->balance_due,
                     ])
                     ->action(function (array $data, Booking $record): void {
-                        $balanceDue = max(0, round($record->final_amount - $data['amount_paid'], 2));
+                        $newAmountPaid = $record->amount_paid + $data['payment_amount'];
+                        $balanceDue = max(0, round($record->final_amount - $newAmountPaid, 2));
                         $record->update([
                             'payment_status' => $data['payment_status'],
                             'payment_method' => $data['payment_method'],
-                            'amount_paid' => $data['amount_paid'],
+                            'amount_paid' => $newAmountPaid,
                             'balance_due' => $balanceDue,
                         ]);
                     })
