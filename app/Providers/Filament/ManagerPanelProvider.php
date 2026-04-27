@@ -37,6 +37,7 @@ class ManagerPanelProvider extends PanelProvider
             ->pages([
                 \App\Filament\Manager\Pages\ManagerDashboard::class,
                 \App\Filament\Manager\Pages\BookingCalendarPage::class,
+                \App\Filament\Manager\Pages\Profile::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Manager/Widgets'), for: 'App\\Filament\\Manager\\Widgets')
             ->widgets([
