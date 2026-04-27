@@ -17,11 +17,12 @@
             background: #fff;
         }
 
+        @page {
+            margin: 40px 50px 120px 50px;
+        }
+
         .page { 
-            max-width: 720px; 
-            margin: 30px auto; 
-            padding: 40px 50px; 
-            background: #fff; 
+            width: 100%;
         }
 
         .header {
@@ -284,9 +285,12 @@
 
         /* ── FOOTER ─────────────────────────────────────────────────────────── */
         .footer {
+            position: fixed;
+            bottom: -90px;
+            left: 0px;
+            right: 0px;
             border-top: 2px solid #ecf0f1;
             padding-top: 14px;
-            margin-top: 10px;
         }
 
         /* Row 1 — Payment Terms | Thank you */
