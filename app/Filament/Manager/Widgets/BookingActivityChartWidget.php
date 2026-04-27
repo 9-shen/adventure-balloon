@@ -10,7 +10,7 @@ class BookingActivityChartWidget extends ChartWidget
 {
     protected static ?int $sort = 4;
 
-    protected ?string $heading = 'Booking Activity — Last 14 Days';
+    protected ?string $heading = 'Upcoming 14-Day Booking Activity';
 
     protected ?string $pollingInterval = '120s';
 
@@ -23,8 +23,8 @@ class BookingActivityChartWidget extends ChartWidget
         $cancelled   = [];
         $pending     = [];
 
-        for ($i = 13; $i >= 0; $i--) {
-            $date = Carbon::today()->subDays($i);
+        for ($i = 0; $i <= 13; $i++) {
+            $date = Carbon::today()->addDays($i);
             $labels[] = $date->format('d M');
 
             $base = Booking::query()->whereDate('flight_date', $date);
