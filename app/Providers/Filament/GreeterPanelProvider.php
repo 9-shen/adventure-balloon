@@ -48,11 +48,11 @@ class GreeterPanelProvider extends PanelProvider
                 for: 'App\\Filament\\Greeter\\Widgets'
             )
             ->widgets([
-                AccountWidget::class,
                 GreeterStatsWidget::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make('Attendance'),
+                NavigationGroup::make('Reports'),
             ])
             ->middleware([
                 EncryptCookies::class,

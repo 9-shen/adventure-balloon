@@ -44,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Accountant\Resources\FinanceReportResource::class,
                 \App\Filament\Manager\Resources\BookingsReportResource::class,
                 \App\Filament\Manager\Resources\DispatchesReportResource::class,
+                \App\Filament\Greeter\Resources\AttendanceReportResource::class,
                 \App\Filament\Accountant\Resources\InvoiceResource::class,
                 \App\Filament\Accountant\Resources\PartnerInvoiceResource::class,
                 \App\Filament\Accountant\Resources\TransportBillResource::class,
