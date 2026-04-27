@@ -20,17 +20,17 @@ class ListAccountantBookings extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => \Filament\Resources\Components\Tab::make('All Bookings'),
+            'all' => \Filament\Schemas\Components\Tabs\Tab::make('All Bookings'),
             
-            'today' => \Filament\Resources\Components\Tab::make('Today')
+            'today' => \Filament\Schemas\Components\Tabs\Tab::make('Today')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereDate('flight_date', today()))
                 ->badge(\App\Models\Booking::query()->whereDate('flight_date', today())->count()),
                 
-            'next_7_days' => \Filament\Resources\Components\Tab::make('Next 7 Days')
+            'next_7_days' => \Filament\Schemas\Components\Tabs\Tab::make('Next 7 Days')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereDate('flight_date', '>=', today())->whereDate('flight_date', '<=', today()->addDays(7)))
                 ->badge(\App\Models\Booking::query()->whereDate('flight_date', '>=', today())->whereDate('flight_date', '<=', today()->addDays(7))->count()),
                 
-            'upcoming' => \Filament\Resources\Components\Tab::make('Upcoming')
+            'upcoming' => \Filament\Schemas\Components\Tabs\Tab::make('Upcoming')
                 ->modifyQueryUsing(fn (\Illuminate\Database\Eloquent\Builder $query) => $query->whereDate('flight_date', '>', today()))
                 ->badge(\App\Models\Booking::query()->whereDate('flight_date', '>', today())->count()),
         ];
