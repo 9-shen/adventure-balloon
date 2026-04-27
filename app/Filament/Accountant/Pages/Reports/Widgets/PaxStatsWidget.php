@@ -25,22 +25,22 @@ class PaxStatsWidget extends BaseWidget
             : 0;
 
         return [
-            Stat::make('Total Flights', $flights)
+            Stat::make('Total Flights', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $flights . '</span>'))
                 ->description('Unique flight dates')
                 ->descriptionIcon('heroicon-m-calendar')
                 ->color('primary'),
 
-            Stat::make('Total PAX', $totalPax)
+            Stat::make('Total PAX', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalPax . '</span>'))
                 ->description('All passengers')
                 ->descriptionIcon('heroicon-m-users')
                 ->color('success'),
 
-            Stat::make('Avg PAX / Flight', $avgPax)
+            Stat::make('Avg PAX / Flight', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $avgPax . '</span>'))
                 ->description('Average load per flight')
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color('info'),
 
-            Stat::make('No-Show Rate', $noShowRate . '%')
+            Stat::make('No-Show Rate', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $noShowRate . '%</span>'))
                 ->description('No-shows vs Total checked')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),

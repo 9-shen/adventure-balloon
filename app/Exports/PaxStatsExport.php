@@ -32,6 +32,7 @@ class PaxStatsExport implements FromCollection, WithHeadings, WithMapping, Shoul
             ->when($this->filters['date_from'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '>=', $v))
             ->when($this->filters['date_until'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '<=', $v))
             ->when($this->filters['type'] ?? null, fn($q, $v) => $q->where('type', $v))
+            ->when($this->filters['dates'] ?? null, fn($q, $v) => $q->whereIn('flight_date', $v))
             ->groupBy('flight_date')
             ->orderByDesc('flight_date')
             ->get();

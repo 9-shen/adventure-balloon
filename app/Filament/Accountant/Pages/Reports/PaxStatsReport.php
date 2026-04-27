@@ -192,7 +192,20 @@ class PaxStatsReport extends Page implements HasTable
                     ->label('Booking Type')
                     ->options(['regular' => 'Regular', 'partner' => 'Partner']),
             ])
-            ->filtersLayout(\Filament\Tables\Enums\FiltersLayout::AboveContent)
+            ->bulkActions([
+                \Filament\Actions\BulkAction::make('export_selected')
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $dates = $records->pluck('flight_date')->unique()->toArray();
+                        return Excel::download(
+                            new PaxStatsExport(['dates' => $dates]),
+                            'pax-stats-selected-' . now()->format('Y-m-d') . '.csv',
+                            \Maatwebsite\Excel\Excel::CSV
+                        );
+                    }),
+            ])
             ->striped()
             ->paginated([25, 50, 100]);
     }
