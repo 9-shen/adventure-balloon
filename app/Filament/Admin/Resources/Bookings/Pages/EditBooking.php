@@ -5,12 +5,18 @@ namespace App\Filament\Admin\Resources\Bookings\Pages;
 use App\Filament\Admin\Resources\Bookings\BookingResource;
 use App\Models\Booking;
 use App\Models\Product;
+use App\Notifications\BookingCancelledNotification;
+use App\Notifications\PartnerBookingCancelledNotification;
 use App\Services\BookingService;
+use App\Services\DispatchService;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
+use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class EditBooking extends EditRecord
 {
@@ -42,14 +48,14 @@ class EditBooking extends EditRecord
                     $this->redirect($this->getResource()::getUrl('view', ['record' => $booking]));
                 }),
 
-            // Cancel Action
+            // Cancel Action — Phase 26-C: sends notifications to all affected parties
             Action::make('cancel')
                 ->label('Cancel Booking')
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->visible(fn () => !$this->getRecord()->isCancelled())
                 ->form([
-                    \Filament\Forms\Components\Textarea::make('cancelled_reason')
+                    Textarea::make('cancelled_reason')
                         ->label('Cancellation Reason')
                         ->required()
                         ->rows(3),
@@ -57,15 +63,66 @@ class EditBooking extends EditRecord
                 ->action(function (array $data): void {
                     /** @var Booking $booking */
                     $booking = $this->getRecord();
+                    $reason  = $data['cancelled_reason'];
+
                     $booking->update([
                         'booking_status'   => 'cancelled',
-                        'cancelled_reason' => $data['cancelled_reason'],
+                        'cancelled_reason' => $reason,
                         'cancelled_by'     => Auth::id(),
                         'cancelled_at'     => now(),
                     ]);
+
+                    $booking->loadMissing(['partner', 'product', 'dispatch.transportCompany', 'dispatch.dispatchDriverRows.driver']);
+                    $dispatch = $booking->dispatch;
+
+                    // ── 1. Notify partner (if partner booking) ────────────────────
+                    if ($booking->type === 'partner' && $booking->partner?->email) {
+                        try {
+                            (new AnonymousNotifiable)
+                                ->route('mail', $booking->partner->email)
+                                ->notify(new PartnerBookingCancelledNotification($booking, $reason));
+                        } catch (\Exception $e) {
+                            Log::error("CancelBooking: failed to email partner [{$booking->booking_ref}]: " . $e->getMessage());
+                        }
+                    }
+
+                    // ── 2. If dispatched — notify transport company + drivers ──────
+                    if ($dispatch) {
+                        // Email transport company
+                        if ($dispatch->transportCompany?->email) {
+                            try {
+                                $dispatch->transportCompany->notify(
+                                    new BookingCancelledNotification($booking, $dispatch, $reason, false)
+                                );
+                            } catch (\Exception $e) {
+                                Log::error("CancelBooking: failed to email transport [{$booking->booking_ref}]: " . $e->getMessage());
+                            }
+                        }
+
+                        // Email each driver
+                        foreach ($dispatch->dispatchDriverRows as $row) {
+                            if ($row->driver?->email) {
+                                try {
+                                    $row->driver->notify(
+                                        new BookingCancelledNotification($booking, $dispatch, $reason, true)
+                                    );
+                                } catch (\Exception $e) {
+                                    Log::error("CancelBooking: failed to email driver [{$row->driver_id}] [{$booking->booking_ref}]: " . $e->getMessage());
+                                }
+                            }
+                        }
+
+                        // WhatsApp each driver
+                        try {
+                            app(DispatchService::class)->sendCancellationWhatsApp($dispatch, $reason);
+                        } catch (\Exception $e) {
+                            Log::error("CancelBooking: WhatsApp cancellation failed [{$booking->booking_ref}]: " . $e->getMessage());
+                        }
+                    }
+
                     Notification::make()
                         ->title('Booking Cancelled')
-                        ->body("Booking {$booking->booking_ref} has been cancelled.")
+                        ->body("Booking {$booking->booking_ref} has been cancelled. Notifications sent to affected parties.")
                         ->warning()
                         ->send();
                 }),
@@ -108,3 +165,5 @@ class EditBooking extends EditRecord
         return $data;
     }
 }
+
+
