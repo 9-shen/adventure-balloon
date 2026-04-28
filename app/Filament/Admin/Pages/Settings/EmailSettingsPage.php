@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Mail;
 class EmailSettingsPage extends Page implements HasForms
 {
     use InteractsWithForms;
+
     protected string $view = 'filament.admin.pages.settings.email-settings-page';
 
     public static function getNavigationIcon(): string|null
@@ -40,7 +41,11 @@ class EmailSettingsPage extends Page implements HasForms
         return 'Email Configuration';
     }
 
+    // Main settings form state
     public ?array $data = [];
+
+    // Inline test form state
+    public string $testRecipient = '';
 
     public function mount(): void
     {
@@ -55,6 +60,8 @@ class EmailSettingsPage extends Page implements HasForms
             'from_address' => $settings->from_address,
             'from_name'    => $settings->from_name,
         ]);
+
+        $this->testRecipient = auth()->user()->email ?? '';
     }
 
     public function form(Schema $form): Schema
@@ -110,7 +117,7 @@ class EmailSettingsPage extends Page implements HasForms
                             TextInput::make('from_name')
                                 ->label('From Name')
                                 ->required()
-                                ->placeholder('e.g. Booklix'),
+                                ->placeholder('e.g. Adventure Balloon'),
                         ]),
                     ]),
             ])
@@ -124,23 +131,6 @@ class EmailSettingsPage extends Page implements HasForms
                 ->label('Save Email Settings')
                 ->icon('heroicon-o-check')
                 ->action('save'),
-
-            Action::make('sendTest')
-                ->label('Send Test Email')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('gray')
-                ->form([
-                    TextInput::make('test_recipient')
-                        ->label('Recipient Email')
-                        ->email()
-                        ->required()
-                        ->default(fn () => auth()->user()->email)
-                        ->placeholder('recipient@example.com'),
-                ])
-                ->modalHeading('Send Test Email')
-                ->modalDescription('A test email will be sent using your current saved SMTP settings.')
-                ->modalSubmitActionLabel('Send Now')
-                ->action('sendTestEmail'),
         ];
     }
 
@@ -164,12 +154,21 @@ class EmailSettingsPage extends Page implements HasForms
             ->send();
     }
 
-    public function sendTestEmail(array $arguments): void
+    public function sendTestEmail(): void
     {
+        $recipient = trim($this->testRecipient);
+
+        if (empty($recipient)) {
+            Notification::make()
+                ->title('Please enter a recipient email address.')
+                ->warning()
+                ->send();
+            return;
+        }
+
         try {
             $settings = app(EmailSettings::class);
 
-            // Apply settings at runtime — use 'scheme' as required by Symfony Mailer
             $scheme = match ($settings->encryption) {
                 'ssl'   => 'smtps',
                 default => null,
@@ -186,10 +185,7 @@ class EmailSettingsPage extends Page implements HasForms
                 'mail.from.name'             => $settings->from_name,
             ]);
 
-            // Force Symfony Mailer to re-create the transport with our new config
             app('mail.manager')->purge('smtp');
-
-            $recipient = $arguments['test_recipient'];
 
             Mail::raw(
                 "✅ This is a test email from Adventure Balloon.\n\nYour SMTP settings are working correctly!\n\nSent at: " . now()->format('Y-m-d H:i:s'),
@@ -199,7 +195,7 @@ class EmailSettingsPage extends Page implements HasForms
             );
 
             Notification::make()
-                ->title('Test email sent successfully!')
+                ->title('Test email sent!')
                 ->body("Delivered to {$recipient}")
                 ->success()
                 ->send();

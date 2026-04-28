@@ -17,6 +17,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 class WhatsAppSettingsPage extends Page implements HasForms
 {
     use InteractsWithForms;
+
     protected string $view = 'filament.admin.pages.settings.whats-app-settings-page';
 
     public static function getNavigationIcon(): string|null
@@ -39,7 +40,12 @@ class WhatsAppSettingsPage extends Page implements HasForms
         return 'WhatsApp (Twilio)';
     }
 
+    // Main settings form state
     public ?array $data = [];
+
+    // Inline test form state
+    public string $testNumber  = '';
+    public string $testMessage = '';
 
     public function mount(): void
     {
@@ -51,6 +57,8 @@ class WhatsAppSettingsPage extends Page implements HasForms
             'from_number' => $settings->from_number,
             'enabled'     => $settings->enabled,
         ]);
+
+        $this->testMessage = "Hello from Adventure Balloon!\nThis is a test message to verify your WhatsApp integration.";
     }
 
     public function form(Schema $form): Schema
@@ -98,18 +106,6 @@ class WhatsAppSettingsPage extends Page implements HasForms
                 ->label('Save WhatsApp Settings')
                 ->icon('heroicon-o-check')
                 ->action('save'),
-
-            Action::make('sendTest')
-                ->label('Send Test WhatsApp')
-                ->icon('heroicon-o-paper-airplane')
-                ->color('gray')
-                ->form([
-                    TextInput::make('test_number')
-                        ->label('Send to Number')
-                        ->placeholder('whatsapp:+212600000000')
-                        ->required(),
-                ])
-                ->action('sendTestWhatsApp'),
         ];
     }
 
@@ -130,8 +126,19 @@ class WhatsAppSettingsPage extends Page implements HasForms
             ->send();
     }
 
-    public function sendTestWhatsApp(array $arguments): void
+    public function sendTestWhatsApp(): void
     {
+        $number  = trim($this->testNumber);
+        $message = trim($this->testMessage);
+
+        if (empty($number)) {
+            Notification::make()
+                ->title('Please enter a recipient number.')
+                ->warning()
+                ->send();
+            return;
+        }
+
         $settings = app(WhatsAppSettings::class);
 
         if (! $settings->enabled || ! $settings->account_sid) {
@@ -145,15 +152,16 @@ class WhatsAppSettingsPage extends Page implements HasForms
         try {
             $client = new \Twilio\Rest\Client($settings->account_sid, $settings->auth_token);
             $client->messages->create(
-                $arguments['test_number'],
+                $number,
                 [
                     'from' => $settings->from_number,
-                    'body' => "✅ This is a test message from Adventure Balloon.\n\nYour WhatsApp (Twilio) integration is working correctly!\n\nSent at: " . now()->format('Y-m-d H:i:s'),
+                    'body' => $message . "\n\nSent at: " . now()->format('Y-m-d H:i:s'),
                 ]
             );
 
             Notification::make()
-                ->title('Test WhatsApp message sent successfully!')
+                ->title('Test WhatsApp message sent!')
+                ->body("Delivered to {$number}")
                 ->success()
                 ->send();
         } catch (\Exception $e) {
