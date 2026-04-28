@@ -18,22 +18,22 @@ class TransportCostStatsWidget extends StatsOverviewWidget
         $totalDispatches = $query->count();
 
         return [
-            Stat::make('Total Dispatches', number_format($totalDispatches))
+            Stat::make('Total Dispatches', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($totalDispatches) . '</span>'))
                 ->description('All dispatches')
                 ->icon('heroicon-o-truck')
                 ->color('info'),
 
-            Stat::make('Total Transport Cost', 'MAD ' . number_format($totalCost, 2))
+            Stat::make('Total Transport Cost', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalCost, 2) . '</span>'))
                 ->description('Sum of all dispatch costs')
                 ->icon('heroicon-o-calculator')
                 ->color('primary'),
 
-            Stat::make('Billed', 'MAD ' . number_format($billedCost, 2))
+            Stat::make('Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($billedCost, 2) . '</span>'))
                 ->description('Included in transport bills')
                 ->icon('heroicon-o-document-check')
                 ->color('success'),
 
-            Stat::make('Unbilled', 'MAD ' . number_format($unbilledCost, 2))
+            Stat::make('Unbilled', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($unbilledCost, 2) . '</span>'))
                 ->description('Not yet billed')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->color($unbilledCost > 0 ? 'danger' : 'success'),
