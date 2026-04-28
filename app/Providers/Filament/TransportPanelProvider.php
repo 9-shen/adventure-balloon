@@ -31,7 +31,7 @@ class TransportPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#d97706'), // Amber — distinct from admin and partner
             ])
-            ->brandName('Booklix Transport Portal')
+            ->brandName('Transport Portal')
             ->discoverResources(
                 in: app_path('Filament/Transport/Resources'),
                 for: 'App\\Filament\\Transport\\Resources'
@@ -47,9 +47,7 @@ class TransportPanelProvider extends PanelProvider
                 in: app_path('Filament/Transport/Widgets'),
                 for: 'App\\Filament\\Transport\\Widgets'
             )
-            ->widgets([
-                AccountWidget::class,
-            ])
+            ->widgets([])
             ->navigationGroups([
                 NavigationGroup::make('Fleet Management'),
                 NavigationGroup::make('Dispatches'),

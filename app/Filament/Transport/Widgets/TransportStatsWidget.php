@@ -6,6 +6,7 @@ use App\Models\Dispatch;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class TransportStatsWidget extends BaseWidget
 {
@@ -31,22 +32,22 @@ class TransportStatsWidget extends BaseWidget
             ->sum('transport_cost');
 
         return [
-            Stat::make('Total Dispatches', $totalDispatches)
+            Stat::make('Total Dispatches', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalDispatches . '</span>'))
                 ->icon('heroicon-o-truck')
                 ->description('All time dispatches')
                 ->color('primary'),
 
-            Stat::make('Delivered Dispatches', $deliveredCount)
+            Stat::make('Delivered Dispatches', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $deliveredCount . '</span>'))
                 ->icon('heroicon-o-check-badge')
                 ->description('Successfully completed')
                 ->color('success'),
 
-            Stat::make('Expected Payment', number_format($expectedPayment, 2) . ' MAD')
+            Stat::make('Expected Payment', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($expectedPayment, 2) . ' MAD</span>'))
                 ->icon('heroicon-o-clock')
                 ->description('From confirmed dispatches')
                 ->color('warning'),
                 
-            Stat::make('Payment Due', number_format($paymentDue, 2) . ' MAD')
+            Stat::make('Payment Due', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($paymentDue, 2) . ' MAD</span>'))
                 ->icon('heroicon-o-banknotes')
                 ->description('From delivered & unbilled dispatches')
                 ->color('danger'),
