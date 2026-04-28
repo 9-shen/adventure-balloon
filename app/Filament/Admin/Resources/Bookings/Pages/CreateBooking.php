@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Notifications\PartnerBookingNotification;
 use App\Services\BookingService;
 use App\Settings\AppSettings;
+use App\Settings\NotificationSettings;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Schemas\Schema;
@@ -142,19 +143,23 @@ class CreateBooking extends CreateRecord
             ->success()
             ->send();
 
-        // ── Partner booking: alert admin email ──────────────────────────────
+        // ── Partner booking: alert admin email ───────────────────────────────────
         if ($booking->type === 'partner') {
-            $adminEmail = app(AppSettings::class)->company_email;
+            $ns = app(NotificationSettings::class);
 
-            if ($adminEmail) {
-                $booking->loadMissing(['partner', 'product']);
+            if ($ns->partner_booking_email) {
+                $adminEmail = app(AppSettings::class)->company_email;
 
-                try {
-                    (new AnonymousNotifiable)
-                        ->route('mail', $adminEmail)
-                        ->notify(new PartnerBookingNotification($booking));
-                } catch (\Exception $e) {
-                    Log::error("CreateBooking: failed to send partner booking alert [{$booking->booking_ref}]: " . $e->getMessage());
+                if ($adminEmail) {
+                    $booking->loadMissing(['partner', 'product']);
+
+                    try {
+                        (new AnonymousNotifiable)
+                            ->route('mail', $adminEmail)
+                            ->notify(new PartnerBookingNotification($booking));
+                    } catch (\Exception $e) {
+                        Log::error("CreateBooking: failed to send partner booking alert [{$booking->booking_ref}]: " . $e->getMessage());
+                    }
                 }
             }
         }

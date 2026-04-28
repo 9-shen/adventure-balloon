@@ -9,6 +9,7 @@ use App\Models\Vehicle;
 use App\Notifications\DispatchAssignedNotification;
 use App\Notifications\DriverAssignedNotification;
 use App\Settings\AppSettings;
+use App\Settings\NotificationSettings;
 use App\Settings\WhatsAppSettings;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -213,7 +214,10 @@ class DispatchService
 
         /** @var \App\Settings\WhatsAppSettings $wa */
         $wa = app(WhatsAppSettings::class);
-        $waEnabled = $wa->enabled && $wa->account_sid && $wa->auth_token && $wa->from_number;
+        $ns = app(NotificationSettings::class);
+
+        $waEnabled = $ns->driver_assigned_whatsapp
+            && $wa->enabled && $wa->account_sid && $wa->auth_token && $wa->from_number;
 
         $twilio = $waEnabled ? new TwilioClient($wa->account_sid, $wa->auth_token) : null;
         $from   = $waEnabled ? 'whatsapp:' . $wa->from_number : null;
@@ -264,8 +268,8 @@ class DispatchService
                 continue;
             }
 
-            // ── Email ──────────────────────────────────────────────────────────
-            if ($driver->email) {
+            // ── Email ──────────────────────────────────────────────
+            if ($ns->driver_assigned_email && $driver->email) {
                 try {
                     $driver->notify(new DriverAssignedNotification($dispatch, $row));
                     $results['email_sent']++;

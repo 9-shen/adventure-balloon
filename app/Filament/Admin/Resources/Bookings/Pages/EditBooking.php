@@ -9,6 +9,7 @@ use App\Notifications\BookingCancelledNotification;
 use App\Notifications\PartnerBookingCancelledNotification;
 use App\Services\BookingService;
 use App\Services\DispatchService;
+use App\Settings\NotificationSettings;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Textarea;
@@ -74,9 +75,10 @@ class EditBooking extends EditRecord
 
                     $booking->loadMissing(['partner', 'product', 'dispatch.transportCompany', 'dispatch.dispatchDriverRows.driver']);
                     $dispatch = $booking->dispatch;
+                    $ns       = app(NotificationSettings::class);
 
                     // ── 1. Notify partner (if partner booking) ────────────────────
-                    if ($booking->type === 'partner' && $booking->partner?->email) {
+                    if ($ns->booking_cancelled_partner_email && $booking->type === 'partner' && $booking->partner?->email) {
                         try {
                             (new AnonymousNotifiable)
                                 ->route('mail', $booking->partner->email)
@@ -89,7 +91,7 @@ class EditBooking extends EditRecord
                     // ── 2. If dispatched — notify transport company + drivers ──────
                     if ($dispatch) {
                         // Email transport company
-                        if ($dispatch->transportCompany?->email) {
+                        if ($ns->booking_cancelled_transport_email && $dispatch->transportCompany?->email) {
                             try {
                                 $dispatch->transportCompany->notify(
                                     new BookingCancelledNotification($booking, $dispatch, $reason, false)
@@ -100,23 +102,27 @@ class EditBooking extends EditRecord
                         }
 
                         // Email each driver
-                        foreach ($dispatch->dispatchDriverRows as $row) {
-                            if ($row->driver?->email) {
-                                try {
-                                    $row->driver->notify(
-                                        new BookingCancelledNotification($booking, $dispatch, $reason, true)
-                                    );
-                                } catch (\Exception $e) {
-                                    Log::error("CancelBooking: failed to email driver [{$row->driver_id}] [{$booking->booking_ref}]: " . $e->getMessage());
+                        if ($ns->booking_cancelled_driver_email) {
+                            foreach ($dispatch->dispatchDriverRows as $row) {
+                                if ($row->driver?->email) {
+                                    try {
+                                        $row->driver->notify(
+                                            new BookingCancelledNotification($booking, $dispatch, $reason, true)
+                                        );
+                                    } catch (\Exception $e) {
+                                        Log::error("CancelBooking: failed to email driver [{$row->driver_id}] [{$booking->booking_ref}]: " . $e->getMessage());
+                                    }
                                 }
                             }
                         }
 
                         // WhatsApp each driver
-                        try {
-                            app(DispatchService::class)->sendCancellationWhatsApp($dispatch, $reason);
-                        } catch (\Exception $e) {
-                            Log::error("CancelBooking: WhatsApp cancellation failed [{$booking->booking_ref}]: " . $e->getMessage());
+                        if ($ns->booking_cancelled_driver_whatsapp) {
+                            try {
+                                app(DispatchService::class)->sendCancellationWhatsApp($dispatch, $reason);
+                            } catch (\Exception $e) {
+                                Log::error("CancelBooking: WhatsApp cancellation failed [{$booking->booking_ref}]: " . $e->getMessage());
+                            }
                         }
                     }
 

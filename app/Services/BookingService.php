@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Product;
 use App\Notifications\PaxCapacityAlertNotification;
 use App\Settings\AppSettings;
+use App\Settings\NotificationSettings;
 use App\Settings\PaxSettings;
 use App\Settings\WhatsAppSettings;
 use Carbon\Carbon;
@@ -206,13 +207,15 @@ class BookingService
                 return;
             }
 
+            /** @var NotificationSettings $ns */
+            $ns           = app(NotificationSettings::class);
             /** @var AppSettings $appSettings */
-            $appSettings = app(AppSettings::class);
-            $adminEmail  = $appSettings->company_email;
-            $adminPhone  = $appSettings->company_phone ?? null;
+            $appSettings  = app(AppSettings::class);
+            $adminEmail   = $appSettings->company_email;
+            $adminPhone   = $appSettings->company_phone ?? null;
 
-            // ── 1. Email alert ──────────────────────────────────────────────
-            if ($adminEmail) {
+            // ── 1. Email alert ──────────────────────────────────────────
+            if ($ns->pax_alert_email && $adminEmail) {
                 try {
                     (new AnonymousNotifiable)
                         ->route('mail', $adminEmail)
@@ -228,11 +231,11 @@ class BookingService
                 }
             }
 
-            // ── 2. WhatsApp alert ───────────────────────────────────────────
+            // ── 2. WhatsApp alert ───────────────────────────────────────────────
             /** @var WhatsAppSettings $wa */
             $wa = app(WhatsAppSettings::class);
 
-            if ($wa->enabled && $wa->account_sid && $wa->auth_token && $wa->from_number && $adminPhone) {
+            if ($ns->pax_alert_whatsapp && $wa->enabled && $wa->account_sid && $wa->auth_token && $wa->from_number && $adminPhone) {
                 try {
                     $toPhone = str_starts_with($adminPhone, '+') ? $adminPhone : '+' . $adminPhone;
                     $twilio  = new TwilioClient($wa->account_sid, $wa->auth_token);
