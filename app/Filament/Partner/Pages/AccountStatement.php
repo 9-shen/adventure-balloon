@@ -6,13 +6,15 @@ use App\Filament\Partner\Widgets\AccountStatsWidget;
 use App\Models\Booking;
 use App\Models\Invoice;
 use Filament\Actions\Action;
-use Filament\Pages\Page;
-use Filament\Forms\Components\DatePicker;
 use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\DatePicker;
+use Filament\Pages\Page;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
@@ -166,29 +168,46 @@ class AccountStatement extends Page implements HasTable
                         'due'     => 'Due',
                         'partial' => 'Partial',
                         'paid'    => 'Paid',
+                        'on_site' => 'On Site',
                     ]),
                 Filter::make('flight_date')
+                    ->label('Flight Date Range')
                     ->form([
-                        DatePicker::make('from'),
-                        DatePicker::make('until'),
+                        DatePicker::make('from')->label('From')->native(false),
+                        DatePicker::make('until')->label('Until')->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['from'],
+                                $data['from'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '>=', $date),
                             )
                             ->when(
-                                $data['until'],
+                                $data['until'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '<=', $date),
                             );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('From: ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Until: ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+                        return $indicators;
                     }),
             ])
-            ->bulkActions([
-                BulkAction::make('export_selected')
-                    ->label('Export Selected CSV')
-                    ->icon('heroicon-o-arrow-down-tray')
-                    ->action(fn (Collection $records) => $this->exportBookingsData($records)),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('export_selected_bookings')
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(fn (Collection $records) => $this->exportBookingsData($records)),
+                ]),
             ])
             ->defaultSort('flight_date', 'desc')
             ->striped()
@@ -265,28 +284,43 @@ class AccountStatement extends Page implements HasTable
                         'overdue' => 'Overdue',
                     ]),
                 Filter::make('created_at')
-                    ->label('Invoice Date')
+                    ->label('Invoice Date Range')
                     ->form([
-                        DatePicker::make('from')->label('Issued From'),
-                        DatePicker::make('until')->label('Issued Until'),
+                        DatePicker::make('from')->label('Issued From')->native(false),
+                        DatePicker::make('until')->label('Issued Until')->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
-                                $data['from'],
+                                $data['from'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             )
                             ->when(
-                                $data['until'],
+                                $data['until'] ?? null,
                                 fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('From: ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Until: ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+                        return $indicators;
                     }),
             ])
-            ->bulkActions([
-                BulkAction::make('export_selected')
-                    ->label('Export Selected CSV')
-                    ->icon('heroicon-o-document-arrow-down')
-                    ->action(fn (Collection $records) => $this->exportInvoicesData($records)),
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('export_selected_invoices')
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-document-arrow-down')
+                        ->color('success')
+                        ->action(fn (Collection $records) => $this->exportInvoicesData($records)),
+                ]),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
