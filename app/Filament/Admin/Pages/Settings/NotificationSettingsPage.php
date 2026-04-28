@@ -73,7 +73,7 @@ class NotificationSettingsPage extends Page implements HasForms
                 // ── Partner Booking ────────────────────────────────────────────
                 Section::make('Partner Booking Alert')
                     ->description('Sent to admin when a partner submits a new booking (from Partner Portal or Admin panel).')
-                    ->icon('heroicon-o-handshake')
+                    ->icon('heroicon-o-building-storefront')
                     ->schema([
                         Grid::make(3)->schema([
                             Toggle::make('partner_booking_email')
@@ -139,7 +139,7 @@ class NotificationSettingsPage extends Page implements HasForms
                 // ── PAX Capacity Alerts ────────────────────────────────────────
                 Section::make('PAX Capacity Alerts')
                     ->description('Sent to the admin when remaining daily PAX capacity drops to or below the warning threshold (configured in PAX Settings).')
-                    ->icon('heroicon-o-user-group')
+                    ->icon('heroicon-o-bell-alert')
                     ->schema([
                         Grid::make(3)->schema([
                             Toggle::make('pax_alert_email')
