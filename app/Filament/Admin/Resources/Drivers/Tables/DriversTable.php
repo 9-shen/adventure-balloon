@@ -49,9 +49,12 @@ class DriversTable
                     ->color(fn ($record) => $record?->isLicenseExpiringSoon() ? 'danger' : null)
                     ->sortable(),
 
-                TextColumn::make('vehicles_count')
-                    ->label('Vehicles')
-                    ->counts('vehicles')
+                TextColumn::make('vehicle.plate_number')
+                    ->label('Assigned Vehicle')
+                    ->placeholder('— None —')
+                    ->description(fn ($record) => $record->vehicle
+                        ? "{$record->vehicle->make} {$record->vehicle->model}"
+                        : null)
                     ->badge()
                     ->color('info'),
 

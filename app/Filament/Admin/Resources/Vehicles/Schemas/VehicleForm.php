@@ -3,12 +3,14 @@
 namespace App\Filament\Admin\Resources\Vehicles\Schemas;
 
 use App\Models\TransportCompany;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 
 class VehicleForm
 {
@@ -85,6 +87,35 @@ class VehicleForm
                     Textarea::make('notes')
                         ->label('Notes')
                         ->rows(9)
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Assigned Driver')
+                ->icon('heroicon-o-user')
+                ->description('The driver currently assigned to this vehicle.')
+                ->schema([
+                    Placeholder::make('_assigned_driver')
+                        ->label('')
+                        ->content(function ($record): HtmlString {
+                            if (! $record) {
+                                return new HtmlString('<span style="color:#9ca3af;font-style:italic;">Save the vehicle first to see its assigned driver.</span>');
+                            }
+                            $driver = $record->driver;
+                            if (! $driver) {
+                                return new HtmlString('<span style="color:#9ca3af;font-style:italic;">No driver assigned to this vehicle yet. Assign one via the Drivers form.</span>');
+                            }
+                            return new HtmlString(
+                                '<div style="display:flex;align-items:center;gap:12px;">' .
+                                    '<div style="background:#0e7490;color:#fff;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0;">' .
+                                    strtoupper(substr($driver->name, 0, 1)) .
+                                    '</div>' .
+                                    '<div>' .
+                                    '<div style="font-weight:700;color:#1f2937;font-size:15px;">' . e($driver->name) . '</div>' .
+                                    '<div style="font-size:13px;color:#6b7280;">' . e($driver->phone ?? '—') . '</div>' .
+                                    '</div>' .
+                                    '</div>'
+                            );
+                        })
                         ->columnSpanFull(),
                 ]),
         ]);

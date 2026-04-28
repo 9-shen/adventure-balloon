@@ -75,7 +75,8 @@ class VehicleResource extends Resource
                         TextInput::make('plate_number')
                             ->label('License Plate')
                             ->required()
-                            ->maxLength(20),
+                            ->maxLength(20)
+                            ->unique(ignoreRecord: true),
 
                         Select::make('vehicle_type')
                             ->label('Vehicle Type')
@@ -110,7 +111,7 @@ class VehicleResource extends Resource
                     Textarea::make('notes')
                         ->rows(3)
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 

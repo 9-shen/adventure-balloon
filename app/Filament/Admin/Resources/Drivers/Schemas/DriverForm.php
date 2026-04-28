@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Drivers\Schemas;
 
+use App\Models\Vehicle;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -10,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class DriverForm
@@ -28,6 +30,26 @@ class DriverForm
                         ->searchable()
                         ->preload()
                         ->required()
+                        ->live()
+                        ->afterStateUpdated(fn ($set) => $set('vehicle_id', null))
+                        ->columnSpanFull(),
+
+                    Select::make('vehicle_id')
+                        ->label('Assigned Vehicle')
+                        ->placeholder('Select vehicle (optional)')
+                        ->searchable()
+                        ->native(false)
+                        ->options(function (Get $get): array {
+                            $companyId = (int) $get('transport_company_id');
+                            if (! $companyId) return [];
+                            return Vehicle::where('transport_company_id', $companyId)
+                                ->where('is_active', true)
+                                ->get()
+                                ->mapWithKeys(fn ($v) => [
+                                    $v->id => "{$v->make} {$v->model} — {$v->plate_number} (cap: {$v->capacity})",
+                                ])
+                                ->toArray();
+                        })
                         ->columnSpanFull(),
 
                     TextInput::make('name')

@@ -264,6 +264,15 @@ class DispatchForm
                         ->required()
                         ->searchable()
                         ->native(false)
+                        ->live()
+                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                            if (! $state) return;
+                            $driver = Driver::find((int) $state);
+                            // Auto-fill vehicle from driver's assigned vehicle
+                            if ($driver?->vehicle_id) {
+                                $set('vehicle_id', $driver->vehicle_id);
+                            }
+                        })
                         ->options(function (Get $get): array {
                             $companyId = (int) $get('../../transport_company_id');
                             if (!$companyId) {
@@ -280,6 +289,15 @@ class DispatchForm
                         ->required()
                         ->searchable()
                         ->native(false)
+                        ->live()
+                        ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                            if (! $state) return;
+                            // Auto-fill driver from the vehicle's assigned driver
+                            $driver = Driver::where('vehicle_id', (int) $state)->first();
+                            if ($driver) {
+                                $set('driver_id', $driver->id);
+                            }
+                        })
                         ->options(function (Get $get): array {
                             $companyId = (int) $get('../../transport_company_id');
                             if (!$companyId) {

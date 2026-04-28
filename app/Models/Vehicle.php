@@ -41,12 +41,20 @@ class Vehicle extends Model
     }
 
     /**
-     * Drivers assigned to this vehicle.
+     * Drivers assigned to this vehicle (M:M pivot, legacy).
      */
     public function drivers(): BelongsToMany
     {
         return $this->belongsToMany(Driver::class, 'driver_vehicle')
                     ->withPivot('is_default')
                     ->withTimestamps();
+    }
+
+    /**
+     * The single driver directly assigned to this vehicle (1:1 via drivers.vehicle_id).
+     */
+    public function driver(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Driver::class);
     }
 }

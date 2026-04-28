@@ -19,6 +19,7 @@ class Driver extends Model implements HasMedia
 
     protected $fillable = [
         'transport_company_id',
+        'vehicle_id',
         'name',
         'email',
         'phone',
@@ -47,6 +48,14 @@ class Driver extends Model implements HasMedia
     public function transportCompany(): BelongsTo
     {
         return $this->belongsTo(TransportCompany::class);
+    }
+
+    /**
+     * The single vehicle directly assigned to this driver (1:1).
+     */
+    public function vehicle(): BelongsTo
+    {
+        return $this->belongsTo(Vehicle::class);
     }
 
     /**
