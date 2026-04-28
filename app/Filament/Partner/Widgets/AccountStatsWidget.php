@@ -33,22 +33,22 @@ class AccountStatsWidget extends BaseWidget
         $overdue     = (float) (clone $invoiceQuery)->where('status', 'overdue')->sum('total_amount');
 
         return [
-            Stat::make('Total Bookings', $totalBookings)
+            Stat::make('Total Bookings', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalBookings . '</span>'))
                 ->description("{$confirmedBookings} confirmed · {$totalPax} PAX")
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('primary'),
 
-            Stat::make('Total Billed', 'MAD ' . number_format($totalBilled, 2))
+            Stat::make('Total Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalBilled, 2) . '</span>'))
                 ->description('Across all sent & paid invoices')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('info'),
 
-            Stat::make('Total Paid', 'MAD ' . number_format($totalPaid, 2))
+            Stat::make('Total Paid', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalPaid, 2) . '</span>'))
                 ->description('Settled invoices')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Outstanding Due', 'MAD ' . number_format($totalDue, 2))
+            Stat::make('Outstanding Due', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalDue, 2) . '</span>'))
                 ->description($overdue > 0
                     ? 'MAD ' . number_format($overdue, 2) . ' overdue ⚠'
                     : 'No overdue invoices'

@@ -37,17 +37,17 @@ class PartnerStatsWidget extends BaseWidget
             ->sum('total_amount');
 
         return [
-            Stat::make('Total Bookings', $totalBookings)
+            Stat::make('Total Bookings', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalBookings . '</span>'))
                 ->description('All bookings under your agency')
                 ->icon('heroicon-o-calendar-days')
                 ->color('primary'),
 
-            Stat::make('Upcoming Confirmed Flights', $upcomingFlights)
+            Stat::make('Upcoming Confirmed Flights', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $upcomingFlights . '</span>'))
                 ->description('Confirmed flights from today onwards')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success'),
 
-            Stat::make('Total Invoiced', number_format((float) $totalBilled, 2) . ' MAD')
+            Stat::make('Total Invoiced', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format((float) $totalBilled, 2) . ' MAD</span>'))
                 ->description(number_format((float) $totalOutstanding, 2) . ' MAD outstanding')
                 ->icon('heroicon-o-document-text')
                 ->color('warning'),

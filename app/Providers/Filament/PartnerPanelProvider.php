@@ -48,7 +48,6 @@ class PartnerPanelProvider extends PanelProvider
                 for: 'App\\Filament\\Partner\\Widgets'
             )
             ->widgets([
-                AccountWidget::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make('My Bookings'),
