@@ -701,10 +701,14 @@
 ## Phase 21 — Polish & Advanced Features
 
 📁 Details: [`docs/phases/phase-21-polish.md`](phases/phase-21-polish.md)  
-**Status: 🔲 Pending**
+**Status: 🔄 In Progress**
+
+### Completed ✅
+- [x] Standardized widget font sizes to `1.25rem` across the dashboard.
+- [x] Made ChartWidgets responsive by configuring `columnSpan` (stacked on mobile, side-by-side on desktop).
+- [x] Removed obsolete `AccountantRecentPaymentsWidget` from the admin dashboard to streamline the UI.
 
 ### To Do
-
 - [ ] Activity log viewer in Filament (Spatie)
 - [ ] Global search across bookings
 - [ ] Bulk operations (confirm, cancel, export)
