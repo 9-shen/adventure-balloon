@@ -11,7 +11,7 @@ return new class extends SettingsMigration
         $this->migrator->add('email.username',     null);
         $this->migrator->add('email.password',     null);
         $this->migrator->add('email.encryption',   'tls');
-        $this->migrator->add('email.from_address', 'noreply@booklix.com');
-        $this->migrator->add('email.from_name',    'Booklix');
+        $this->migrator->add('email.from_address', 'noreply@adventureballoon.com');
+        $this->migrator->add('email.from_name',    'Adventure Balloon');
     }
 };
