@@ -31,7 +31,7 @@ class GreeterPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#059669'), // Emerald green — field-ops feel
             ])
-            ->brandName('Booklix Greeter Portal')
+            ->brandName('Greeter Portal')
             ->discoverResources(
                 in: app_path('Filament/Greeter/Resources'),
                 for: 'App\\Filament\\Greeter\\Resources'

@@ -30,7 +30,7 @@ class ManagerPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->brandName('Booklix Operations Manager')
+            ->brandName('Manager Portal')
             ->viteTheme('resources/css/filament/manager/theme.css')
             ->discoverResources(in: app_path('Filament/Manager/Resources'), for: 'App\\Filament\\Manager\\Resources')
             ->discoverPages(in: app_path('Filament/Manager/Pages'), for: 'App\\Filament\\Manager\\Pages')

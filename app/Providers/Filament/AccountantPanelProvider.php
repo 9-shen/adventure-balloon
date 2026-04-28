@@ -30,7 +30,7 @@ class AccountantPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->brandName('Booklix Finance Portal')
+            ->brandName('Finance Portal')
             ->viteTheme('resources/css/filament/accountant/theme.css')
             ->discoverResources(
                 in: app_path('Filament/Accountant/Resources'),

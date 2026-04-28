@@ -31,7 +31,7 @@ class DriverPanelProvider extends PanelProvider
             ->colors([
                 'primary' => \Filament\Support\Colors\Color::Emerald,
             ])
-            ->brandName('Booklix Driver Portal')
+            ->brandName('Driver Portal')
             ->favicon(asset('images/favicon.png'))
             ->discoverResources(in: app_path('Filament/Driver/Resources'), for: 'App\Filament\Driver\Resources')
             ->discoverPages(in: app_path('Filament/Driver/Pages'), for: 'App\Filament\Driver\Pages')

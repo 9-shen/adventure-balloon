@@ -32,7 +32,7 @@ class GuidePanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::hex('#7c3aed'), // Violet — distinct from other panels
             ])
-            ->brandName('Booklix Guide Portal')
+            ->brandName('Guide Portal')
             ->favicon(asset('images/favicon.png'))
             ->discoverResources(
                 in: app_path('Filament/Guide/Resources'),
