@@ -81,7 +81,7 @@ class ProductStatsWidget extends BaseWidget
 
             $stats[] = Stat::make(
                 $product->name,
-                $revenue > 0 ? 'MAD ' . number_format($revenue, 0) : 'No Revenue'
+                new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . ($revenue > 0 ? 'MAD ' . number_format($revenue, 0) : 'No Revenue') . '</span>')
             )
                 ->description(
                     $pax > 0

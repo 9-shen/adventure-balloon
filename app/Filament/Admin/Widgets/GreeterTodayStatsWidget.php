@@ -45,28 +45,28 @@ class GreeterTodayStatsWidget extends BaseWidget
         $waitPax   = $totalPax - $showPax - $noShowPax;
 
         return [
-            Stat::make("Today's Flights", $totalBookings)
+            Stat::make("Today's Flights", new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalBookings . '</span>'))
                 ->description('Bookings scheduled for today')
                 ->descriptionIcon('heroicon-o-calendar-days')
                 ->color('primary')
                 ->columnSpan(2),
 
-            Stat::make('Total PAX Today', $totalPax)
+            Stat::make('Total PAX Today', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalPax . '</span>'))
                 ->description('Individual passengers')
                 ->descriptionIcon('heroicon-o-users')
                 ->color('info'),
 
-            Stat::make('Checked In', $showPax)
+            Stat::make('Checked In', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $showPax . '</span>'))
                 ->description("{$showPax} of {$totalPax} PAX showed")
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make('Awaiting', $waitPax)
+            Stat::make('Awaiting', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $waitPax . '</span>'))
                 ->description('Attendance not yet marked')
                 ->descriptionIcon('heroicon-o-clock')
                 ->color('warning'),
 
-            Stat::make('No-Show', $noShowPax)
+            Stat::make('No-Show', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $noShowPax . '</span>'))
                 ->description("{$noShowPax} PAX did not appear")
                 ->descriptionIcon('heroicon-o-x-circle')
                 ->color('danger'),

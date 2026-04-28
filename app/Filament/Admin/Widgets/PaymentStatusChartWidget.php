@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PaymentStatusChartWidget extends ChartWidget
 {
-    protected array|string|int $columnSpan = 1;
+    protected array|string|int $columnSpan = ['default' => 'full', 'md' => 1];
     protected ?string $heading = 'Payment Status Distribution';
     protected ?string $maxHeight = '220px';
     protected static ?int $sort = 6;

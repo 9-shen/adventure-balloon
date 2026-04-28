@@ -53,17 +53,17 @@ class PaxRemainingTodayWidget extends BaseWidget
         };
 
         return [
-            Stat::make('Daily Capacity', $capacity)
+            Stat::make('Daily Capacity', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $capacity . '</span>'))
                 ->description('Max PAX allowed per day')
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color('gray'),
 
-            Stat::make('Booked Today', $totalBooked)
+            Stat::make('Booked Today', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $totalBooked . '</span>'))
                 ->description("{$usedPercent}% of daily capacity used")
                 ->descriptionIcon('heroicon-o-ticket')
                 ->color($bookedColor),
 
-            Stat::make('PAX Remaining Today', $remaining)
+            Stat::make('PAX Remaining Today', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $remaining . '</span>'))
                 ->description($remaining === 0 ? 'Fully booked — no slots left!' : "{$remaining} of {$capacity} slots available")
                 ->descriptionIcon($remaining === 0 ? 'heroicon-o-x-circle' : 'heroicon-o-arrow-trending-down')
                 ->color($remainingColor),
