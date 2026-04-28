@@ -8,12 +8,15 @@ use App\Models\Invoice;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Tables\Actions\Action as TableAction;
-use Filament\Tables\Columns\BadgeColumn;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -65,12 +68,14 @@ class AccountStatement extends Page implements HasTable
                 ->label('Export Bookings CSV')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('gray')
+                ->visible(fn () => $this->activeTab === 'bookings')
                 ->action('exportBookingsCsv'),
 
             Action::make('export_invoices')
                 ->label('Export Invoices CSV')
                 ->icon('heroicon-o-document-arrow-down')
                 ->color('primary')
+                ->visible(fn () => $this->activeTab === 'invoices')
                 ->action('exportInvoicesCsv'),
         ];
     }
@@ -163,6 +168,28 @@ class AccountStatement extends Page implements HasTable
                         'partial' => 'Partial',
                         'paid'    => 'Paid',
                     ]),
+                Filter::make('flight_date')
+                    ->form([
+                        DatePicker::make('from'),
+                        DatePicker::make('until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '<=', $date),
+                            );
+                    }),
+            ])
+            ->bulkActions([
+                BulkAction::make('export_selected')
+                    ->label('Export Selected CSV')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn (Collection $records) => $this->exportBookingsData($records)),
             ])
             ->defaultSort('flight_date', 'desc')
             ->striped()
@@ -173,7 +200,8 @@ class AccountStatement extends Page implements HasTable
     {
         return $table
             ->query(
-                Invoice::where('partner_id', $partnerId)
+                Invoice::query()
+                    ->where('partner_id', $partnerId)
                     ->latest()
             )
             ->columns([
@@ -237,6 +265,29 @@ class AccountStatement extends Page implements HasTable
                         'paid'    => 'Paid',
                         'overdue' => 'Overdue',
                     ]),
+                Filter::make('created_at')
+                    ->label('Invoice Date')
+                    ->form([
+                        DatePicker::make('from')->label('Issued From'),
+                        DatePicker::make('until')->label('Issued Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
+            ])
+            ->bulkActions([
+                BulkAction::make('export_selected')
+                    ->label('Export Selected CSV')
+                    ->icon('heroicon-o-document-arrow-down')
+                    ->action(fn (Collection $records) => $this->exportInvoicesData($records)),
             ])
             ->defaultSort('created_at', 'desc')
             ->striped()
@@ -253,15 +304,31 @@ class AccountStatement extends Page implements HasTable
     // ─── CSV Exports ───────────────────────────────────────────────────────────
     public function exportBookingsCsv(): StreamedResponse
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $rows = $this->activeTab === 'bookings'
+            ? $this->getFilteredTableQuery()->get()
+            : Booking::with('product')
+                ->where('partner_id', Auth::user()->partner_id)
+                ->where('type', 'partner')
+                ->orderByDesc('flight_date')
+                ->get();
 
-        $rows = Booking::with('product')
-            ->where('partner_id', $user->partner_id)
-            ->where('type', 'partner')
-            ->orderByDesc('flight_date')
-            ->get();
+        return $this->exportBookingsData($rows);
+    }
 
+    public function exportInvoicesCsv(): StreamedResponse
+    {
+        $rows = $this->activeTab === 'invoices'
+            ? $this->getFilteredTableQuery()->get()
+            : Invoice::query()
+                ->where('partner_id', Auth::user()->partner_id)
+                ->orderByDesc('created_at')
+                ->get();
+
+        return $this->exportInvoicesData($rows);
+    }
+
+    private function exportBookingsData($rows): StreamedResponse
+    {
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Booking Ref','Flight Date','Product','Adults','Children','Total PAX','Amount (MAD)','Payment Status','Booking Status']);
@@ -282,15 +349,8 @@ class AccountStatement extends Page implements HasTable
         }, 'bookings-' . now()->format('Ymd') . '.csv', ['Content-Type' => 'text/csv']);
     }
 
-    public function exportInvoicesCsv(): StreamedResponse
+    private function exportInvoicesData($rows): StreamedResponse
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $rows = Invoice::where('partner_id', $user->partner_id)
-            ->orderByDesc('created_at')
-            ->get();
-
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Invoice #','Period From','Period To','Subtotal (MAD)','Tax (MAD)','Total (MAD)','Status','Sent At','Paid At']);
