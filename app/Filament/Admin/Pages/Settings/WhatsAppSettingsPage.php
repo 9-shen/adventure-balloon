@@ -130,7 +130,7 @@ class WhatsAppSettingsPage extends Page implements HasForms
             ->send();
     }
 
-    public function sendTestWhatsApp(array $data): void
+    public function sendTestWhatsApp(array $arguments): void
     {
         $settings = app(WhatsAppSettings::class);
 
@@ -145,10 +145,10 @@ class WhatsAppSettingsPage extends Page implements HasForms
         try {
             $client = new \Twilio\Rest\Client($settings->account_sid, $settings->auth_token);
             $client->messages->create(
-                $data['test_number'],
+                $arguments['test_number'],
                 [
                     'from' => $settings->from_number,
-                    'body' => 'This is a test message from Booklix. WhatsApp integration is working!',
+                    'body' => "✅ This is a test message from Adventure Balloon.\n\nYour WhatsApp (Twilio) integration is working correctly!\n\nSent at: " . now()->format('Y-m-d H:i:s'),
                 ]
             );
 
@@ -175,11 +175,3 @@ class WhatsAppSettingsPage extends Page implements HasForms
         return auth()->user()?->hasRole('super_admin') ?? false;
     }
 }
-
-
-
-
-
-
-
-

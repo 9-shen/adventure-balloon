@@ -113,10 +113,10 @@
     </style>
 
     <div class="pwa-banner-inner">
-        <img src="/images/icons/icon-192x192.png" alt="Booklix" class="pwa-icon">
+        <img src="/images/icons/icon-192x192.png" alt="Adventure Balloon" class="pwa-icon">
         <div class="pwa-text">
-            <p class="pwa-title">Install Booklix</p>
-            <p class="pwa-desc" id="pwa-description">Add Booklix to your home screen for quick access.</p>
+            <p class="pwa-title">Install Adventure Balloon</p>
+            <p class="pwa-desc" id="pwa-description">Add Adventure Balloon to your home screen for quick access.</p>
             <p class="pwa-ios-steps" id="pwa-ios-steps" style="display:none;">
                 Tap <strong>Share</strong> <span style="font-size:1.1em">⬆️</span> then <strong>"Add to Home Screen"</strong>
             </p>
@@ -169,7 +169,7 @@
         // Only show in Safari (not in-app browsers like Chrome on iOS)
         const isSafari = /Safari/i.test(navigator.userAgent) && !/CriOS|FxiOS|OPiOS|EdgiOS/i.test(navigator.userAgent);
         if (!isSafari) {
-            description.textContent = 'Open this page in Safari to install Booklix on your device.';
+            description.textContent = 'Open this page in Safari to install Adventure Balloon on your device.';
             iosSteps.style.display = 'none';
             installBtn.style.display = 'none';
             showBanner();

@@ -49,7 +49,7 @@ class PwaServiceProvider extends ServiceProvider
         <meta name="theme-color" content="#e71a39">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
-        <meta name="apple-mobile-web-app-title" content="Booklix">
+        <meta name="apple-mobile-web-app-title" content="Adventure Balloon">
         <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
         <meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
         <meta name="msapplication-TileColor" content="#e71a39">

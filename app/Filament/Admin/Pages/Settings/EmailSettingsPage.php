@@ -129,9 +129,17 @@ class EmailSettingsPage extends Page implements HasForms
                 ->label('Send Test Email')
                 ->icon('heroicon-o-paper-airplane')
                 ->color('gray')
-                ->requiresConfirmation()
+                ->form([
+                    TextInput::make('test_recipient')
+                        ->label('Recipient Email')
+                        ->email()
+                        ->required()
+                        ->default(fn () => auth()->user()->email)
+                        ->placeholder('recipient@example.com'),
+                ])
                 ->modalHeading('Send Test Email')
-                ->modalDescription('This will send a test email to your account email using the current saved settings.')
+                ->modalDescription('A test email will be sent using your current saved SMTP settings.')
+                ->modalSubmitActionLabel('Send Now')
                 ->action('sendTestEmail'),
         ];
     }
@@ -156,7 +164,7 @@ class EmailSettingsPage extends Page implements HasForms
             ->send();
     }
 
-    public function sendTestEmail(): void
+    public function sendTestEmail(array $arguments): void
     {
         try {
             $settings = app(EmailSettings::class);
@@ -178,14 +186,21 @@ class EmailSettingsPage extends Page implements HasForms
                 'mail.from.name'             => $settings->from_name,
             ]);
 
-            $recipient = auth()->user()->email;
+            // Force Symfony Mailer to re-create the transport with our new config
+            app('mail.manager')->purge('smtp');
 
-            Mail::raw('This is a test email from Booklix. Your SMTP settings are working correctly!', function ($msg) use ($recipient, $settings) {
-                $msg->to($recipient)->subject('Booklix — Email Test');
-            });
+            $recipient = $arguments['test_recipient'];
+
+            Mail::raw(
+                "✅ This is a test email from Adventure Balloon.\n\nYour SMTP settings are working correctly!\n\nSent at: " . now()->format('Y-m-d H:i:s'),
+                function ($msg) use ($recipient) {
+                    $msg->to($recipient)->subject('Adventure Balloon — SMTP Test ✅');
+                }
+            );
 
             Notification::make()
-                ->title("Test email sent to {$recipient}")
+                ->title('Test email sent successfully!')
+                ->body("Delivered to {$recipient}")
                 ->success()
                 ->send();
         } catch (\Exception $e) {
@@ -207,11 +222,3 @@ class EmailSettingsPage extends Page implements HasForms
         return auth()->user()?->hasRole('super_admin') ?? false;
     }
 }
-
-
-
-
-
-
-
-
