@@ -5,14 +5,19 @@ namespace App\Filament\Transport\Pages;
 use App\Filament\Transport\Widgets\TransportStatsWidget;
 use App\Models\Dispatch;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Page;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\Indicator;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -56,7 +61,10 @@ class DispatchStats extends Page implements HasTable
                 ->label('Export Dispatches CSV')
                 ->icon('heroicon-o-arrow-down-tray')
                 ->color('primary')
-                ->action('exportCsv'),
+                ->action(function () {
+                    $rows = $this->getFilteredTableQuery()->get();
+                    return $this->streamDispatchesCsv($rows);
+                }),
         ];
     }
 
@@ -126,6 +134,44 @@ class DispatchStats extends Page implements HasTable
                         'delivered'   => 'Delivered',
                         'cancelled'   => 'Cancelled',
                     ]),
+                Filter::make('flight_date')
+                    ->label('Flight Date Range')
+                    ->form([
+                        DatePicker::make('from')->label('From')->native(false),
+                        DatePicker::make('until')->label('Until')->native(false),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['from'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['until'] ?? null,
+                                fn (Builder $query, $date): Builder => $query->whereDate('flight_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): array {
+                        $indicators = [];
+                        if ($data['from'] ?? null) {
+                            $indicators[] = Indicator::make('From: ' . \Carbon\Carbon::parse($data['from'])->toFormattedDateString())
+                                ->removeField('from');
+                        }
+                        if ($data['until'] ?? null) {
+                            $indicators[] = Indicator::make('Until: ' . \Carbon\Carbon::parse($data['until'])->toFormattedDateString())
+                                ->removeField('until');
+                        }
+                        return $indicators;
+                    }),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('export_selected')
+                        ->label('Export Selected')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(fn (Collection $records) => $this->streamDispatchesCsv($records)),
+                ]),
             ])
             ->defaultSort('flight_date', 'desc')
             ->striped()
@@ -134,14 +180,12 @@ class DispatchStats extends Page implements HasTable
 
     public function exportCsv(): StreamedResponse
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $rows = $this->getFilteredTableQuery()->get();
+        return $this->streamDispatchesCsv($rows);
+    }
 
-        $rows = Dispatch::with('booking')
-            ->where('transport_company_id', $user->transport_company_id)
-            ->orderByDesc('flight_date')
-            ->get();
-
+    private function streamDispatchesCsv($rows): StreamedResponse
+    {
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
             fputcsv($out, ['Dispatch Ref', 'Booking Ref', 'Flight Date', 'Time', 'Total PAX', 'Pickup Location', 'Dropoff Location', 'Cost (MAD)', 'Status']);
