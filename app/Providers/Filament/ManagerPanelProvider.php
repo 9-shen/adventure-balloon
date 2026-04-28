@@ -27,10 +27,11 @@ class ManagerPanelProvider extends PanelProvider
             ->id('manager')
             ->path('manager')
             ->login()
+            ->brandName('Manager Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::Amber,
             ])
-            ->brandName('Manager Portal')
             ->viteTheme('resources/css/filament/manager/theme.css')
             ->discoverResources(in: app_path('Filament/Manager/Resources'), for: 'App\\Filament\\Manager\\Resources')
             ->discoverPages(in: app_path('Filament/Manager/Pages'), for: 'App\\Filament\\Manager\\Pages')

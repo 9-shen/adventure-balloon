@@ -28,11 +28,11 @@ class DriverPanelProvider extends PanelProvider
             ->path('driver')
             ->login()
             ->passwordReset()
+            ->brandName('Driver Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => \Filament\Support\Colors\Color::Emerald,
             ])
-            ->brandName('Driver Portal')
-            ->favicon(asset('images/favicon.png'))
             ->discoverResources(in: app_path('Filament/Driver/Resources'), for: 'App\Filament\Driver\Resources')
             ->discoverPages(in: app_path('Filament/Driver/Pages'), for: 'App\Filament\Driver\Pages')
             ->pages([

@@ -28,10 +28,11 @@ class PartnerPanelProvider extends PanelProvider
             ->id('partner')
             ->path('partner')
             ->login()
+            ->brandName('Partner Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::hex('#0e7490'), // Teal — distinct from admin red
             ])
-            ->brandName('Partner Portal')
             ->discoverResources(
                 in: app_path('Filament/Partner/Resources'),
                 for: 'App\\Filament\\Partner\\Resources'

@@ -29,11 +29,11 @@ class GuidePanelProvider extends PanelProvider
             ->path('guide')
             ->login()
             ->passwordReset()
+            ->brandName('Guide Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::hex('#7c3aed'), // Violet — distinct from other panels
             ])
-            ->brandName('Guide Portal')
-            ->favicon(asset('images/favicon.png'))
             ->discoverResources(
                 in: app_path('Filament/Guide/Resources'),
                 for: 'App\\Filament\\Guide\\Resources'

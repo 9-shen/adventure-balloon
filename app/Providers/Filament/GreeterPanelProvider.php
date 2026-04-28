@@ -28,10 +28,11 @@ class GreeterPanelProvider extends PanelProvider
             ->id('greeter')
             ->path('greeter')
             ->login()
+            ->brandName('Greeter Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::hex('#059669'), // Emerald green — field-ops feel
             ])
-            ->brandName('Greeter Portal')
             ->discoverResources(
                 in: app_path('Filament/Greeter/Resources'),
                 for: 'App\\Filament\\Greeter\\Resources'

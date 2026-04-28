@@ -28,10 +28,11 @@ class TransportPanelProvider extends PanelProvider
             ->id('transport')
             ->path('transport')
             ->login()
+            ->brandName('Transport Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::hex('#d97706'), // Amber — distinct from admin and partner
             ])
-            ->brandName('Transport Portal')
             ->discoverResources(
                 in: app_path('Filament/Transport/Resources'),
                 for: 'App\\Filament\\Transport\\Resources'

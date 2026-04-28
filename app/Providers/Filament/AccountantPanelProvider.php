@@ -27,10 +27,11 @@ class AccountantPanelProvider extends PanelProvider
             ->id('accountant')
             ->path('accountant')
             ->login()
+            ->brandName('Finance Portal')
+            ->favicon(asset('images/logo.jpg'))
             ->colors([
                 'primary' => Color::Blue,
             ])
-            ->brandName('Finance Portal')
             ->viteTheme('resources/css/filament/accountant/theme.css')
             ->discoverResources(
                 in: app_path('Filament/Accountant/Resources'),
