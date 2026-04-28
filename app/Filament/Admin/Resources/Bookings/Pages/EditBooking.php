@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\Bookings\BookingResource;
 use App\Models\Booking;
 use App\Models\Product;
 use App\Notifications\BookingCancelledNotification;
+use App\Notifications\BookingConfirmedNotification;
 use App\Notifications\PartnerBookingCancelledNotification;
 use App\Services\BookingService;
 use App\Services\DispatchService;
@@ -41,6 +42,24 @@ class EditBooking extends EditRecord
                         'confirmed_by'   => Auth::id(),
                         'confirmed_at'   => now(),
                     ]);
+
+                    // ── Phase 26-E: Notify partner on confirmation ────────────────────
+                    $ns = app(NotificationSettings::class);
+                    if ($ns->booking_confirmed_partner_email && $booking->type === 'partner') {
+                        $booking->loadMissing(['partner', 'product']);
+
+                        if ($booking->partner?->email) {
+                            try {
+                                $confirmedByName = Auth::user()?->name ?? 'Adventure Balloon Team';
+                                (new AnonymousNotifiable)
+                                    ->route('mail', $booking->partner->email)
+                                    ->notify(new BookingConfirmedNotification($booking, $confirmedByName));
+                            } catch (\Exception $e) {
+                                Log::error("ConfirmBooking: failed to email partner [{$booking->booking_ref}]: " . $e->getMessage());
+                            }
+                        }
+                    }
+
                     Notification::make()
                         ->title('Booking Confirmed')
                         ->body("Booking {$booking->booking_ref} has been confirmed.")

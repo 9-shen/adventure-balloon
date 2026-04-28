@@ -13,6 +13,9 @@ class NotificationSettings extends Settings
     // ── Partner Booking (admin alert when a partner books) ──────────────────
     public bool $partner_booking_email;       // Email to admin
 
+    // ── Booking Confirmation (partner notified when booking confirmed) ───────
+    public bool $booking_confirmed_partner_email;  // Email to partner
+
     // ── Driver Dispatch Assignment ──────────────────────────────────────────
     public bool $driver_assigned_email;       // Email to driver
     public bool $driver_assigned_whatsapp;    // WhatsApp to driver

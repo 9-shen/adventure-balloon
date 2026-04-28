@@ -49,6 +49,9 @@ class NotificationSettingsPage extends Page implements HasForms
             // Partner Booking
             'partner_booking_email'              => $s->partner_booking_email,
 
+            // Booking Confirmation
+            'booking_confirmed_partner_email'    => $s->booking_confirmed_partner_email,
+
             // Driver Assignment
             'driver_assigned_email'              => $s->driver_assigned_email,
             'driver_assigned_whatsapp'           => $s->driver_assigned_whatsapp,
@@ -79,6 +82,20 @@ class NotificationSettingsPage extends Page implements HasForms
                             Toggle::make('partner_booking_email')
                                 ->label('Email to Admin')
                                 ->helperText('Notify company email when a partner booking is created.')
+                                ->onColor('success')
+                                ->offColor('danger'),
+                        ]),
+                    ]),
+
+                // ── Booking Confirmation ───────────────────────────────────────
+                Section::make('Booking Confirmation')
+                    ->description('Sent to the partner when their booking is confirmed (pending → confirmed) by an admin, manager, or super_admin.')
+                    ->icon('heroicon-o-check-badge')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            Toggle::make('booking_confirmed_partner_email')
+                                ->label('Email to Partner')
+                                ->helperText('Notify the partner by email when their booking is confirmed.')
                                 ->onColor('success')
                                 ->offColor('danger'),
                         ]),
@@ -176,6 +193,7 @@ class NotificationSettingsPage extends Page implements HasForms
         $s    = app(NotificationSettings::class);
 
         $s->partner_booking_email              = (bool) ($data['partner_booking_email'] ?? false);
+        $s->booking_confirmed_partner_email    = (bool) ($data['booking_confirmed_partner_email'] ?? false);
         $s->driver_assigned_email              = (bool) ($data['driver_assigned_email'] ?? false);
         $s->driver_assigned_whatsapp           = (bool) ($data['driver_assigned_whatsapp'] ?? false);
         $s->booking_cancelled_partner_email    = (bool) ($data['booking_cancelled_partner_email'] ?? false);
