@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sign In — {{ $appSettings->company_name ?? 'Booklix' }}</title>
-    <meta name="description" content="Sign in to {{ $appSettings->company_name ?? 'Booklix' }} operations platform">
+    <title>Sign In — {{ $appSettings->company_name ?? 'Adventure Balloon' }}</title>
+    <meta name="description" content="Sign in to {{ $appSettings->company_name ?? 'Adventure Balloon' }} operations platform">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/images/logo.jpg">
+    <link rel="apple-touch-icon" href="/images/logo.jpg">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -128,20 +132,21 @@
             margin-bottom: 36px;
         }
         .brand-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--red), #ff4d6d);
+            width: 72px;
+            height: 72px;
             border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             margin-bottom: 16px;
             box-shadow: 0 8px 32px var(--red-glow);
+            overflow: hidden;
         }
-        .brand-icon svg {
-            width: 32px;
-            height: 32px;
-            fill: white;
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 16px;
         }
         .brand-name {
             font-size: 1.5rem;
@@ -305,8 +310,7 @@
             .card { padding: 28px 20px; border-radius: 16px; }
             /* Tighten brand section so form is visible without scrolling */
             .brand { margin-bottom: 24px; }
-            .brand-icon { width: 52px; height: 52px; margin-bottom: 12px; }
-            .brand-icon svg { width: 26px; height: 26px; }
+            .brand-icon { width: 60px; height: 60px; margin-bottom: 12px; }
             .brand-name { font-size: 1.25rem; }
             .divider { margin-bottom: 20px; }
             .form-group { margin-bottom: 14px; }
@@ -334,12 +338,9 @@
         <!-- Brand -->
         <div class="brand">
             <div class="brand-icon">
-                <!-- Hot Air Balloon Icon -->
-                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 3.25 2.04 6.03 5 7.18V18h-1a1 1 0 0 0 0 2h1v1a1 1 0 0 0 2 0v-1h1a1 1 0 0 0 0-2h-1v-1.82C14.96 15.03 17 12.25 17 9c0-3.87-3.13-7-5-7zm0 2c2.76 0 5 2.24 5 5s-2.24 5-5 5-5-2.24-5-5 2.24-5 5-5z"/>
-                </svg>
+                <img src="/images/logo.jpg" alt="Adventure Balloon Logo">
             </div>
-            <div class="brand-name">{{ $appSettings->company_name ?? 'Booklix' }}</div>
+            <div class="brand-name">{{ $appSettings->company_name ?? 'Adventure Balloon' }}</div>
             <div class="brand-sub">Operations Platform</div>
         </div>
 
@@ -421,7 +422,7 @@
 
         <!-- Footer -->
         <div class="card-footer">
-            Powered by <strong>Booklix</strong> &mdash; All rights reserved
+            Powered by <strong>Adventure Balloon</strong> &mdash; All rights reserved
         </div>
 
     </div>
