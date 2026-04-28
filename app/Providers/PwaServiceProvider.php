@@ -9,23 +9,21 @@ use Illuminate\Support\ServiceProvider;
 
 class PwaServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
-    public function register(): void
-    {
-        //
-    }
+    /** Cache rendered install prompt to avoid rendering on every request */
+    private static ?string $cachedPrompt = null;
+
+    /** SW version — bump this on each deployment to bust browser cache */
+    private const SW_VERSION = '1.0.1';
+
+    public function register(): void {}
 
     /**
      * Bootstrap services.
-     *
-     * Injects PWA manifest, meta tags, service worker registration,
-     * and install prompt into ALL Filament panels via render hooks.
+     * Injects PWA into ALL panels (admins are mobile users too for quick stats).
      */
     public function boot(): void
     {
-        // Inject PWA meta tags into <head> of every Filament panel
+        // Inject PWA meta tags into <head>
         FilamentView::registerRenderHook(
             PanelsRenderHook::HEAD_END,
             fn (): HtmlString => new HtmlString($this->getPwaHeadTags()),
@@ -47,6 +45,7 @@ class PwaServiceProvider extends ServiceProvider
         <!-- PWA Meta Tags -->
         <link rel="manifest" href="/manifest.json">
         <meta name="theme-color" content="#e71a39">
+        <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
         <meta name="apple-mobile-web-app-title" content="Adventure Balloon">
@@ -58,24 +57,33 @@ class PwaServiceProvider extends ServiceProvider
 
     /**
      * Service worker registration script + install prompt component for end of <body>.
+     * Recommendations applied:
+     *  - Immediate registration (no window.addEventListener('load'))
+     *  - Explicit scope: '/'
+     *  - SW versioning via query string
+     *  - Cached rendered install prompt view
      */
     private function getPwaBodyScripts(): string
     {
-        $installPrompt = view('components.pwa-install-prompt')->render();
+        // Cache the rendered view to avoid rendering on every request
+        if (static::$cachedPrompt === null) {
+            static::$cachedPrompt = view('components.pwa-install-prompt')->render();
+        }
+
+        $installPrompt = static::$cachedPrompt;
+        $swVersion     = self::SW_VERSION;
 
         return <<<HTML
         <!-- Service Worker Registration -->
         <script>
             if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                    navigator.serviceWorker.register('/sw.js')
-                        .then(function(registration) {
-                            console.log('[PWA] Service Worker registered:', registration.scope);
-                        })
-                        .catch(function(error) {
-                            console.log('[PWA] Service Worker registration failed:', error);
-                        });
-                });
+                navigator.serviceWorker.register('/sw.js?v={$swVersion}', { scope: '/' })
+                    .then(function(registration) {
+                        console.log('[PWA] Service Worker registered, scope:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.warn('[PWA] Service Worker registration failed:', error);
+                    });
             }
         </script>
         {$installPrompt}

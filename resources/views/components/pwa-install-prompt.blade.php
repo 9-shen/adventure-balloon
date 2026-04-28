@@ -25,14 +25,8 @@
             border: 1px solid rgba(231, 26, 57, 0.12);
         }
         @keyframes pwa-slide-up {
-            from {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateY(100%); opacity: 0; }
+            to   { transform: translateY(0);    opacity: 1; }
         }
         #pwa-install-banner .pwa-icon {
             width: 52px;
@@ -42,10 +36,7 @@
             object-fit: cover;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
-        #pwa-install-banner .pwa-text {
-            flex: 1;
-            min-width: 0;
-        }
+        #pwa-install-banner .pwa-text { flex: 1; min-width: 0; }
         #pwa-install-banner .pwa-title {
             font-size: 0.95rem;
             font-weight: 700;
@@ -77,9 +68,7 @@
             transition: background 0.2s;
             white-space: nowrap;
         }
-        #pwa-install-banner .pwa-btn-install:hover {
-            background: #c91432;
-        }
+        #pwa-install-banner .pwa-btn-install:hover { background: #c91432; }
         #pwa-install-banner .pwa-btn-dismiss {
             background: transparent;
             color: #9ca3af;
@@ -90,20 +79,14 @@
             text-align: center;
             transition: color 0.2s;
         }
-        #pwa-install-banner .pwa-btn-dismiss:hover {
-            color: #6b7280;
-        }
-        /* iOS-specific instruction styling */
+        #pwa-install-banner .pwa-btn-dismiss:hover { color: #6b7280; }
         #pwa-install-banner .pwa-ios-steps {
             font-size: 0.78rem;
             color: #6b7280;
             margin: 0.3rem 0 0;
             line-height: 1.5;
         }
-        #pwa-install-banner .pwa-ios-steps strong {
-            color: #374151;
-        }
-
+        #pwa-install-banner .pwa-ios-steps strong { color: #374151; }
         @media (max-width: 520px) {
             #pwa-install-banner .pwa-banner-inner {
                 margin: 0 0.75rem 0.75rem;
@@ -132,63 +115,64 @@
 (function() {
     'use strict';
 
-    const DISMISS_KEY = 'pwa-dismissed';
-    const DISMISS_DAYS = 7;
-    const banner = document.getElementById('pwa-install-banner');
-    const installBtn = document.getElementById('pwa-btn-install');
-    const dismissBtn = document.getElementById('pwa-btn-dismiss');
-    const iosSteps = document.getElementById('pwa-ios-steps');
+    const DISMISS_KEY        = 'pwa-dismissed';
+    const DISMISS_HOURS      = 24;           // Show again after 24 hours (audit #14)
+    const SHOW_DELAY_MS      = 4000;         // Delay banner 4s to avoid being intrusive (audit #13)
+    const PROMPT_TIMEOUT_MS  = 3000;         // Fallback if beforeinstallprompt never fires (audit #11)
+
+    const banner      = document.getElementById('pwa-install-banner');
+    const installBtn  = document.getElementById('pwa-btn-install');
+    const dismissBtn  = document.getElementById('pwa-btn-dismiss');
+    const iosSteps    = document.getElementById('pwa-ios-steps');
     const description = document.getElementById('pwa-description');
 
     let deferredPrompt = null;
 
-    // --- Guards: don't show if already installed or recently dismissed ---
+    // Guard: already running as standalone PWA
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) return;
 
-    // 1. Already running as standalone PWA
-    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-        return;
-    }
+    // Guard: not a mobile device
+    if (!isMobileDevice()) return;
 
-    // 2. Not a mobile device
-    if (!isMobileDevice()) {
-        return;
-    }
+    // Guard: recently dismissed (frequency control)
+    if (isRecentlyDismissed()) return;
 
-    // 3. Recently dismissed
-    if (isRecentlyDismissed()) {
-        return;
-    }
-
-    // --- Platform detection ---
-
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    // Improved iOS detection including modern iPads (audit #12)
+    const isIOS     = /iPhone|iPad|iPod/.test(navigator.userAgent)
+                   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     const isAndroid = /Android/i.test(navigator.userAgent);
 
     if (isIOS) {
-        // iOS: Show manual instructions (no beforeinstallprompt support)
-        // Only show in Safari (not in-app browsers like Chrome on iOS)
         const isSafari = /Safari/i.test(navigator.userAgent) && !/CriOS|FxiOS|OPiOS|EdgiOS/i.test(navigator.userAgent);
         if (!isSafari) {
             description.textContent = 'Open this page in Safari to install Adventure Balloon on your device.';
             iosSteps.style.display = 'none';
             installBtn.style.display = 'none';
-            showBanner();
+            setTimeout(showBanner, SHOW_DELAY_MS);
             return;
         }
         iosSteps.style.display = 'block';
         description.style.display = 'none';
         installBtn.textContent = 'Got it';
-        installBtn.addEventListener('click', function() {
-            dismissBanner();
-        });
-        showBanner();
+        installBtn.addEventListener('click', dismissBanner);
+        setTimeout(showBanner, SHOW_DELAY_MS);
+
     } else if (isAndroid) {
-        // Android: Listen for the native beforeinstallprompt event
+        // Listen for native install prompt
         window.addEventListener('beforeinstallprompt', function(e) {
             e.preventDefault();
             deferredPrompt = e;
-            showBanner();
+            setTimeout(showBanner, SHOW_DELAY_MS);
         });
+
+        // Fallback: if beforeinstallprompt never fires, show manual hint (audit #11)
+        setTimeout(function() {
+            if (!deferredPrompt && banner.style.display === 'none') {
+                description.textContent = 'Use your browser menu → "Add to Home Screen" to install.';
+                installBtn.style.display = 'none';
+                setTimeout(showBanner, 0);
+            }
+        }, SHOW_DELAY_MS + PROMPT_TIMEOUT_MS);
 
         installBtn.addEventListener('click', function() {
             if (deferredPrompt) {
@@ -205,26 +189,23 @@
     }
 
     // Dismiss button
-    dismissBtn.addEventListener('click', function() {
-        dismissBanner();
-    });
+    dismissBtn.addEventListener('click', dismissBanner);
 
-    // Listen for successful install
+    // Track successful installs (audit #8)
     window.addEventListener('appinstalled', function() {
         console.log('[PWA] App installed');
         hideBanner();
         deferredPrompt = null;
+        // Post install event for analytics
+        try {
+            navigator.sendBeacon('/pwa-installed');
+        } catch(e) {}
     });
 
     // --- Helper functions ---
 
-    function showBanner() {
-        banner.style.display = 'block';
-    }
-
-    function hideBanner() {
-        banner.style.display = 'none';
-    }
+    function showBanner() { banner.style.display = 'block'; }
+    function hideBanner()  { banner.style.display = 'none';  }
 
     function dismissBanner() {
         localStorage.setItem(DISMISS_KEY, Date.now().toString());
@@ -234,9 +215,8 @@
     function isRecentlyDismissed() {
         const dismissed = localStorage.getItem(DISMISS_KEY);
         if (!dismissed) return false;
-        const dismissedTime = parseInt(dismissed, 10);
-        const daysSince = (Date.now() - dismissedTime) / (1000 * 60 * 60 * 24);
-        return daysSince < DISMISS_DAYS;
+        const hoursSince = (Date.now() - parseInt(dismissed, 10)) / (1000 * 60 * 60);
+        return hoursSince < DISMISS_HOURS;
     }
 
     function isMobileDevice() {

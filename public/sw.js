@@ -1,5 +1,5 @@
 /**
- * Booklix Service Worker
+ * Adventure Balloon Service Worker v1.0.1
  * Strategy:
  *  - Pre-cache offline fallback page on install
  *  - Cache-first for static assets (CSS, JS, images, fonts)
@@ -7,7 +7,7 @@
  *  - Serve offline.html when navigation fails while offline
  */
 
-const CACHE_NAME = 'booklix-v1';
+const CACHE_NAME = 'adventure-balloon-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to pre-cache on install
