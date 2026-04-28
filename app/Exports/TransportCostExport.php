@@ -22,6 +22,7 @@ class TransportCostExport implements FromQuery, WithHeadings, WithMapping, Shoul
         return Dispatch::query()
             ->with(['transportCompany', 'booking'])
             ->withCount('dispatchDriverRows as vehicles_count')
+            ->when($this->filters['ids'] ?? null, fn($q, $v) => $q->whereIn('id', $v))
             ->when($this->filters['transport_company_id'] ?? null, fn($q, $v) => $q->where('transport_company_id', $v))
             ->when($this->filters['date_from'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '>=', $v))
             ->when($this->filters['date_until'] ?? null, fn($q, $v) => $q->whereDate('flight_date', '<=', $v))

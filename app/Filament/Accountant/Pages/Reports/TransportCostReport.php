@@ -73,7 +73,7 @@ class TransportCostReport extends Page implements HasTable
                             'date_from'  => $filters['date_range']['from'] ?? null,
                             'date_until' => $filters['date_range']['until'] ?? null,
                             'status'     => $filters['status']['value'] ?? null,
-                            'billed'     => isset($filters['not_billed']) && $filters['not_billed'] ? 'no' : null,
+                            'billed'     => !empty($filters['not_billed']['isActive']) ? 'no' : null,
                         ]),
                         'transport-costs-' . now()->format('Y-m-d') . '.csv',
                         \Maatwebsite\Excel\Excel::CSV
@@ -191,6 +191,20 @@ class TransportCostReport extends Page implements HasTable
                     ->label('Unbilled Only')
                     ->toggle()
                     ->query(fn (Builder $q) => $q->whereNull('billed_at')),
+            ])
+            ->bulkActions([
+                \Filament\Actions\BulkAction::make('export_selected')
+                    ->label('Export Selected')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('success')
+                    ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                        $ids = $records->pluck('id')->toArray();
+                        return Excel::download(
+                            new TransportCostExport(['ids' => $ids]),
+                            'transport-costs-selected-' . now()->format('Y-m-d') . '.csv',
+                            \Maatwebsite\Excel\Excel::CSV
+                        );
+                    }),
             ])
             ->defaultSort('flight_date', 'desc')
             ->striped();
