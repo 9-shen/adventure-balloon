@@ -267,10 +267,14 @@ class DispatchForm
                         ->live()
                         ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
                             if (! $state) return;
-                            $driver = Driver::find((int) $state);
-                            // Auto-fill vehicle from driver's assigned vehicle
-                            if ($driver?->vehicle_id) {
-                                $set('vehicle_id', $driver->vehicle_id);
+                            // First try: vehicle_id FK (direct 1:1 assignment via Driver form)
+                            $driver = Driver::with(['vehicles' => fn($q) => $q->wherePivot('is_default', true)])
+                                ->find((int) $state);
+                            // Prefer direct FK, fallback to default pivot vehicle
+                            $vehicleId = $driver?->vehicle_id
+                                ?? $driver?->vehicles->first()?->id;
+                            if ($vehicleId) {
+                                $set('vehicle_id', $vehicleId);
                             }
                         })
                         ->options(function (Get $get): array {
@@ -292,8 +296,15 @@ class DispatchForm
                         ->live()
                         ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
                             if (! $state) return;
-                            // Auto-fill driver from the vehicle's assigned driver
+                            // First try: driver with vehicle_id FK pointing here
                             $driver = Driver::where('vehicle_id', (int) $state)->first();
+                            // Fallback: default driver from pivot table
+                            if (! $driver) {
+                                $driver = Driver::whereHas('vehicles', function ($q) use ($state) {
+                                    $q->where('vehicles.id', (int) $state)
+                                      ->where('driver_vehicle.is_default', true);
+                                })->first();
+                            }
                             if ($driver) {
                                 $set('driver_id', $driver->id);
                             }

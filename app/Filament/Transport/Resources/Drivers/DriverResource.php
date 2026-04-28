@@ -104,7 +104,7 @@ class DriverResource extends Resource
                     Textarea::make('notes')
                         ->rows(3)
                         ->columnSpanFull(),
-                ]),
+                ])->columnSpanFull(),
         ]);
     }
 

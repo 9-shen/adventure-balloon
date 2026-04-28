@@ -31,7 +31,7 @@ class DriverForm
                         ->preload()
                         ->required()
                         ->live()
-                        ->afterStateUpdated(fn ($set) => $set('vehicle_id', null))
+                        ->afterStateUpdated(fn($set) => $set('vehicle_id', null))
                         ->columnSpanFull(),
 
                     Select::make('vehicle_id')
@@ -45,7 +45,7 @@ class DriverForm
                             return Vehicle::where('transport_company_id', $companyId)
                                 ->where('is_active', true)
                                 ->get()
-                                ->mapWithKeys(fn ($v) => [
+                                ->mapWithKeys(fn($v) => [
                                     $v->id => "{$v->make} {$v->model} — {$v->plate_number} (cap: {$v->capacity})",
                                 ])
                                 ->toArray();
