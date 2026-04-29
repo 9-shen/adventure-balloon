@@ -37,9 +37,6 @@ class BookingsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        /** @var \App\Models\Partner $partner */
-        $partner = $this->getOwnerRecord();
-
         return $table
             ->modifyQueryUsing(fn (Builder $q) => $q->where('type', 'partner')
                 ->with(['product', 'guide', 'customers']))
@@ -115,11 +112,10 @@ class BookingsRelationManager extends RelationManager
 
                 SelectFilter::make('guide_id')
                     ->label('Guide')
-                    ->options(
-                        Guide::where('partner_id', $partner->id)
-                            ->where('is_active', true)
-                            ->orderBy('name')
-                            ->pluck('name', 'id')
+                    ->options(fn () => Guide::where('partner_id', $this->getOwnerRecord()?->id)
+                        ->where('is_active', true)
+                        ->orderBy('name')
+                        ->pluck('name', 'id')
                     )
                     ->searchable(),
 
@@ -162,7 +158,7 @@ class BookingsRelationManager extends RelationManager
                     ->label('Export Bookings (CSV)')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
-                    ->action(function () use ($table) {
+                    ->action(function () {
                         $query = $this->getFilteredTableQuery();
                         return Excel::download(
                             new \App\Exports\PartnerBookingsExport($query),
