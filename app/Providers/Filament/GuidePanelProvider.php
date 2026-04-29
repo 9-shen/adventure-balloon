@@ -12,7 +12,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
+use App\Filament\Guide\Widgets\GuideOverviewWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -44,13 +44,14 @@ class GuidePanelProvider extends PanelProvider
             )
             ->pages([
                 Dashboard::class,
+                \App\Filament\Guide\Pages\Profile::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Guide/Widgets'),
                 for: 'App\\Filament\\Guide\\Widgets'
             )
             ->widgets([
-                AccountWidget::class,
+                GuideOverviewWidget::class,
             ])
             ->navigationGroups([
                 NavigationGroup::make('My Bookings'),
