@@ -116,8 +116,7 @@ class BookingsRelationManager extends RelationManager
                         ->where('is_active', true)
                         ->orderBy('name')
                         ->pluck('name', 'id')
-                    )
-                    ->searchable(),
+                    ),
 
                 Filter::make('flight_date')
                     ->form([
