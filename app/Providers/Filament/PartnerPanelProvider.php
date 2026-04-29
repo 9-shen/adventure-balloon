@@ -52,6 +52,7 @@ class PartnerPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 NavigationGroup::make('My Bookings'),
+                NavigationGroup::make('Reports'),
             ])
             ->middleware([
                 EncryptCookies::class,
