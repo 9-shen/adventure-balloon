@@ -26,34 +26,38 @@ class GuideBookingsExport implements FromQuery, WithHeadings, WithMapping, Shoul
     {
         return [
             'Reference',
+            'Your Ref (Partner Reference)',
             'Flight Date',
             'Product',
-            'Type',
+            'Partner / Type',
             'Adults',
             'Children',
             'Total PAX',
             'Pickup Location',
             'Drop-off Location',
             'Booking Status',
-            'Source',
             'Notes',
         ];
     }
 
     public function map($booking): array
     {
+        $partnerDisplay = $booking->type === 'partner' && $booking->partner
+            ? ($booking->partner->company_name ?? $booking->partner->trade_name ?? 'Partner')
+            : 'Regular';
+
         return [
             $booking->booking_ref,
+            $booking->partner_reference ?? '—',
             $booking->flight_date?->format('d/m/Y') ?? '—',
             $booking->product?->name ?? '—',
-            ucfirst($booking->type ?? '—'),
+            $partnerDisplay,
             $booking->adult_pax,
             $booking->child_pax,
             $booking->adult_pax + $booking->child_pax,
             $booking->pickup_location  ?? '—',
             $booking->dropoff_location ?? '—',
             ucfirst($booking->booking_status ?? '—'),
-            ucfirst($booking->booking_source ?? '—'),
             $booking->notes ?? '',
         ];
     }

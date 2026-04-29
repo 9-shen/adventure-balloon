@@ -81,6 +81,14 @@ class BookingsReportResource extends Resource
                     ->weight('bold')
                     ->color('primary'),
 
+                TextColumn::make('partner_reference')
+                    ->label('Your Ref')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!')
+                    ->toggleable(),
+
                 TextColumn::make('flight_date')
                     ->label('Flight Date')
                     ->date('d/m/Y')
@@ -91,14 +99,18 @@ class BookingsReportResource extends Resource
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('type')
-                    ->label('Type')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'partner' => 'purple',
-                        default   => 'info',
-                    })
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state)),
+                TextColumn::make('partner_display')
+                    ->label('Partner / Type')
+                    ->getStateUsing(fn (Booking $record): string => $record->type === 'partner' && $record->partner
+                        ? ($record->partner->company_name ?? $record->partner->trade_name ?? 'Partner')
+                        : 'Regular')
+                    ->description(fn (Booking $record): string => ucfirst($record->type))
+                    ->searchable(query: fn (Builder $query, string $search) => $query
+                        ->where('type', 'like', "%{$search}%")
+                        ->orWhereHas('partner', fn ($q) => $q->where('company_name', 'like', "%{$search}%"))
+                    )
+                    ->weight('medium')
+                    ->color(fn (Booking $record): string => $record->type === 'partner' ? 'primary' : 'gray'),
 
                 TextColumn::make('pax_summary')
                     ->label('PAX')
@@ -124,12 +136,7 @@ class BookingsReportResource extends Resource
                     })
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
 
-                TextColumn::make('booking_source')
-                    ->label('Source')
-                    ->badge()
-                    ->color('gray')
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
-                    ->toggleable(),
+
 
                 TextColumn::make('notes')
                     ->label('Notes')
