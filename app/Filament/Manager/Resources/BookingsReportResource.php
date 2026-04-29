@@ -77,6 +77,13 @@ class BookingsReportResource extends Resource
                     )
                     ->sortable(),
 
+                TextColumn::make('partner_reference')
+                    ->label('Partner Ref')
+                    ->placeholder('—')
+                    ->searchable()
+                    ->copyable()
+                    ->copyMessage('Copied!'),
+
                 TextColumn::make('pax_summary')
                     ->label('PAX')
                     ->getStateUsing(fn (Booking $record) => $record->adult_pax . ' Adult(s)' . ($record->child_pax > 0 ? ', ' . $record->child_pax . ' Child(ren)' : ''))

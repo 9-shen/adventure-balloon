@@ -77,7 +77,6 @@ class PartnerResource extends Resource
         return [
             PartnerProductsRelationManager::class,
             GuidesRelationManager::class,
-            RelationManagers\BookingsRelationManager::class,
         ];
     }
 
