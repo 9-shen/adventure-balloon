@@ -16,7 +16,7 @@ class DispatchInfolist
 
             // ── Dispatch Details ──────────────────────────────────────────────
             Section::make('Dispatch Details')
-                ->columns(3)
+                ->columns(4)
                 ->components([
                     TextEntry::make('dispatch_ref')
                         ->label('Reference')
@@ -60,6 +60,16 @@ class DispatchInfolist
                     TextEntry::make('pickup_location')
                         ->label('Pickup Location')
                         ->placeholder('Not set'),
+
+                    TextEntry::make('pickup_map_link')
+                        ->label('Pick-up Map Link')
+                        ->placeholder('—')
+                        ->icon('heroicon-o-map')
+                        ->formatStateUsing(fn ($state) => 'Open Google Maps')
+                        ->url(fn ($state) => $state)
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->badge(),
 
                     TextEntry::make('dropoff_location')
                         ->label('Dropoff Location')

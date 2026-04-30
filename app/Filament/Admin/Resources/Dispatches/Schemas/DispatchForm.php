@@ -80,6 +80,7 @@ class DispatchForm
                             $booking = Booking::find((int) $state);
                             // Pre-fill from booking; dispatcher can still override
                             $set('pickup_location',  $booking?->pickup_location  ?? '');
+                            $set('pickup_map_link',  $booking?->pickup_map_link  ?? null);
                             $set('dropoff_location', $booking?->dropoff_location ?? '');
                             $set('pickup_time',      $booking?->flight_time      ?? null);
                         }),
@@ -138,6 +139,14 @@ class DispatchForm
                     TextInput::make('dropoff_location')
                         ->label('Dropoff Location')
                         ->maxLength(500),
+
+                    TextInput::make('pickup_map_link')
+                        ->label('Pick-up Map Link')
+                        ->url()
+                        ->nullable()
+                        ->maxLength(2000)
+                        ->placeholder('https://maps.google.com/…')
+                        ->columnSpanFull(),
                 ]),
 
             // ── 3. Driver Assignments ─────────────────────────────────────────
@@ -228,6 +237,14 @@ class DispatchForm
                     TextInput::make('dropoff_location')
                         ->label('Dropoff Location')
                         ->maxLength(500),
+
+                    TextInput::make('pickup_map_link')
+                        ->label('Pick-up Map Link')
+                        ->url()
+                        ->nullable()
+                        ->maxLength(2000)
+                        ->placeholder('https://maps.google.com/…')
+                        ->columnSpanFull(),
                 ]),
 
             // ── 3. Driver Assignments ─────────────────────────────────────────

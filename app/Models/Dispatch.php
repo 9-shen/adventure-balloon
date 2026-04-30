@@ -20,6 +20,7 @@ class Dispatch extends Model
         'flight_date',
         'pickup_time',
         'pickup_location',
+        'pickup_map_link',
         'dropoff_location',
         'total_pax',
         'status',
