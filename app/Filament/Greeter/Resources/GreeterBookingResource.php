@@ -122,10 +122,10 @@ class GreeterBookingResource extends Resource
                     ->getStateUsing(fn (Booking $record): string => $record->getPaxAttendanceLabel())
                     ->badge()
                     ->color(fn (Booking $record): string => match (true) {
-                        $record->customers->isEmpty()                                                               => 'gray',
-                        $record->customers->where('attendance', 'show')->count() === $record->customers->count()    => 'success',
-                        $record->customers->where('attendance', 'pending')->count() === $record->customers->count() => 'gray',
-                        default => 'warning',
+                        $record->getTotalPax() === 0                                                              => 'gray',
+                        $record->getShowedPax() === $record->getTotalPax() && $record->getTotalPax() > 0          => 'success',
+                        $record->getShowedPax() > 0                                                               => 'warning',
+                        default                                                                                   => 'gray',
                     }),
 
                 // ── Vehicles assigned via Dispatch ────────────────────────────

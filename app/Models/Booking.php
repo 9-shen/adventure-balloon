@@ -40,6 +40,7 @@ class Booking extends Model
         'amount_paid',
         'balance_due',
         'booking_status',
+        'attended_pax',
         'attendance',
         'cancelled_reason',
         'notes',
@@ -68,6 +69,7 @@ class Booking extends Model
             'final_amount'       => 'decimal:2',
             'amount_paid'        => 'decimal:2',
             'balance_due'        => 'decimal:2',
+            'attended_pax'       => 'integer',
             'attendance'         => 'string',
             'pickup_location'    => 'string',
             'dropoff_location'   => 'string',
@@ -190,33 +192,64 @@ class Booking extends Model
     }
 
     /**
+     * Returns the number of passengers that actually showed up.
+     * Greeter override (attended_pax) takes precedence over per-row customer count.
+     */
+    public function getShowedPax(): int
+    {
+        if ($this->attended_pax !== null) {
+            return $this->attended_pax;
+        }
+        return $this->customers->where('attendance', 'show')->count();
+    }
+
+    /**
+     * Returns count of passenger records that were filed (may be less than total PAX).
+     */
+    public function getFiledCustomerCount(): int
+    {
+        return $this->customers->count();
+    }
+
+    /**
      * Returns per-PAX attendance summary array.
-     * ['total' => 4, 'show' => 2, 'no_show' => 1, 'pending' => 1]
+     * total = booking PAX (adult_pax + child_pax) — NOT customer row count.
+     * show  = attended_pax override if set, else customer rows marked show.
+     * ['total' => 3, 'show' => 2, 'no_show' => 0, 'pending' => 1, 'filed' => 1]
      */
     public function getPaxAttendanceSummary(): array
     {
-        $customers = $this->customers;
+        $customers  = $this->customers;
+        $totalPax   = $this->getTotalPax();  // booking-level: adult_pax + child_pax
+        $showedPax  = $this->getShowedPax(); // override or per-row count
+        $noShowPax  = $customers->where('attendance', 'no_show')->count();
+        $filedCount = $customers->count();
+
         return [
-            'total'   => $customers->count(),
-            'show'    => $customers->where('attendance', 'show')->count(),
-            'no_show' => $customers->where('attendance', 'no_show')->count(),
-            'pending' => $customers->where('attendance', 'pending')->count(),
+            'total'   => $totalPax,
+            'show'    => $showedPax,
+            'no_show' => $noShowPax,
+            'pending' => max(0, $totalPax - $showedPax - $noShowPax),
+            'filed'   => $filedCount,
         ];
     }
 
     /**
-     * Formatted label: "2/4 Showed" or "⏳ Awaiting" if none marked yet.
+     * Formatted label: "2/3 Showed" or "⏳ Awaiting" if none marked yet.
+     * Denominator is always the booking's total PAX (adult + child), not filed-customer count.
      */
     public function getPaxAttendanceLabel(): string
     {
-        $summary = $this->getPaxAttendanceSummary();
-        if ($summary['total'] === 0) {
+        $totalPax  = $this->getTotalPax();
+        $showedPax = $this->getShowedPax();
+
+        if ($totalPax === 0) {
             return '—';
         }
-        if ($summary['show'] === 0 && $summary['no_show'] === 0) {
+        if ($showedPax === 0 && $this->customers->where('attendance', 'no_show')->count() === 0 && $this->attended_pax === null) {
             return '⏳ Awaiting';
         }
-        return "✅ {$summary['show']}/{$summary['total']} Showed";
+        return "✅ {$showedPax}/{$totalPax} Showed";
     }
 
     public function isInvoiced(): bool

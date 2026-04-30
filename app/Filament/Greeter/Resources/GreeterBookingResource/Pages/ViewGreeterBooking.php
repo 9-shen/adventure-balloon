@@ -3,6 +3,7 @@
 namespace App\Filament\Greeter\Resources\GreeterBookingResource\Pages;
 
 use App\Filament\Greeter\Resources\GreeterBookingResource;
+use App\Models\Booking;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Pages\ViewRecord;
@@ -48,7 +49,11 @@ class ViewGreeterBooking extends ViewRecord
                             ->label('PAX Attendance')
                             ->getStateUsing(fn ($record) => $record->getPaxAttendanceLabel())
                             ->badge()
-                            ->color('info'),
+                            ->color(fn ($record) => match (true) {
+                                $record->getShowedPax() === $record->getTotalPax() && $record->getTotalPax() > 0 => 'success',
+                                $record->getShowedPax() > 0                                                      => 'warning',
+                                default                                                                          => 'gray',
+                            }),
 
                         TextEntry::make('product.name')
                             ->label('Product'),
@@ -65,6 +70,56 @@ class ViewGreeterBooking extends ViewRecord
                         TextEntry::make('partner.company_name')
                             ->label('Partner')
                             ->placeholder('Individual Booking'),
+                    ])->columnSpanFull(),
+
+                // ── PAX Overview Banner ───────────────────────────────────────
+                Section::make('PAX Overview')
+                    ->description('Breakdown of passengers for this booking. Use the attendance table below to mark each passenger, or use the "Set Showed Count" override if passenger details are incomplete.')
+                    ->icon('heroicon-o-user-group')
+                    ->columns(6)
+                    ->components([
+                        TextEntry::make('pax_adults')
+                            ->label('👤 Adults')
+                            ->getStateUsing(fn (Booking $record): string => (string) $record->adult_pax)
+                            ->badge()
+                            ->color('info'),
+
+                        TextEntry::make('pax_children')
+                            ->label('👶 Children')
+                            ->getStateUsing(fn (Booking $record): string => (string) $record->child_pax)
+                            ->badge()
+                            ->color('warning'),
+
+                        TextEntry::make('pax_total')
+                            ->label('🧳 Total PAX')
+                            ->getStateUsing(fn (Booking $record): string => (string) $record->getTotalPax())
+                            ->badge()
+                            ->color('primary'),
+
+                        TextEntry::make('pax_filed')
+                            ->label('📋 Records Filed')
+                            ->getStateUsing(fn (Booking $record): string => $record->getFiledCustomerCount() . ' / ' . $record->getTotalPax())
+                            ->badge()
+                            ->color(fn (Booking $record): string => $record->getFiledCustomerCount() >= $record->getTotalPax() ? 'success' : 'gray'),
+
+                        TextEntry::make('pax_showed')
+                            ->label('✅ Showed')
+                            ->getStateUsing(fn (Booking $record): string => $record->getShowedPax() . ' / ' . $record->getTotalPax())
+                            ->badge()
+                            ->color(fn (Booking $record): string => match (true) {
+                                $record->getShowedPax() === $record->getTotalPax() && $record->getTotalPax() > 0 => 'success',
+                                $record->getShowedPax() > 0                                                      => 'warning',
+                                default                                                                          => 'gray',
+                            }),
+
+                        TextEntry::make('pax_override')
+                            ->label('🎯 Override Active')
+                            ->getStateUsing(fn (Booking $record): string => $record->attended_pax !== null
+                                ? 'Yes — ' . $record->attended_pax . ' PAX'
+                                : 'No — using row data'
+                            )
+                            ->badge()
+                            ->color(fn (Booking $record): string => $record->attended_pax !== null ? 'warning' : 'gray'),
                     ])->columnSpanFull(),
 
                 // ── Transport Assignment ──────────────────────────────────────

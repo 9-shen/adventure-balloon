@@ -103,6 +103,60 @@ class GreeterCustomersRelationManager extends RelationManager
                         $this->syncBookingAttendance();
                         Notification::make()->title('❌ All passengers marked as No-Show')->danger()->send();
                     }),
+
+                // ── Override: set gate count without per-row records ──────────
+                Action::make('set_showed_count')
+                    ->label(function (): string {
+                        $booking = $this->getOwnerRecord();
+                        if ($booking->attended_pax !== null) {
+                            return "🎯 Override: {$booking->attended_pax}/{$booking->getTotalPax()} PAX";
+                        }
+                        return '🎯 Set Showed Count';
+                    })
+                    ->color(fn (): string => $this->getOwnerRecord()->attended_pax !== null ? 'warning' : 'gray')
+                    ->icon('heroicon-o-calculator')
+                    ->modalHeading('Override PAX Attendance Count')
+                    ->modalDescription('Use this when passenger records are incomplete. Enter the actual number of passengers that showed up at the gate. This overrides individual row attendance marks.')
+                    ->modalWidth('sm')
+                    ->form(function (): array {
+                        $booking  = $this->getOwnerRecord();
+                        $totalPax = $booking->getTotalPax();
+                        return [
+                            Forms\Components\TextInput::make('attended_pax')
+                                ->label('Passengers who showed up')
+                                ->helperText("Enter a number between 0 and {$totalPax} (total booking PAX)")
+                                ->numeric()
+                                ->minValue(0)
+                                ->maxValue($totalPax)
+                                ->default($booking->attended_pax)
+                                ->required(),
+                        ];
+                    })
+                    ->action(function (array $data): void {
+                        $booking = $this->getOwnerRecord();
+                        $booking->update(['attended_pax' => (int) $data['attended_pax']]);
+                        $this->syncBookingAttendance();
+                        Notification::make()
+                            ->title("🎯 Attendance set to {$data['attended_pax']}/{$booking->getTotalPax()} PAX")
+                            ->success()
+                            ->send();
+                    }),
+
+                // ── Clear the override ────────────────────────────────────────
+                Action::make('clear_override')
+                    ->label('Clear Override')
+                    ->color('gray')
+                    ->icon('heroicon-o-arrow-path')
+                    ->visible(fn (): bool => $this->getOwnerRecord()->attended_pax !== null)
+                    ->requiresConfirmation()
+                    ->modalHeading('Clear PAX Override')
+                    ->modalDescription('This will remove the manual count override. The attendance will be calculated from the individual passenger rows again.')
+                    ->action(function (): void {
+                        $booking = $this->getOwnerRecord();
+                        $booking->update(['attended_pax' => null]);
+                        $this->syncBookingAttendance();
+                        Notification::make()->title('Override cleared — using row data')->success()->send();
+                    }),
             ])
             ->actions([
                 Action::make('mark_show')
@@ -165,20 +219,25 @@ class GreeterCustomersRelationManager extends RelationManager
     }
 
     /**
-     * Sync the parent booking's attendance summary based on customer totals
+     * Sync the parent booking's attendance summary.
+     *
+     * Uses attended_pax override if set; otherwise falls back to customer rows.
+     * Denominator is always booking.getTotalPax() (adult_pax + child_pax).
      */
     private function syncBookingAttendance(): void
     {
-        $booking   = $this->getOwnerRecord();
-        $customers = $booking->customers()->get();
-        $total   = $customers->count();
-        $show    = $customers->where('attendance', 'show')->count();
-        $noShow  = $customers->where('attendance', 'no_show')->count();
+        $booking  = $this->getOwnerRecord();
+        $totalPax = $booking->getTotalPax();
+
+        // Use override if set, otherwise count per-row 'show' records
+        $showedPax = $booking->attended_pax
+            ?? $booking->customers()->where('attendance', 'show')->count();
 
         $bookingAttendance = match (true) {
-            $show === $total   => 'show',
-            $noShow === $total => 'no_show',
-            default            => 'pending',
+            $totalPax === 0                  => 'pending',
+            $showedPax === $totalPax         => 'show',
+            $showedPax === 0                 => 'pending',
+            default                          => 'pending', // partial — still pending until all marked
         };
 
         $booking->update(['attendance' => $bookingAttendance]);
