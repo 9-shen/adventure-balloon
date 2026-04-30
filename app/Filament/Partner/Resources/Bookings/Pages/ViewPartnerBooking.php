@@ -39,7 +39,15 @@ class ViewPartnerBooking extends ViewRecord
                     TextEntry::make('adult_pax')->label('Adults'),
                     TextEntry::make('child_pax')->label('Children'),
                     TextEntry::make('pickup_location')->label('Pick-up Location')->placeholder('—'),
-                    TextEntry::make('pickup_map_link')->label('Pick-up Map Link')->url(fn ($state) => $state)->openUrlInNewTab()->placeholder('—'),
+                    TextEntry::make('pickup_map_link')
+                        ->label('Pick-up Map Link')
+                        ->placeholder('—')
+                        ->icon('heroicon-o-map')
+                        ->formatStateUsing(fn ($state) => 'Open Google Maps')
+                        ->url(fn ($state) => $state)
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->badge(),
                     TextEntry::make('dropoff_location')->label('Drop-off Location')->placeholder('—'),
                     TextEntry::make('notes')->label('Notes')->columnSpanFull(),
                 ]),

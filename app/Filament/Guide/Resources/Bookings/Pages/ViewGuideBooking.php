@@ -33,7 +33,15 @@ class ViewGuideBooking extends ViewRecord
                     TextEntry::make('final_amount')->label('Total')->money('MAD'),
                     TextEntry::make('partner_reference')->label('Your Ref')->placeholder('—'),
                     TextEntry::make('pickup_location')->label('Pick-up Location')->placeholder('—'),
-                    TextEntry::make('pickup_map_link')->label('Pick-up Map Link')->url(fn ($state) => $state)->openUrlInNewTab()->placeholder('—'),
+                    TextEntry::make('pickup_map_link')
+                        ->label('Pick-up Map Link')
+                        ->placeholder('—')
+                        ->icon('heroicon-o-map')
+                        ->formatStateUsing(fn ($state) => 'Open Google Maps')
+                        ->url(fn ($state) => $state)
+                        ->openUrlInNewTab()
+                        ->color('primary')
+                        ->badge(),
                     TextEntry::make('dropoff_location')->label('Drop-off Location')->placeholder('—'),
                 ])->columnSpanFull(),
         ]);
