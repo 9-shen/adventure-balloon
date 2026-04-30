@@ -38,6 +38,9 @@ class ViewPartnerBooking extends ViewRecord
                     TextEntry::make('flight_time')->label('Flight Time')->time('H:i'),
                     TextEntry::make('adult_pax')->label('Adults'),
                     TextEntry::make('child_pax')->label('Children'),
+                    TextEntry::make('pickup_location')->label('Pick-up Location')->placeholder('—'),
+                    TextEntry::make('pickup_map_link')->label('Pick-up Map Link')->url(fn ($state) => $state)->openUrlInNewTab()->placeholder('—'),
+                    TextEntry::make('dropoff_location')->label('Drop-off Location')->placeholder('—'),
                     TextEntry::make('notes')->label('Notes')->columnSpanFull(),
                 ]),
 

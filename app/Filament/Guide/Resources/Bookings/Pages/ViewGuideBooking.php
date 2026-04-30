@@ -32,6 +32,9 @@ class ViewGuideBooking extends ViewRecord
                     TextEntry::make('child_pax')->label('Children'),
                     TextEntry::make('final_amount')->label('Total')->money('MAD'),
                     TextEntry::make('partner_reference')->label('Your Ref')->placeholder('—'),
+                    TextEntry::make('pickup_location')->label('Pick-up Location')->placeholder('—'),
+                    TextEntry::make('pickup_map_link')->label('Pick-up Map Link')->url(fn ($state) => $state)->openUrlInNewTab()->placeholder('—'),
+                    TextEntry::make('dropoff_location')->label('Drop-off Location')->placeholder('—'),
                 ])->columnSpanFull(),
         ]);
     }

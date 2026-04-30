@@ -139,8 +139,14 @@ class BookingResource extends Resource
                             TextEntry::make('pickup_location')
                                 ->label('Pick-up Location')
                                 ->placeholder('—')
-                                ->icon('heroicon-o-map-pin')
-                                ->columnSpan(2),
+                                ->icon('heroicon-o-map-pin'),
+
+                            TextEntry::make('pickup_map_link')
+                                ->label('Pick-up Map Link')
+                                ->placeholder('—')
+                                ->icon('heroicon-o-link')
+                                ->url(fn ($state) => $state)
+                                ->openUrlInNewTab(),
 
                             TextEntry::make('dropoff_location')
                                 ->label('Drop-off Location')

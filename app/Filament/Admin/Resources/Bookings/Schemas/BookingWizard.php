@@ -134,7 +134,7 @@ class BookingWizard
                                 ->minValue(0)
                                 ->live(),
 
-                            Grid::make(3)
+                            Grid::make(4)
                                 ->schema([
                                     Select::make('booking_source')
                                         ->label('Booking Source')
@@ -155,6 +155,12 @@ class BookingWizard
                                         ->maxLength(255)
                                         ->placeholder('Hotel name, address or meeting point…'),
 
+                                    TextInput::make('pickup_map_link')
+                                        ->label('Pick-up Map Link')
+                                        ->url()
+                                        ->nullable()
+                                        ->maxLength(255)
+                                        ->placeholder('https://maps.google.com/…'),
 
                                     TextInput::make('dropoff_location')
                                         ->label('Drop-off Location (optional)')

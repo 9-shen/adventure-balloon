@@ -109,13 +109,19 @@ class CreatePartnerBooking extends CreateRecord
                                 ->hint('Required — this reference will appear on all documents')
                                 ->columnSpan(2),
 
-                            Grid::make(2)->schema([
+                            Grid::make(3)->schema([
                                 TextInput::make('pickup_location')
                                     ->label('Pick-up Location')
                                     ->required()
                                     ->maxLength(255)
                                     ->placeholder('Hotel name, address or meeting point…'),
 
+                                TextInput::make('pickup_map_link')
+                                    ->label('Pick-up Map Link')
+                                    ->url()
+                                    ->nullable()
+                                    ->maxLength(255)
+                                    ->placeholder('https://maps.google.com/…'),
 
                                 TextInput::make('dropoff_location')
                                     ->label('Drop-off Location (optional)')

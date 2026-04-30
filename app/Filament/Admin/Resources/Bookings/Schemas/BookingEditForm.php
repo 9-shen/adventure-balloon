@@ -82,7 +82,7 @@ class BookingEditForm
                         ]),
 
                     Section::make('Logistics')
-                        ->columns(2)
+                        ->columns(3)
                         ->schema([
                             TextInput::make('pickup_location')
                                 ->label('Pick-up Location')
@@ -90,6 +90,14 @@ class BookingEditForm
                                 ->maxLength(255)
                                 ->placeholder('Hotel name, address or meeting point…')
                                 ->columnSpan(1), // Takes 1 column (left side)
+
+                            TextInput::make('pickup_map_link')
+                                ->label('Pick-up Map Link')
+                                ->url()
+                                ->nullable()
+                                ->maxLength(255)
+                                ->placeholder('https://maps.google.com/…')
+                                ->columnSpan(1), // Takes 1 column (middle)
 
                             TextInput::make('dropoff_location')
                                 ->label('Drop-off Location (optional)')
@@ -108,7 +116,7 @@ class BookingEditForm
                                         ? '* Required for partner bookings'
                                         : 'Optional'
                                 )
-                                ->columnSpan(2), // Takes full width (both columns)
+                                ->columnSpan(3), // Takes full width (all columns)
                         ]),
 
 
