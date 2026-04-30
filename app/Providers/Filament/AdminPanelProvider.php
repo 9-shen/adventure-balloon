@@ -61,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Accountant\Pages\Reports\DuePaymentsReport::class,
                 \App\Filament\Accountant\Pages\Reports\PartnerSummaryReport::class,
                 \App\Filament\Accountant\Pages\Reports\TransportCostReport::class,
+                \App\Filament\Accountant\Pages\Reports\FlightStatsReport::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\Filament\Admin\Widgets')
             ->widgets([
