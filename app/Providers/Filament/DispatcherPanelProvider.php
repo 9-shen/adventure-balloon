@@ -26,7 +26,6 @@ class DispatcherPanelProvider extends PanelProvider
             ->id('dispatcher')
             ->path('dispatcher')
             ->login()
-            ->profile()
             ->brandName('Dispatcher Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([
@@ -41,6 +40,12 @@ class DispatcherPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Dispatcher/Widgets'), for: 'App\Filament\Dispatcher\Widgets')
             ->widgets([
                 // Remove AccountWidget to hide the default welcome widget
+            ])
+            ->userMenuItems([
+                \Filament\Navigation\MenuItem::make()
+                    ->label('My Profile')
+                    ->url(fn (): string => \App\Filament\Dispatcher\Pages\Profile::getUrl())
+                    ->icon('heroicon-o-user'),
             ])
             ->navigationGroups([
                 \Filament\Navigation\NavigationGroup::make('Bookings'),
