@@ -355,8 +355,7 @@
         <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
         <div class="header">
             <div class="header-left">
-                <div class="company-name">🎈 {{ $settings->company_name ?? 'Booklix' }}</div>
-                <div class="company-tagline">Hot Air Balloon Experiences · Morocco</div>
+                <img src="{{ public_path('images/adventureballoon.png') }}" alt="Adventure Balloon" style="max-height: 80px;">
             </div>
             <div class="header-right">
                 <div class="bill-title">TRANSPORT BILL</div>

@@ -372,8 +372,7 @@
         <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
         <div class="header">
             <div class="header-left">
-                <div class="company-name"> {{ $appSettings->company_name }}</div>
-                <div class="company-tagline">Hot Air Balloon Experiences · Morocco</div>
+                <img src="{{ public_path('images/adventureballoon.png') }}" alt="Adventure Balloon" style="max-height: 80px;">
             </div>
             <div class="header-right">
                 <div class="invoice-title">INVOICE</div>
