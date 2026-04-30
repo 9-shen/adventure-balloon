@@ -235,12 +235,20 @@ class AccountantBookingResource extends Resource
                     ->action(function (array $data, Booking $record): void {
                         $newAmountPaid = $record->amount_paid + $data['payment_amount'];
                         $balanceDue = max(0, round($record->final_amount - $newAmountPaid, 2));
-                        $record->update([
+                        
+                        $updateData = [
                             'payment_status' => $data['payment_status'],
                             'payment_method' => $data['payment_method'],
                             'amount_paid' => $newAmountPaid,
                             'balance_due' => $balanceDue,
-                        ]);
+                        ];
+
+                        if ($data['payment_status'] === 'paid' || $balanceDue == 0) {
+                            $updateData['booking_status'] = 'completed';
+                            $updateData['payment_status'] = 'paid';
+                        }
+
+                        $record->update($updateData);
                     })
                     ->slideOver()
                     ->modalWidth('md'),
