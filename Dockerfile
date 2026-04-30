@@ -30,25 +30,26 @@ COPY --from=deps /app/vendor ./vendor
 RUN npm run build
 
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
-FROM php:8.2-fpm-alpine AS production
+# Using Debian (not Alpine) so PHP extensions install as pre-built .deb packages
+# instead of being compiled from C source — cuts build time from ~30min to ~2min.
+FROM php:8.2-fpm AS production
 
 # ── System dependencies ─────────────────────────────────────────────────────────
-RUN apk add --no-cache \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     supervisor \
     curl \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    oniguruma-dev \
-    icu-dev \
-    zlib \
-    zlib-dev \
     git \
     unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    libzip-dev \
+    libicu-dev \
+    libonig-dev \
+    libssl-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
+    && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         mbstring \
         exif \
@@ -57,13 +58,14 @@ RUN apk add --no-cache \
         gd \
         zip \
         intl \
-        opcache
+        opcache \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # ── Redis PHP extension ─────────────────────────────────────────────────────────
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del $PHPIZE_DEPS
+RUN pecl install redis \
+    && docker-php-ext-enable redis
 
 # ── Composer ────────────────────────────────────────────────────────────────────
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -97,8 +99,9 @@ RUN cp .env.example .env && \
     php artisan package:discover --ansi && \
     rm .env
 
-# ── Docker config files ─────────────────────────────────────────────────────────
-COPY docker/nginx.conf       /etc/nginx/http.d/default.conf
+# ── Nginx config (Debian uses sites-enabled, not http.d) ───────────────────────
+RUN mkdir -p /etc/nginx/sites-enabled
+COPY docker/nginx.conf       /etc/nginx/sites-enabled/default
 COPY docker/php.ini          /usr/local/etc/php/conf.d/custom.ini
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/start.sh         /start.sh
