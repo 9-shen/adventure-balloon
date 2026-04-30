@@ -80,7 +80,7 @@ class CreateGuideBooking extends CreateRecord
                                 ->seconds(false),
 
                             TextInput::make('adult_pax')
-                                ->label('Adult Passengers')
+                                ->label('Number Of Adults')
                                 ->numeric()
                                 ->required()
                                 ->default(1)
@@ -88,7 +88,7 @@ class CreateGuideBooking extends CreateRecord
                                 ->live(),
 
                             TextInput::make('child_pax')
-                                ->label('Child Passengers')
+                                ->label('Number Of Children')
                                 ->numeric()
                                 ->required()
                                 ->default(0)
