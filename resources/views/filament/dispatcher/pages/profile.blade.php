@@ -1,5 +1,5 @@
 <x-filament-panels::page>
-    <x-filament::form wire:submit="save">
+    <form wire:submit="save">
         {{ $this->form }}
 
         <div class="mt-4">
@@ -7,5 +7,5 @@
                 Save Profile
             </x-filament::button>
         </div>
-    </x-filament::form>
+    </form>
 </x-filament-panels::page>
