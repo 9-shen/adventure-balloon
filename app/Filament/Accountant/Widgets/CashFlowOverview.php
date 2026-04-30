@@ -29,22 +29,22 @@ class CashFlowOverview extends BaseWidget
         $unpaidInvoices = Invoice::whereNotIn('status', ['paid'])->count();
 
         return [
-            Stat::make('Today\'s Revenue', new \Illuminate\Support\HtmlString("<span style='font-size: 1.5rem; font-weight: bold;'>" . number_format($dailyBookings, 2) . " MAD</span>"))
+            Stat::make('Today\'s Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($dailyBookings, 2) . ' MAD</span>'))
                 ->description('Collected today')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('success'),
                 
-            Stat::make('Weekly Revenue', new \Illuminate\Support\HtmlString("<span style='font-size: 1.5rem; font-weight: bold;'>" . number_format($weeklyBookings, 2) . " MAD</span>"))
+            Stat::make('Weekly Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($weeklyBookings, 2) . ' MAD</span>'))
                 ->description('Collected this week')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('primary'),
 
-            Stat::make('Outstanding Balances', new \Illuminate\Support\HtmlString("<span style='font-size: 1.5rem; font-weight: bold;'>" . number_format($outstandingBalances, 2) . " MAD</span>"))
+            Stat::make('Outstanding Balances', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($outstandingBalances, 2) . ' MAD</span>'))
                 ->description('From unpaid bookings')
                 ->descriptionIcon('heroicon-m-exclamation-circle')
                 ->color('warning'),
                 
-            Stat::make('Unpaid Invoices', new \Illuminate\Support\HtmlString("<span style='font-size: 1.5rem; font-weight: bold;'>" . $unpaidInvoices . "</span>"))
+            Stat::make('Unpaid Invoices', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . $unpaidInvoices . '</span>'))
                 ->description('Draft, sent, or overdue')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('danger'),
