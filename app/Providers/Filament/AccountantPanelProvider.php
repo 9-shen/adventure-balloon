@@ -50,7 +50,6 @@ class AccountantPanelProvider extends PanelProvider
                 for: 'App\\Filament\\Accountant\\Widgets'
             )
             ->widgets([
-                AccountWidget::class,
                 \App\Filament\Accountant\Widgets\CashFlowOverview::class,
                 \App\Filament\Accountant\Widgets\RecentInvoicesWidget::class,
             ])
