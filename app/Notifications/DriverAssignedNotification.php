@@ -32,7 +32,7 @@ class DriverAssignedNotification extends Notification implements ShouldQueue
         $booking   = $dispatch->booking;
         $vehicle   = $row->vehicle;
 
-        return (new MailMessage)
+        $message = (new MailMessage)
             ->subject("Your Dispatch Assignment — {$dispatch->dispatch_ref}")
             ->greeting("Hello {$notifiable->name},")
             ->line("You have been assigned to a transport dispatch.")
@@ -47,8 +47,13 @@ class DriverAssignedNotification extends Notification implements ShouldQueue
             ->line("**Your Vehicle:** " . ($vehicle ? "{$vehicle->make} {$vehicle->model} — Plate: {$vehicle->plate_number}" : 'TBC'))
             ->line("**Passengers Assigned to You:** {$row->pax_assigned}")
             ->line("")
-            ->line("Please arrive at the pickup location on time. Contact the operations team if you have any questions.")
-            ->salutation("Booklix Operations Team");
+            ->line("Please arrive at the pickup location on time. Contact the operations team if you have any questions.");
+
+        if ($booking && $booking->pickup_map_link) {
+            $message->action('View Pickup Location on Map', $booking->pickup_map_link);
+        }
+
+        return $message->salutation("Adventure Balloon");
     }
 
     public function toArray(object $notifiable): array

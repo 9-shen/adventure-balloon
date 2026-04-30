@@ -290,7 +290,7 @@ class DispatchService
                     ? "{$vehicle->make} {$vehicle->model} — Plate: {$vehicle->plate_number}"
                     : 'TBC';
 
-                $waMessage = implode("\n", [
+                $messageLines = [
                     "🚐 *{$app->company_name} — Dispatch Assignment*",
                     "",
                     "Hello {$driver->name},",
@@ -313,9 +313,18 @@ class DispatchService
                     "🚗 *Your Vehicle*",
                     "  {$vehicleInfo}",
                     "",
-                    "Please be punctual. Contact us if you have any issues.",
-                    "— {$app->company_name} Operations",
-                ]);
+                ];
+
+                if ($booking && $booking->pickup_map_link) {
+                    $messageLines[] = "📍 *Pickup Map Link*:";
+                    $messageLines[] = $booking->pickup_map_link;
+                    $messageLines[] = "";
+                }
+
+                $messageLines[] = "Please be punctual. Contact us if you have any issues.";
+                $messageLines[] = "— {$app->company_name} Operations";
+
+                $waMessage = implode("\n", $messageLines);
 
                 try {
                     $twilio->messages->create($to, [
@@ -520,7 +529,7 @@ class DispatchService
                 ? "{$vehicle->make} {$vehicle->model} — Plate: {$vehicle->plate_number}"
                 : 'TBC';
 
-            $message = implode("\n", [
+            $messageLines = [
                 "🚐 *{$app->company_name} — Dispatch Assignment*",
                 "",
                 "Hello {$driver->name},",
@@ -543,9 +552,18 @@ class DispatchService
                 "🚗 *Your Vehicle*",
                 "  {$vehicleInfo}",
                 "",
-                "Please be punctual. Contact us if you have any issues.",
-                "— {$app->company_name} Operations",
-            ]);
+            ];
+
+            if ($booking && $booking->pickup_map_link) {
+                $messageLines[] = "📍 *Pickup Map Link*:";
+                $messageLines[] = $booking->pickup_map_link;
+                $messageLines[] = "";
+            }
+
+            $messageLines[] = "Please be punctual. Contact us if you have any issues.";
+            $messageLines[] = "— {$app->company_name} Operations";
+
+            $message = implode("\n", $messageLines);
 
             try {
                 $twilio->messages->create($to, [

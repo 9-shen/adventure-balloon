@@ -41,7 +41,7 @@ class DriverAccountCreatedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your Booklix Driver Account is Ready')
+            ->subject('Your Adventure Balloon Driver Account is Ready')
             ->greeting('Hello ' . $this->driverName . ',')
             ->line('Your driver account has been created successfully.')
             ->line('You can now log in to the Driver Portal to view your dispatches and schedule.')
