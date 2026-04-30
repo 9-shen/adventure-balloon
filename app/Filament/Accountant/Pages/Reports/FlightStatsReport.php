@@ -137,13 +137,6 @@ class FlightStatsReport extends Page implements HasTable
                     ->alignCenter()
                     ->color('success'),
 
-                TextColumn::make('pax_per_booking')
-                    ->label('Avg PAX / Flight')
-                    ->state(function ($record): string {
-                        if (!$record->total_bookings) return '—';
-                        return number_format($record->total_pax / $record->total_bookings, 1);
-                    })
-                    ->alignCenter(),
             ])
             ->filters([
                 Filter::make('date_range')

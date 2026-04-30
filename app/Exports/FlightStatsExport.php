@@ -64,16 +64,11 @@ class FlightStatsExport implements FromCollection, WithHeadings, WithMapping, Wi
             'Total PAX',
             'Adults',
             'Children',
-            'Avg PAX / Booking',
         ];
     }
 
     public function map($row): array
     {
-        $avg = $row->total_bookings > 0
-            ? number_format($row->total_pax / $row->total_bookings, 1)
-            : '—';
-
         return [
             \Carbon\Carbon::parse($row->flight_date)->format('d/m/Y'),
             strtoupper($row->type ?? '—'),
@@ -81,7 +76,6 @@ class FlightStatsExport implements FromCollection, WithHeadings, WithMapping, Wi
             $row->total_pax,
             $row->total_adults,
             $row->total_children,
-            $avg,
         ];
     }
 
