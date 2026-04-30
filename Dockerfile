@@ -32,7 +32,11 @@ RUN npm run build
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
 # Using Debian (not Alpine) so PHP extensions install as pre-built .deb packages
 # instead of being compiled from C source — cuts build time from ~30min to ~2min.
+# cache-bust: 2026-04-30-v2
 FROM php:8.2-fpm AS production
+
+# Force cache invalidation — remove this label after first successful build
+LABEL org.opencontainers.image.revision="debian-fix-v2"
 
 # ── System dependencies ─────────────────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
