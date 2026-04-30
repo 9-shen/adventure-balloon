@@ -13,7 +13,7 @@ class DriverStatsWidget extends BaseWidget
 {
     // Polling and lazy loading to match Greeter dashboard improvements
     protected ?string $pollingInterval = '30s';
-    protected bool $isLazy = false;
+    protected static bool $isLazy = false;
 
     protected function getStats(): array
     {
