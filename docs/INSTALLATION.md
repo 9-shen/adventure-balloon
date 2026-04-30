@@ -1,22 +1,31 @@
-# 🚀 Booklix — Installation & Setup Guide
+# 🚀 Adventure Balloon (Booklix) — Installation & Deployment Guide
 
-> Step-by-step instructions to clone and run the Booklix project on a new machine.
+> Step-by-step instructions for both **local development** and **production deployment** on Contabo VPS with Coolify.
 
 ---
 
+## 📑 Table of Contents
+
+- [Local Development Setup](#-local-development-setup)
+- [Production Deployment — Contabo VPS + Coolify](#-production-deployment--contabo-vps--coolify)
+
+---
+
+# 💻 Local Development Setup
+
 ## 📋 Prerequisites
 
-Make sure the following are installed on the target machine **before** you begin:
+Make sure the following are installed on your machine **before** you begin:
 
 | Requirement | Version | Download |
 |---|---|---|
 | **PHP** | `^8.2` | https://www.php.net/downloads |
 | **Composer** | Latest | https://getcomposer.org/download |
-| **Node.js & npm** | LTS (v18+) | https://nodejs.org |
+| **Node.js & npm** | LTS (v20+) | https://nodejs.org |
 | **MySQL** | 8.0+ | https://dev.mysql.com/downloads |
 | **Git** | Latest | https://git-scm.com/downloads |
 
-> **Windows tip:** Use [XAMPP](https://www.apachefriends.org/) or [Laragon](https://laragon.org/) to get PHP + MySQL in one installer. Laragon is highly recommended — it also sets up virtual hosts automatically.
+> **Windows tip:** Use [Laragon](https://laragon.org/) to get PHP + MySQL + Git in one installer. It also sets up virtual hosts automatically and is highly recommended.
 
 ### Required PHP Extensions
 
@@ -36,6 +45,7 @@ extension=gd
 extension=zip
 extension=intl
 extension=exif
+extension=redis      ← optional for local dev (can use database driver instead)
 ```
 
 ---
@@ -77,7 +87,7 @@ php artisan key:generate
 Now open `.env` in a text editor and update the following values to match your local setup:
 
 ```env
-APP_NAME=Booklix
+APP_NAME="Adventure Balloon"
 APP_URL=http://127.0.0.1:8000
 
 DB_CONNECTION=mysql
@@ -86,6 +96,11 @@ DB_PORT=3306
 DB_DATABASE=booklix_app      # ← create this database first (see step 5)
 DB_USERNAME=root
 DB_PASSWORD=                 # ← your MySQL root password
+
+# For local dev, use database queues (no Redis needed)
+CACHE_STORE=database
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
 ```
 
 > **Note:** Leave `MAIL_MAILER=log` for local development. Emails will be written to `storage/logs/laravel.log` instead of being sent.
@@ -143,7 +158,7 @@ php artisan storage:link
 npm run build
 ```
 
-> For active development with hot-reload, use `npm run dev` instead (see Development Mode below).
+> For active development with hot-reload, use `npm run dev` instead.
 
 ---
 
@@ -185,17 +200,295 @@ This starts **4 processes** concurrently:
 
 | Panel | URL | Role Required |
 |---|---|---|
-| **Admin** | `/admin` | `super_admin`, `admin`, `manager`, etc. |
+| **Admin** | `/admin` | `super_admin`, `admin`, `accountant` |
+| **Manager** | `/manager` | `manager` |
 | **Partner** | `/partner` | `partner` (with `partner_id` linked) |
 | **Transport** | `/transport` | `transport` (with `transport_company_id` linked) |
 | **Driver** | `/driver` | `driver` (with `driver_id` linked) |
 | **Greeter** | `/greeter` | `greeter` |
+| **Guide** | `/guide` | `guide` |
+| **Dispatcher** | `/dispatcher` | `dispatcher` |
 
 ---
 
-## 🛠️ Troubleshooting
+---
+
+# ☁️ Production Deployment — Contabo VPS + Coolify
+
+This section covers deploying the application on a **Contabo VPS** managed by **Coolify**, using Docker (multi-stage build).
+
+## 📋 Prerequisites
+
+Before you start, make sure you have:
+
+| Requirement | Details |
+|---|---|
+| **Contabo VPS** | Ubuntu 22.04 LTS (or 24.04) |
+| **Coolify** | v4.x installed on the VPS |
+| **Domain** | DNS A record pointing to VPS IP |
+| **GitHub repo** | `9-shen/adventure-balloon` (private or public) |
+| **GitHub Token** | Personal Access Token with `repo` scope |
+
+---
+
+## Step 1 — Install Coolify on Your VPS
+
+SSH into your Contabo VPS as root:
+
+```bash
+ssh root@YOUR_VPS_IP
+```
+
+Run the official Coolify one-line installer:
+
+```bash
+curl -fsSL https://cdn.coollabs.io/coolify/install.sh | bash
+```
+
+Once complete, access the Coolify dashboard at:
+```
+http://YOUR_VPS_IP:8000
+```
+
+Complete the initial setup wizard (create your admin account).
+
+---
+
+## Step 2 — Connect Your GitHub Repository
+
+1. In Coolify, go to **Settings → Sources**
+2. Click **Add → GitHub App** (recommended) or **GitHub with PAT**
+3. Follow the OAuth flow to authorize Coolify on your GitHub account
+4. Make sure the `9-shen/adventure-balloon` repository is accessible
+
+---
+
+## Step 3 — Create Required Services
+
+Before adding the app, provision the databases it depends on.
+
+### 3A — Create MySQL Database
+
+1. Go to **Servers → localhost → New Resource → Database → MySQL**
+2. Configure:
+   - **Name:** `booklix-mysql`
+   - **MySQL Database:** `booklix`
+   - **MySQL User:** `booklix`
+   - **MySQL Password:** *(generate a strong password — save it!)*
+   - **MySQL Root Password:** *(generate separately — save it!)*
+3. Click **Save** and then **Start**
+4. Note the **internal hostname** (e.g., `booklix-mysql`) — you'll use this as `DB_HOST`
+
+### 3B — Create Redis
+
+1. Go to **Servers → localhost → New Resource → Database → Redis**
+2. Configure:
+   - **Name:** `booklix-redis`
+   - **Redis Password:** *(generate a strong password — save it!)*
+3. Click **Save** and then **Start**
+4. Note the **internal hostname** (e.g., `booklix-redis`) — you'll use this as `REDIS_HOST`
+
+---
+
+## Step 4 — Create the Application
+
+1. Go to **Projects → New Project** → name it `Adventure Balloon`
+2. Inside the project, click **New Resource → Application**
+3. Select **GitHub** as the source
+4. Choose the `9-shen/adventure-balloon` repository and `main` branch
+5. Coolify will detect your `Dockerfile` — confirm **Dockerfile** as the build type
+6. Set the **Port** to `80`
+
+---
+
+## Step 5 — Configure Environment Variables
+
+In the application's **Environment Variables** tab, add the following.
+
+> ⚠️ Mark sensitive variables (passwords, keys) as **Secret** in Coolify so they are not exposed in logs.
+
+### Application
+
+```env
+APP_NAME="Adventure Balloon"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://yourdomain.com
+APP_KEY=                         # ← generate with: php artisan key:generate --show
+LOG_CHANNEL=stderr
+LOG_LEVEL=error
+TRUSTED_PROXIES=*
+```
+
+### Database
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=booklix-mysql            # ← internal Coolify service hostname
+DB_PORT=3306
+DB_DATABASE=booklix
+DB_USERNAME=booklix
+DB_PASSWORD=YOUR_MYSQL_PASSWORD  # ← from Step 3A (mark as Secret)
+```
+
+### Redis (Cache / Session / Queue)
+
+```env
+REDIS_HOST=booklix-redis         # ← internal Coolify service hostname
+REDIS_PORT=6379
+REDIS_PASSWORD=YOUR_REDIS_PASSWORD  # ← from Step 3B (mark as Secret)
+
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+QUEUE_CONNECTION=redis
+```
+
+### Mail (SMTP)
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USERNAME=your@email.com
+MAIL_PASSWORD=your-mail-password  # ← mark as Secret
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your@email.com
+MAIL_FROM_NAME="Adventure Balloon"
+```
+
+### Storage
+
+```env
+FILESYSTEM_DISK=local
+```
+
+> **Note:** All environment variables set in Coolify are injected at **runtime** into the container. The `APP_KEY` is the only one needed at build time (a temporary key is used during the Docker build, the real one is injected at runtime).
+
+---
+
+## Step 6 — Generate APP_KEY
+
+On your **local machine** (or any machine with PHP), run:
+
+```bash
+php artisan key:generate --show
+```
+
+Copy the output (e.g., `base64:abc123...==`) and paste it as the `APP_KEY` environment variable in Coolify.
+
+---
+
+## Step 7 — Configure the Domain & SSL
+
+1. In the application settings, go to the **Domains** tab
+2. Add your domain: `https://yourdomain.com`
+3. Coolify will automatically provision a **Let's Encrypt SSL certificate** via Traefik
+4. Make sure your domain's **DNS A record** points to your VPS IP before this step
+
+---
+
+## Step 8 — Deploy
+
+1. Click **Deploy** in the Coolify application dashboard
+2. Monitor the **Build Logs** — the full build takes approximately **4–6 minutes**:
+   - Stage 0: Composer dependencies (~60s)
+   - Stage 1: Vite/npm build (~3 min)
+   - Stage 2: PHP Debian image + extensions (~60s)
+3. Once deployed, the **container startup** runs `start.sh` which:
+   - Creates storage directories
+   - Clears stale caches
+   - Runs `php artisan migrate --force`
+   - Runs `php artisan db:seed --force`
+   - Links public storage
+   - Publishes Filament/Livewire assets
+   - Caches config and views
+   - Starts Nginx + PHP-FPM via Supervisor
+
+---
+
+## Step 9 — Verify the Deployment
+
+Once the container is running, test each panel:
+
+| Check | URL |
+|---|---|
+| Home / App | `https://yourdomain.com` |
+| Admin panel | `https://yourdomain.com/admin` |
+| Manager panel | `https://yourdomain.com/manager` |
+| Partner portal | `https://yourdomain.com/partner` |
+| Dispatcher portal | `https://yourdomain.com/dispatcher` |
+
+Login with the seeded super admin credentials:
+- **Email:** `admin@booklix.com`
+- **Password:** `password`
+
+> ⚠️ **Change the default password immediately** after first login.
+
+---
+
+## Step 10 — Post-Deploy Checklist
+
+- [ ] Change default `admin@booklix.com` password
+- [ ] Configure SMTP settings in **Admin → Settings → Email**
+- [ ] Configure WhatsApp/notification settings if applicable
+- [ ] Set up a custom domain and verify SSL is active (🔒 padlock in browser)
+- [ ] Enable Coolify's **Auto-deploy on push** (webhook) for future deploys
+- [ ] (Optional) Set up automated backups — see `docs/phases/phase-27-minio-backup.md`
+
+---
+
+## 🔄 Redeployment (After Code Changes)
+
+Every time you push to the `main` branch, Coolify can automatically redeploy. To enable this:
+
+1. In your Coolify application, go to **Settings**
+2. Enable **Automatic Deployment** (webhook trigger on push)
+3. Coolify will rebuild the Docker image and restart the container
+
+Manual redeploy is also available with one click from the Coolify dashboard.
+
+---
+
+## 🛠️ Troubleshooting — Production
+
+### Container fails to start
+
+Check the **Runtime Logs** in Coolify (not the build logs). Common causes:
+
+- `APP_KEY` is missing or malformed → regenerate and redeploy
+- `DB_HOST` unreachable → verify the MySQL service name matches exactly
+- `REDIS_HOST` unreachable → verify the Redis service is running
+
+### Build times out (>10 min)
+
+Ensure the `Dockerfile` uses `php:8.2-fpm` (Debian), **not** `php:8.2-fpm-alpine`. Alpine compiles PHP extensions from C source (~30 min). Debian installs pre-built packages (~60s).
+
+### "Page not found" / 404 on panel URLs
+
+- Verify the nginx config is loaded from `docker/nginx.conf`
+- Check that `try_files $uri $uri/ /index.php?$query_string;` is present
+- Re-run: `php artisan route:clear` (via Coolify terminal)
+
+### Migrations fail on first deploy
+
+The `start.sh` script runs migrations automatically on every container start (`--force`). If they fail, check:
+1. `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` are all correctly set
+2. The MySQL service is running in Coolify
+
+### Files / uploads not persisting between deploys
+
+By default, `storage/app/public` lives inside the container and is wiped on each redeploy. To persist uploads:
+
+1. In Coolify, add a **Volume** mount: `/var/www/html/storage/app/public` → a named volume
+2. Or use an S3-compatible storage (MinIO) — see `docs/phases/phase-27-minio-backup.md`
+
+---
+
+## 🛠️ Troubleshooting — Local Development
 
 ### `rename(...): Access is denied` (Windows)
+
 Laravel's Blade compiler cannot write compiled view files. Run:
 ```bash
 php artisan view:clear
@@ -204,19 +497,22 @@ php artisan optimize:clear
 If the error persists, **exclude the project folder from Windows Defender / antivirus** real-time scanning.
 
 ### `php_network_getaddresses: getaddrinfo failed`
+
 Your `DB_HOST` is wrong or MySQL is not running. Verify MySQL service is started.
 
 ### Composer install fails with PHP version error
+
 Check your PHP version: `php -v`. It must be **8.2 or higher**.
 
 ### `Class "..." not found` after pulling new code
-Run:
+
 ```bash
 composer dump-autoload
 php artisan optimize:clear
 ```
 
 ### Migrations fail with `Table already exists`
+
 Your database has stale tables. Either drop and recreate the database, or run:
 ```bash
 php artisan migrate:fresh --seed
@@ -224,6 +520,7 @@ php artisan migrate:fresh --seed
 > ⚠️ This **wipes all data**. Only use on a fresh install.
 
 ### Media / avatar images not showing
+
 Make sure you ran `php artisan storage:link`. Check that `storage/app/public` is symlinked to `public/storage`.
 
 ---
@@ -241,7 +538,11 @@ Make sure you ran `php artisan storage:link`. Check that `storage/app/public` is
 | Excel Export | Maatwebsite Excel |
 | Activity Log | Spatie Laravel Activitylog |
 | Frontend | Vite + Tailwind (via Filament) |
-| Queue | Database driver |
+| Queue | Redis (production) / Database (local) |
+| Cache/Session | Redis (production) / Database (local) |
+| Web Server | Nginx + PHP-FPM (Docker, Supervisor) |
+| Container | Docker multi-stage build |
+| Hosting | Contabo VPS + Coolify |
 
 ---
 
@@ -252,16 +553,24 @@ booklix-app/
 ├── app/
 │   ├── Filament/
 │   │   ├── Admin/          ← Admin panel resources & pages
+│   │   ├── Manager/        ← Manager portal
 │   │   ├── Partner/        ← Partner portal
 │   │   ├── Transport/      ← Transport portal
 │   │   ├── Driver/         ← Driver portal
-│   │   └── Greeter/        ← Greeter portal
+│   │   ├── Greeter/        ← Greeter portal
+│   │   ├── Guide/          ← Guide portal
+│   │   └── Dispatcher/     ← Dispatcher portal
 │   ├── Models/             ← Eloquent models
 │   └── Providers/
 │       └── Filament/       ← Panel providers (one per panel)
 ├── database/
 │   ├── migrations/         ← All DB migrations
 │   └── seeders/            ← Role/permission + demo data seeders
+├── docker/
+│   ├── nginx.conf          ← Nginx server block
+│   ├── php.ini             ← PHP runtime config
+│   ├── supervisord.conf    ← Supervisor config (nginx + php-fpm)
+│   └── start.sh            ← Container bootstrap script
 ├── docs/                   ← Project documentation & phase specs
 └── storage/
     └── app/public/         ← Uploaded files (symlinked to public/storage)
@@ -269,4 +578,4 @@ booklix-app/
 
 ---
 
-*Last updated: April 2026 — Booklix v1.0 (Phase 18)*
+*Last updated: April 2026 — Adventure Balloon v1.0 (Phase 28)*
