@@ -113,7 +113,7 @@ class CreateGuideBooking extends CreateRecord
                                     ->label('Pick-up Map Link')
                                     ->url()
                                     ->nullable()
-                                    ->maxLength(255)
+                                    ->maxLength(2000)
                                     ->placeholder('https://maps.google.com/…'),
 
                                 TextInput::make('dropoff_location')

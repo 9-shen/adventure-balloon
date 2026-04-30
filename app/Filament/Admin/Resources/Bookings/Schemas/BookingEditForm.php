@@ -95,7 +95,7 @@ class BookingEditForm
                                 ->label('Pick-up Map Link')
                                 ->url()
                                 ->nullable()
-                                ->maxLength(255)
+                                ->maxLength(2000)
                                 ->placeholder('https://maps.google.com/…')
                                 ->columnSpan(1), // Takes 1 column (middle)
 
