@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/css/filament/admin/theme.css',
                 'resources/css/filament/manager/theme.css',
                 'resources/css/filament/accountant/theme.css',
+                'resources/css/filament/dispatcher/theme.css',
             ],
             refresh: true,
         }),

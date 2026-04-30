@@ -100,6 +100,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return $this->hasRole('greeter');
         }
 
+        if ($panel->getId() === 'dispatcher') {
+            return $this->hasRole('dispatcher');
+        }
+
         if ($panel->getId() === 'accountant') {
             return $this->hasAnyRole(['accountant', 'admin', 'super_admin']);
         }
@@ -139,6 +143,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     public function guide(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Guide::class);
+    }
+
+    public function managedPartners(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Partner::class, 'dispatcher_partner', 'user_id', 'partner_id');
     }
 
     public function registerMediaCollections(): void

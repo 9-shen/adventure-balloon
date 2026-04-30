@@ -81,6 +81,11 @@ class Partner extends Model implements HasMedia
         return $this->hasMany(Guide::class);
     }
 
+    public function dispatchers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'dispatcher_partner', 'partner_id', 'user_id');
+    }
+
     // ─── Media ───────────────────────────────────────────────────────────────
 
     public function registerMediaCollections(): void

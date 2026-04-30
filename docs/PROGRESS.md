@@ -32,6 +32,7 @@
 | 19  | [Accountant Portal](#phase-19--accountant-portal)                  | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
 | 20  | [Manager Portal](#phase-20--manager-portal)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
 | 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
+| 28  | [Dispatcher Portal](#phase-28--dispatcher-portal)                  | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
 |     | **TOTAL**                                                          |             | **~66–87 days** |                 |
 
 ---
@@ -717,6 +718,23 @@
 - [ ] `BookingConfirmedNotification` → customer email
 - [ ] `PaymentReminderNotification` → partner (scheduled)
 - [ ] Database indexes on `flight_date`, `booking_status`, `partner_id`
+
+---
+
+## Phase 28 — Dispatcher Portal
+
+📁 Details: [`docs/phases/phase-28-dispatcher-portal.md`](phases/phase-28-dispatcher-portal.md)  
+**Status: ✅ COMPLETE**
+
+### To Do
+- [x] Create `dispatcher_partner` pivot table for many-to-many relationship.
+- [x] Add `dispatcher` role to `RolesAndPermissionsSeeder`.
+- [x] Update `UserResource` (Admin Panel) to assign managed partners when role is dispatcher.
+- [x] Create `DispatcherPanelProvider` at `/dispatcher`.
+- [x] Add scoped `BookingResource` (only shows assigned partners' bookings).
+- [x] Add `DispatchResource` for managing dispatches.
+- [x] Add read-only `TransportCompanyResource`, `VehicleResource`, `DriverResource`.
+- [x] Create `DispatchingReport` with filters and CSV export.
 
 ---
 

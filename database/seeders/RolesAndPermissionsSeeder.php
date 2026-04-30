@@ -118,6 +118,15 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_bookings', 'create_bookings',
                 'view_customers',
             ],
+
+            // ── Dispatcher — manages dispatches for assigned partners
+            'dispatcher' => [
+                'view_bookings', 'edit_bookings',
+                'view_customers',
+                'view_flights', 'create_flights', 'edit_flights', 'dispatch_flights',
+                'view_reports', 'export_reports',
+                'view_partners',
+            ],
         ];
 
         foreach ($roles as $roleName => $rolePermissions) {
@@ -126,7 +135,7 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         // ── Remove obsolete roles ─────────────────────────────────────────────────
-        $obsoleteRoles = ['agent', 'dispatcher', 'pilot', 'customer'];
+        $obsoleteRoles = ['agent', 'pilot', 'customer'];
         foreach ($obsoleteRoles as $old) {
             Role::where('name', $old)->delete();
         }

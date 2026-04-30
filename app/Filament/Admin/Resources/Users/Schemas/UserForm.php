@@ -138,6 +138,19 @@ class UserForm
                                 return count(array_intersect($roles, $driverRoles)) > 0 || in_array('driver', $roles);
                             })
                             ->helperText('Link this user to a driver profile for the driver portal.'),
+
+                        Select::make('managedPartners')
+                            ->relationship('managedPartners', 'company_name')
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->visible(function (\Filament\Schemas\Components\Utilities\Get $get) {
+                                $roles = (array) $get('roles');
+                                if (empty($roles)) return false;
+                                $dispatcherRoles = \Spatie\Permission\Models\Role::where('name', 'dispatcher')->pluck('id')->toArray();
+                                return count(array_intersect($roles, $dispatcherRoles)) > 0 || in_array('dispatcher', $roles);
+                            })
+                            ->helperText('Select which partners this dispatcher is allowed to manage.'),
                     ])->columnSpanFull(),
             ]);
     }

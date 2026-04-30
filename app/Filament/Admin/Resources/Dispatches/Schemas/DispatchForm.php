@@ -47,6 +47,13 @@ class DispatchForm
                             $query = Booking::where('booking_status', 'confirmed')
                                 ->with(['product', 'partner']);
 
+                            /** @var \App\Models\User|null $user */
+                            $user = auth()->user();
+                            if ($user && $user->hasRole('dispatcher')) {
+                                $managedPartnerIds = $user->managedPartners()->pluck('partners.id');
+                                $query->whereIn('partner_id', $managedPartnerIds);
+                            }
+
                             if ($record === null) {
                                 // Create form: only show bookings without a dispatch
                                 $query->whereDoesntHave('dispatch');
