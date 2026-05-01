@@ -1,8 +1,8 @@
 #!/bin/sh
-set -e
+# NO set -e — errors must not stop supervisor from starting
 
 echo "╔══════════════════════════════════════════════╗"
-echo "║   🎈 Booklix — Production Container Boot     ║"
+echo "║   🎈 Adventure Balloon — Container Boot      ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 
@@ -13,8 +13,10 @@ mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/framework/cache
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/bootstrap/cache
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 777 /var/www/html/storage
+chmod -R 777 /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
 echo "   ✔ Done"
 echo ""
 
@@ -29,14 +31,13 @@ echo ""
 
 # ── 3. Discover packages & components ──────────────────────────────────────────
 echo "▶ [3/10] Discovering packages and Livewire components..."
-php artisan package:discover --ansi --no-interaction
+php artisan package:discover --ansi --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
 # ── 4. Run migrations ──────────────────────────────────────────────────────────
 echo "▶ [4/10] Running database migrations..."
-php artisan migrate --force --no-interaction
-echo "   ✔ Done"
+php artisan migrate --force --no-interaction || echo "   ⚠ Migration failed (non-fatal)"
 echo ""
 
 # ── 5. Seed database ───────────────────────────────────────────────────────────
@@ -59,7 +60,7 @@ echo ""
 
 # ── 8. Cache config ────────────────────────────────────────────────────────────
 echo "▶ [8/10] Caching configuration..."
-php artisan config:cache --no-interaction
+php artisan config:cache --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
@@ -69,10 +70,7 @@ php artisan view:cache --no-interaction || true
 echo "   ✔ Done"
 echo ""
 
-# ── 10. NOTE: route:cache is intentionally skipped ─────────────────────────────
-# Filament & Livewire register routes dynamically via service providers.
-# route:cache bakes a static snapshot that misses these dynamic routes,
-# causing "Unable to find component" errors. Performance impact is negligible.
+# ── 10. Skipping route cache ────────────────────────────────────────────────────
 echo "▶ [10/10] Skipping route cache (Filament requires dynamic route registration)"
 echo "   ✔ Done"
 echo ""
