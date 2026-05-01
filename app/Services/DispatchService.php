@@ -660,32 +660,32 @@ class DispatchService
                 : 'TBC';
 
             $messageLines = [
-                "🚐 *{$app->company_name} — Dispatch Assignment*",
+                "*{$app->company_name} — Dispatch Assignment*",
                 "",
                 "Hello {$driver->name},",
                 "You have been assigned to a dispatch. Please review the details below.",
                 "",
-                "📋 *References*",
+                "*References*",
                 "  Dispatch Ref : {$dispatch->dispatch_ref}",
                 "  Booking Ref  : " . ($booking?->booking_ref ?? 'N/A'),
                 "",
-                "📅 *Schedule*",
+                "*Schedule*",
                 "  Date         : {$flightDate}",
                 "  Pickup Time  : {$pickupTime}",
                 "  Pickup       : {$pickupLoc}",
                 "  Dropoff      : {$dropoffLoc}",
                 "",
-                "👥 *Passengers ({$row->pax_assigned} assigned to you)*",
+                "*Passengers ({$row->pax_assigned} assigned to you)*",
                 "  Total PAX    : " . ($booking?->getTotalPax() ?? '?'),
                 "  Primary CTX  : {$paxContact}",
                 $customerLines,
-                "🚗 *Your Vehicle*",
+                "*Your Vehicle*",
                 "  {$vehicleInfo}",
                 "",
             ];
 
             if ($booking && $booking->pickup_map_link) {
-                $messageLines[] = "📍 *Pickup Map Link*:";
+                $messageLines[] = "*Pickup Map Link*:";
                 $messageLines[] = $booking->pickup_map_link;
                 $messageLines[] = "";
             }
