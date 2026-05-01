@@ -37,6 +37,14 @@ FROM serversideup/php:8.2-fpm-nginx AS production
 
 USER root
 
+# ── Install missing PHP extensions (serversideup ships without intl/gd/exif) ───
+# serversideup is Debian-based — use apt + php8.2-* packages (no C compilation)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        php8.2-intl \
+        php8.2-gd \
+        php8.2-exif \
+    && rm -rf /var/lib/apt/lists/*
+
 # ── Composer ────────────────────────────────────────────────────────────────────
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -52,7 +60,8 @@ RUN composer install \
         --no-scripts \
         --no-interaction \
         --optimize-autoloader \
-        --prefer-dist
+        --prefer-dist \
+        --ignore-platform-reqs
 
 # ── Storage & cache dirs ────────────────────────────────────────────────────────
 RUN mkdir -p \
