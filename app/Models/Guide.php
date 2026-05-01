@@ -58,4 +58,51 @@ class Guide extends Model
     {
         return $this->user()->exists();
     }
+
+    protected static function booted(): void
+    {
+        static::created(function (Guide $guide) {
+            if ($guide->email) {
+                $rawPassword = '1234567890';
+                
+                $user = \App\Models\User::firstOrCreate(
+                    ['email' => $guide->email],
+                    [
+                        'name' => $guide->name,
+                        'password' => \Illuminate\Support\Facades\Hash::make($rawPassword),
+                        'phone' => $guide->phone,
+                        'is_active' => $guide->is_active,
+                        'guide_id' => $guide->id,
+                        'partner_id' => $guide->partner_id,
+                    ]
+                );
+
+                if (!$user->hasRole('guide')) {
+                    $user->assignRole('guide');
+                }
+
+                try {
+                    $guide->notify(new \App\Notifications\GuideAccountCreatedNotification($guide->name, $guide->email, $rawPassword));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to notify guide: " . $e->getMessage());
+                }
+            }
+        });
+
+        static::updated(function (Guide $guide) {
+            if ($guide->isDirty(['name', 'email', 'phone', 'is_active'])) {
+                if ($user = $guide->user) {
+                    $user->fill($guide->only(['name', 'email', 'phone', 'is_active']))->saveQuietly();
+                }
+            }
+        });
+
+        static::deleting(function (Guide $guide) {
+            if ($guide->isForceDeleting()) {
+                $guide->user()->forceDelete();
+            } else {
+                $guide->user()->delete();
+            }
+        });
+    }
 }

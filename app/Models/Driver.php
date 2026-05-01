@@ -101,6 +101,43 @@ class Driver extends Model implements HasMedia
 
     protected static function booted(): void
     {
+        static::created(function (Driver $driver) {
+            if ($driver->email) {
+                $rawPassword = '1234567890';
+                
+                $user = \App\Models\User::firstOrCreate(
+                    ['email' => $driver->email],
+                    [
+                        'name' => $driver->name,
+                        'password' => \Illuminate\Support\Facades\Hash::make($rawPassword),
+                        'phone' => $driver->phone,
+                        'national_id' => $driver->national_id,
+                        'is_active' => $driver->is_active,
+                        'driver_id' => $driver->id,
+                        'transport_company_id' => $driver->transport_company_id,
+                    ]
+                );
+
+                if (!$user->hasRole('driver')) {
+                    $user->assignRole('driver');
+                }
+
+                try {
+                    $driver->notify(new \App\Notifications\DriverAccountCreatedNotification($driver->name, $driver->email, $rawPassword));
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error("Failed to notify driver: " . $e->getMessage());
+                }
+            }
+        });
+
+        static::updated(function (Driver $driver) {
+            if ($driver->isDirty(['name', 'email', 'phone', 'national_id', 'is_active'])) {
+                if ($user = $driver->user) {
+                    $user->fill($driver->only(['name', 'email', 'phone', 'national_id', 'is_active']))->saveQuietly();
+                }
+            }
+        });
+
         static::deleting(function (Driver $driver) {
             if ($driver->isForceDeleting()) {
                 $driver->user()->forceDelete();

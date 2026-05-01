@@ -123,6 +123,22 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         ]);
     }
 
+    // ─── Events ───────────────────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::updated(function (User $user) {
+            if ($user->isDirty(['name', 'email', 'phone', 'national_id', 'is_active'])) {
+                if ($user->driver) {
+                    $user->driver->fill($user->only(['name', 'email', 'phone', 'national_id', 'is_active']))->saveQuietly();
+                }
+                if ($user->guide) {
+                    $user->guide->fill($user->only(['name', 'email', 'phone', 'is_active']))->saveQuietly();
+                }
+            }
+        });
+    }
+
     // ─── Relationships ───────────────────────────────────────────────────────────────
 
     public function partner(): \Illuminate\Database\Eloquent\Relations\BelongsTo
