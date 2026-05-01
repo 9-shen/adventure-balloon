@@ -10,7 +10,7 @@
     @else
         <p class="mb-3 text-sm text-gray-500 dark:text-gray-400">
             Click <strong>Open WhatsApp</strong> for each driver to send the dispatch assignment message via WhatsApp Web.
-            Each link opens in a new tab with the message pre-filled.
+            Each link opens in a new browser tab with the message pre-filled.
         </p>
 
         @foreach($links as $link)
@@ -25,15 +25,15 @@
                     </div>
                 </div>
 
-                <a
-                    href="{{ $link['url'] }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                {{-- Use Alpine window.open() to guarantee _blank — Livewire can intercept plain <a> clicks inside modals --}}
+                <button
+                    type="button"
+                    x-on:click="window.open('{{ $link['url'] }}', '_blank', 'noopener,noreferrer')"
+                    class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 cursor-pointer"
                 >
                     <x-heroicon-o-arrow-top-right-on-square class="h-4 w-4" />
                     Open WhatsApp
-                </a>
+                </button>
             </div>
         @endforeach
 
