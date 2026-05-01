@@ -19,9 +19,9 @@ Make sure the following are installed on your machine **before** you begin:
 
 | Requirement | Version | Download |
 |---|---|---|
-| **PHP** | `^8.2` | https://www.php.net/downloads |
+| **PHP** | `^8.3` | https://www.php.net/downloads |
 | **Composer** | Latest | https://getcomposer.org/download |
-| **Node.js & npm** | LTS (v20+) | https://nodejs.org |
+| **Node.js & npm** | LTS (v22+) | https://nodejs.org |
 | **MySQL** | 8.0+ | https://dev.mysql.com/downloads |
 | **Git** | Latest | https://git-scm.com/downloads |
 
@@ -223,7 +223,7 @@ Before you start, make sure you have:
 
 | Requirement | Details |
 |---|---|
-| **Contabo VPS** | Ubuntu 22.04 LTS (or 24.04) |
+| **Contabo VPS** | Ubuntu 24.04 LTS (recommended) |
 | **Coolify** | v4.x installed on the VPS |
 | **Domain** | DNS A record pointing to VPS IP |
 | **GitHub repo** | `9-shen/adventure-balloon` (private or public) |
@@ -403,7 +403,7 @@ Copy the output (e.g., `base64:abc123...==`) and paste it as the `APP_KEY` envir
    - Links public storage
    - Publishes Filament/Livewire assets
    - Caches config and views
-   - Starts Nginx + PHP-FPM via Supervisor
+   - Starts Nginx + PHP 8.3-FPM via Supervisor
 
 ---
 
@@ -460,15 +460,17 @@ Check the **Runtime Logs** in Coolify (not the build logs). Common causes:
 - `DB_HOST` unreachable → verify the MySQL service name matches exactly
 - `REDIS_HOST` unreachable → verify the Redis service is running
 
-### Build times out (>10 min)
+### Build times out (>30 min)
 
-Ensure the `Dockerfile` uses `php:8.2-fpm` (Debian), **not** `php:8.2-fpm-alpine`. Alpine compiles PHP extensions from C source (~30 min). Debian installs pre-built packages (~60s).
+Ensure the `Dockerfile` uses `ubuntu:24.04` and installs PHP via `apt-get`, **not** source compilation. 
+- **Alpine images** (`php:fpm-alpine`) compile from source and can take 30+ minutes on slow VPS.
+- **Ubuntu images** use pre-built binaries and take ~15 seconds to install extensions.
+- **Contabo Tip:** If the build still times out, check "Server Resources" in Coolify. Contabo I/O can be very slow; our `Dockerfile` is optimized with `--chown` to avoid slow recursive permission changes.
 
-### "Page not found" / 404 on panel URLs
+### "Unable to find component" / Livewire Errors
 
-- Verify the nginx config is loaded from `docker/nginx.conf`
-- Check that `try_files $uri $uri/ /index.php?$query_string;` is present
-- Re-run: `php artisan route:clear` (via Coolify terminal)
+- Ensure you are NOT running `php artisan route:cache` in production. Filament and Livewire register routes dynamically.
+- Check that `docker/start.sh` is correctly skipping route caching.
 
 ### Migrations fail on first deploy
 

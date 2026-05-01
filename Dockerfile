@@ -39,7 +39,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=UTC
 
 # Force cache invalidation — remove this label after first successful build
-LABEL org.opencontainers.image.revision="ubuntu-fix-v3"
+LABEL org.opencontainers.image.revision="ubuntu-fix-v4"
 
 # ── System dependencies & PHP 8.3 ───────────────────────────────────────────────
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -73,10 +73,12 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # ── Application source ──────────────────────────────────────────────────────────
-COPY . .
-COPY --from=builder /app/public/build ./public/build
+# Using --chown here is MUCH faster than a separate RUN chown -R later.
+COPY --chown=www-data:www-data . .
+COPY --from=builder --chown=www-data:www-data /app/public/build ./public/build
 
 # ── Install PHP dependencies ────────────────────────────────────────────────────
+# Run composer as root; we will fix the vendor folder ownership in the next step.
 RUN composer install \
         --no-dev \
         --no-scripts \
@@ -84,14 +86,16 @@ RUN composer install \
         --optimize-autoloader \
         --prefer-dist
 
-# ── Storage & cache dirs must exist BEFORE package:discover ─────────────────────
-# BladeIconsServiceProvider::boot() needs storage/framework/views for Blade compiler
+# ── Storage & cache dirs ────────────────────────────────────────────────────────
+# Create them and ensure they are owned by www-data immediately.
 RUN mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
     storage/logs \
-    bootstrap/cache
+    bootstrap/cache \
+    && chown -R www-data:www-data vendor storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 # ── Package discover (requires a temporary .env with APP_KEY) ───────────────────
 RUN cp .env.example .env && \
@@ -108,9 +112,9 @@ COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/start.sh         /start.sh
 RUN chmod +x /start.sh
 
-# ── Final permissions ──────────────────────────────────────────────────────────
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 storage bootstrap/cache
+# ── Final cleanup ──────────────────────────────────────────────────────────────
+# We removed the RUN chown -R /var/www/html because it was timing out.
+# All files are already owned by www-data thanks to COPY --chown and specific RUN chowns above.
 
 EXPOSE 80
 
