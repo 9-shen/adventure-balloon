@@ -1,11 +1,33 @@
+# ─── Stage 0: Composer Dependencies ─────────────────────────────────────────────
+# Run composer first so vendor/ is available to Vite in the builder stage.
+# (Filament theme CSS has @import paths that resolve through vendor/)
+FROM composer:2 AS deps
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+RUN composer install \
+        --no-dev \
+        --no-scripts \
+        --no-interaction \
+        --optimize-autoloader \
+        --prefer-dist \
+        --ignore-platform-reqs \
+        --no-security-blocking
+
 # ─── Stage 1: Node/Vite Asset Build ────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY . .
+# Copy vendor from composer stage so Vite can resolve Filament @import paths
+# e.g. @import '../../../../vendor/filament/filament/resources/css/theme.css'
+COPY --from=deps /app/vendor ./vendor
+
 RUN npm run build
 
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
@@ -47,7 +69,6 @@ RUN cp .env.example .env && \
     rm .env
 
 # ── Config files ────────────────────────────────────────────────────────────────
-# serversideup uses Debian-style paths (sites-enabled) + system php-fpm path
 COPY docker/nginx.conf       /etc/nginx/sites-enabled/default
 COPY docker/php.ini          /etc/php/8.2/fpm/conf.d/99-custom.ini
 COPY docker/php.ini          /etc/php/8.2/cli/conf.d/99-custom.ini
