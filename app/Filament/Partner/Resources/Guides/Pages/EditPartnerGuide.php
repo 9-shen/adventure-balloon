@@ -12,7 +12,7 @@ class EditPartnerGuide extends EditRecord
 
     protected function getHeaderActions(): array
     {
-        return [DeleteAction::make()];
+        return [];
     }
 
     protected function getRedirectUrl(): string

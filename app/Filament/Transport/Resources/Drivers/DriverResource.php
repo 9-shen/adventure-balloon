@@ -145,7 +145,6 @@ class DriverResource extends Resource
             ])
             ->actions([
                 \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
             ])
             ->filters([
                 TernaryFilter::make('is_active')->label('Active Only'),
