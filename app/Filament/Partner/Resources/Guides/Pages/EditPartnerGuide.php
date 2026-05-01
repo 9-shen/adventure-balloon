@@ -3,7 +3,7 @@
 namespace App\Filament\Partner\Resources\Guides\Pages;
 
 use App\Filament\Partner\Resources\Guides\PartnerGuideResource;
-use Filament\Actions\DeleteAction;
+
 use Filament\Resources\Pages\EditRecord;
 
 class EditPartnerGuide extends EditRecord
