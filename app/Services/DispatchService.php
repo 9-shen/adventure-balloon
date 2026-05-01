@@ -589,4 +589,124 @@ class DispatchService
 
         return $results;
     }
+
+    // ─── WhatsApp Web (wa.me) Links ────────────────────────────────────────────
+
+    /**
+     * Build wa.me deep-link URLs for each assigned driver so the admin can
+     * send the dispatch notification via WhatsApp Web (no Twilio required).
+     *
+     * Returns: [['name' => string, 'phone' => string, 'url' => string], ...]
+     * Drivers without a phone number are omitted.
+     */
+    public function buildWhatsAppWebUrls(Dispatch $dispatch): array
+    {
+        $dispatch->load([
+            'dispatchDriverRows.driver',
+            'dispatchDriverRows.vehicle',
+            'booking.customers',
+            'booking.partner',
+        ]);
+
+        /** @var AppSettings $app */
+        $app     = app(AppSettings::class);
+        $booking = $dispatch->booking;
+
+        // ── Shared message parts ──────────────────────────────────────────────
+        $flightDate = $dispatch->flight_date
+            ? Carbon::parse($dispatch->flight_date)->format('d/m/Y')
+            : ($booking?->flight_date?->format('d/m/Y') ?? 'TBC');
+
+        $pickupTime = $dispatch->pickup_time
+            ? substr($dispatch->pickup_time, 0, 5)
+            : 'TBC';
+
+        $pickupLoc  = $dispatch->pickup_location  ?? 'TBC';
+        $dropoffLoc = $dispatch->dropoff_location ?? 'TBC';
+
+        $primaryPax = null;
+        if ($booking) {
+            $primaryPax = $booking->customers->firstWhere('is_primary', true)
+                       ?? $booking->customers->first();
+        }
+        $paxContact = $primaryPax
+            ? "{$primaryPax->full_name}" . ($primaryPax->phone ? " — {$primaryPax->phone}" : '')
+            : 'Not specified';
+
+        $customerLines = '';
+        if ($booking && $booking->customers->isNotEmpty()) {
+            $customerLines = "\n";
+            foreach ($booking->customers as $c) {
+                $tag = $c->is_primary ? ' ⭐' : '';
+                $customerLines .= "  • {$c->full_name} ({$c->type}){$tag}";
+                if ($c->phone) $customerLines .= " — {$c->phone}";
+                $customerLines .= "\n";
+            }
+        }
+
+        $links = [];
+
+        foreach ($dispatch->dispatchDriverRows as $row) {
+            $driver = $row->driver;
+
+            if (! $driver || ! $driver->phone) {
+                continue; // Skip drivers without a phone number
+            }
+
+            // ── Build message (identical template to notifyAllDrivers) ─────────
+            $vehicle     = $row->vehicle;
+            $vehicleInfo = $vehicle
+                ? "{$vehicle->make} {$vehicle->model} — Plate: {$vehicle->plate_number}"
+                : 'TBC';
+
+            $messageLines = [
+                "🚐 *{$app->company_name} — Dispatch Assignment*",
+                "",
+                "Hello {$driver->name},",
+                "You have been assigned to a dispatch. Please review the details below.",
+                "",
+                "📋 *References*",
+                "  Dispatch Ref : {$dispatch->dispatch_ref}",
+                "  Booking Ref  : " . ($booking?->booking_ref ?? 'N/A'),
+                "",
+                "📅 *Schedule*",
+                "  Date         : {$flightDate}",
+                "  Pickup Time  : {$pickupTime}",
+                "  Pickup       : {$pickupLoc}",
+                "  Dropoff      : {$dropoffLoc}",
+                "",
+                "👥 *Passengers ({$row->pax_assigned} assigned to you)*",
+                "  Total PAX    : " . ($booking?->getTotalPax() ?? '?'),
+                "  Primary CTX  : {$paxContact}",
+                $customerLines,
+                "🚗 *Your Vehicle*",
+                "  {$vehicleInfo}",
+                "",
+            ];
+
+            if ($booking && $booking->pickup_map_link) {
+                $messageLines[] = "📍 *Pickup Map Link*:";
+                $messageLines[] = $booking->pickup_map_link;
+                $messageLines[] = "";
+            }
+
+            $messageLines[] = "Please be punctual. Contact us if you have any issues.";
+            $messageLines[] = "— {$app->company_name} Operations";
+
+            $message = implode("\n", $messageLines);
+
+            // ── Build wa.me URL ───────────────────────────────────────────────
+            // wa.me requires E.164 without the leading '+'
+            $rawPhone  = $driver->phone;
+            $waPhone   = str_starts_with($rawPhone, '+') ? ltrim($rawPhone, '+') : $rawPhone;
+
+            $links[] = [
+                'name'  => $driver->name,
+                'phone' => $driver->phone,
+                'url'   => 'https://wa.me/' . $waPhone . '?text=' . rawurlencode($message),
+            ];
+        }
+
+        return $links;
+    }
 }
