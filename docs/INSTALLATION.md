@@ -8,6 +8,9 @@
 
 - [Local Development Setup](#-local-development-setup)
 - [Production Deployment — Contabo VPS + Coolify](#-production-deployment--contabo-vps--coolify)
+- [Docker Architecture](#-docker-architecture)
+- [Troubleshooting](#-troubleshooting)
+- [Tech Stack Reference](#-tech-stack-reference)
 
 ---
 
@@ -19,9 +22,9 @@ Make sure the following are installed on your machine **before** you begin:
 
 | Requirement | Version | Download |
 |---|---|---|
-| **PHP** | `^8.3` | https://www.php.net/downloads |
+| **PHP** | `^8.2` | https://www.php.net/downloads |
 | **Composer** | Latest | https://getcomposer.org/download |
-| **Node.js & npm** | LTS (v22+) | https://nodejs.org |
+| **Node.js & npm** | LTS (v20+) | https://nodejs.org |
 | **MySQL** | 8.0+ | https://dev.mysql.com/downloads |
 | **Git** | Latest | https://git-scm.com/downloads |
 
@@ -70,8 +73,10 @@ composer install
 ## 3️⃣ Install Node Dependencies
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
+
+> ⚠️ Use `--legacy-peer-deps` — Filament 4 has peer dependency conflicts with some npm packages that require this flag.
 
 ---
 
@@ -215,7 +220,7 @@ This starts **4 processes** concurrently:
 
 # ☁️ Production Deployment — Contabo VPS + Coolify
 
-This section covers deploying the application on a **Contabo VPS** managed by **Coolify**, using Docker (multi-stage build).
+This section covers deploying the application on a **Contabo VPS** managed by **Coolify**, using a 3-stage Docker build.
 
 ## 📋 Prerequisites
 
@@ -223,11 +228,13 @@ Before you start, make sure you have:
 
 | Requirement | Details |
 |---|---|
-| **Contabo VPS** | Ubuntu 24.04 LTS (recommended) |
+| **Contabo VPS** | Ubuntu 24.04 LTS (recommended), minimum 4 vCPU / 8 GB RAM |
 | **Coolify** | v4.x installed on the VPS |
 | **Domain** | DNS A record pointing to VPS IP |
 | **GitHub repo** | `9-shen/adventure-balloon` (private or public) |
 | **GitHub Token** | Personal Access Token with `repo` scope |
+
+> ⚠️ **VPS Resource Warning:** The Docker build compiles several PHP extensions from source (`gd`, `intl`, `mbstring`, `redis`). On a low-resource VPS this can take 10–20 minutes. If your VPS CPU load exceeds 500% during the build, the build will timeout. See [Build Timeout](#build-times-out) in the troubleshooting section.
 
 ---
 
@@ -363,7 +370,7 @@ MAIL_FROM_NAME="Adventure Balloon"
 FILESYSTEM_DISK=local
 ```
 
-> **Note:** All environment variables set in Coolify are injected at **runtime** into the container. The `APP_KEY` is the only one needed at build time (a temporary key is used during the Docker build, the real one is injected at runtime).
+> **Note:** All environment variables set in Coolify are injected at **runtime** into the container. The `APP_KEY` is the only one needed at build time — a temporary dummy key is baked into the image during `docker build`, and the real key is injected by Coolify at container start via `start.sh`.
 
 ---
 
@@ -391,19 +398,22 @@ Copy the output (e.g., `base64:abc123...==`) and paste it as the `APP_KEY` envir
 ## Step 8 — Deploy
 
 1. Click **Deploy** in the Coolify application dashboard
-2. Monitor the **Build Logs** — the full build takes approximately **4–6 minutes**:
-   - Stage 0: Composer dependencies (~60s)
-   - Stage 1: Vite/npm build (~3 min)
-   - Stage 2: PHP Debian image + extensions (~60s)
+2. Monitor the **Build Logs** — the full build takes approximately **15–25 minutes** on first deploy:
+   - Stage 0: Composer dependencies (`composer:2` image, ~60s)
+   - Stage 1: Vite/npm build (`node:20-alpine`, ~3 min) — includes copying vendor for Filament CSS
+   - Stage 2: PHP runtime + extension compilation (`php:8.2-fpm-alpine`, **10–20 min** — see note below)
 3. Once deployed, the **container startup** runs `start.sh` which:
-   - Creates storage directories
+   - Creates/fixes storage directory permissions (`chmod 777`)
    - Clears stale caches
-   - Runs `php artisan migrate --force`
-   - Runs `php artisan db:seed --force`
+   - Runs `php artisan package:discover` (non-fatal)
+   - Runs `php artisan migrate --force` (non-fatal — warns if fails)
+   - Runs `php artisan db:seed --force` (non-fatal)
    - Links public storage
    - Publishes Filament/Livewire assets
-   - Caches config and views
-   - Starts Nginx + PHP 8.3-FPM via Supervisor
+   - Caches config and views (skips route cache — see below)
+   - Starts Nginx + PHP-FPM + Queue Worker + Scheduler via Supervisor
+
+> ⚠️ **Why extension compilation takes time:** The `php:8.2-fpm-alpine` image compiles `pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache redis` from C source. This uses significant CPU. On subsequent deploys, Docker layer cache avoids re-running this if no Dockerfile changes were made.
 
 ---
 
@@ -431,9 +441,10 @@ Login with the seeded super admin credentials:
 
 - [ ] Change default `admin@booklix.com` password
 - [ ] Configure SMTP settings in **Admin → Settings → Email**
-- [ ] Configure WhatsApp/notification settings if applicable
+- [ ] Configure Twilio/WhatsApp settings in **Admin → Settings → WhatsApp** (for driver notifications)
 - [ ] Set up a custom domain and verify SSL is active (🔒 padlock in browser)
 - [ ] Enable Coolify's **Auto-deploy on push** (webhook) for future deploys
+- [ ] Add a Coolify **Volume** for `/var/www/html/storage/app/public` to persist uploads across redeploys
 - [ ] (Optional) Set up automated backups — see `docs/phases/phase-27-minio-backup.md`
 
 ---
@@ -448,35 +459,120 @@ Every time you push to the `main` branch, Coolify can automatically redeploy. To
 
 Manual redeploy is also available with one click from the Coolify dashboard.
 
+> **Build cache:** If your `Dockerfile` itself hasn't changed, Docker's layer cache will skip the extension compilation step (~10–20 min saved). Only changes to `Dockerfile`, `composer.json`, or `package.json` invalidate those stages.
+
 ---
 
-## 🛠️ Troubleshooting — Production
+# 🐳 Docker Architecture
 
-### Container fails to start
+Understanding the Docker setup helps when debugging builds.
 
-Check the **Runtime Logs** in Coolify (not the build logs). Common causes:
+## 3-Stage Build
 
-- `APP_KEY` is missing or malformed → regenerate and redeploy
-- `DB_HOST` unreachable → verify the MySQL service name matches exactly
-- `REDIS_HOST` unreachable → verify the Redis service is running
+```
+Stage 0 (deps)       Stage 1 (builder)        Stage 2 (production)
+──────────────       ─────────────────        ────────────────────
+composer:2           node:20-alpine           php:8.2-fpm-alpine
 
-### Build times out (>30 min)
+composer install     npm ci                   apk install libs
+--ignore-platform    npm run build            docker-php-ext-install
+                                              pecl install redis
+COPY → vendor/  ──→  COPY vendor/ (Filament)
+                     COPY → public/build/ ──→ COPY public/build/
+                                              COPY vendor/ ←──────
+```
 
-Ensure the `Dockerfile` uses `ubuntu:24.04` and installs PHP via `apt-get`, **not** source compilation. 
-- **Alpine images** (`php:fpm-alpine`) compile from source and can take 30+ minutes on slow VPS.
-- **Ubuntu images** use pre-built binaries and take ~15 seconds to install extensions.
-- **Contabo Tip:** If the build still times out, check "Server Resources" in Coolify. Contabo I/O can be very slow; our `Dockerfile` is optimized with `--chown` to avoid slow recursive permission changes.
+### Why `--ignore-platform-reqs` in Stage 0?
+The `composer:2` image has PHP 8.x but may not have the exact extensions your `composer.json` requires (`ext-intl`, `ext-gd`, etc.). The flag lets composer install packages without checking extension requirements. Extensions are compiled in Stage 2 where they actually matter.
+
+### Why vendor is copied into Stage 1 (the Node stage)?
+Filament 4 uses a CSS import like:
+```css
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+```
+Vite resolves this at build time. Without `vendor/` in the Node stage, the Vite build **fails** with a "can't resolve" error.
+
+### Why `fastcgi_pass 127.0.0.1:9000` in nginx.conf?
+Alpine's `php-fpm` listens on TCP port 9000 by default, **not** a Unix socket. Using `fastcgi_pass unix:/var/run/php-fpm.sock` will cause a 502 Bad Gateway on Alpine. Always use TCP for Alpine-based images.
+
+### Why is `route:cache` skipped?
+Filament and Livewire register routes dynamically inside service providers at runtime. Running `php artisan route:cache` bakes a static snapshot that **misses these dynamic routes**, causing "Unable to find component" errors and broken panel navigation.
+
+### Why `set -e` is removed from start.sh?
+With `set -e`, any non-zero exit code (even a warning from `migrate` or `package:discover`) would kill the startup script before Supervisor is launched — meaning no web server starts at all. Errors are logged as warnings but don't stop the container from starting.
+
+### Supervisor processes
+
+| Process | Command | Purpose |
+|---|---|---|
+| `php-fpm` | `php-fpm` | PHP request handler |
+| `nginx` | `nginx -g "daemon off;"` | Web server |
+| `queue-worker` | `php artisan queue:work --queue=notifications,default` | Processes WhatsApp/email jobs |
+| `scheduler` | `while true; do php artisan schedule:run; sleep 60; done` | Runs Laravel scheduled tasks every minute |
+
+---
+
+# 🛠️ Troubleshooting
+
+## Production Issues
+
+### Build times out (>30 min or CPU overloaded)
+
+**Symptom:** Coolify build log hangs at extension compilation. VPS CPU load reaches 400–800%.
+
+**Root causes and fixes:**
+
+| Approach | Pros | Cons |
+|---|---|---|
+| `php:8.2-fpm-alpine` (current) | Small image, free | Compiles from source — slow on first build |
+| `serversideup/php:8.2-fpm-nginx` | Pre-built extensions, fast | Uses `apt-get` not `docker-php-ext-install` — different install method |
+| Ubuntu-based image | Fast `apt` installs | Larger image (~500 MB vs ~200 MB) |
+
+**If using Alpine and it times out:**
+- Check Docker layer cache is working (only re-runs if Dockerfile changed)
+- Temporarily upgrade VPS plan for the first build
+- Consider switching to `serversideup/php:8.2-fpm-nginx` and adding missing extensions via `apt-get install libicu-dev libgd-dev && docker-php-ext-install intl gd`
+
+> ⚠️ When using `serversideup`, do NOT use `apt-get install php8.2-intl` — it installs a conflicting system PHP. Use `docker-php-ext-install intl` instead after installing the dev libraries.
+
+### Vite build fails: "can't resolve vendor/filament/.../theme.css"
+
+**Cause:** The Node stage doesn't have the `vendor/` directory. Filament's CSS imports require it at build time.
+
+**Fix:** Make sure the Dockerfile has:
+```dockerfile
+COPY --from=deps /app/vendor ./vendor
+```
+in Stage 1 (the node stage), **before** `RUN npm run build`.
+
+### Container starts but app shows 502 Bad Gateway
+
+**Cause:** Nginx cannot reach PHP-FPM. Common on Alpine images.
+
+**Fix:** Ensure `nginx.conf` uses TCP, not a socket:
+```nginx
+fastcgi_pass 127.0.0.1:9000;   ✅ correct for Alpine
+# fastcgi_pass unix:/run/php-fpm.sock;  ❌ wrong for Alpine
+```
+
+### Container starts but immediately crashes / no logs
+
+**Cause:** `set -e` in `start.sh` killed the script before Supervisor launched (e.g., a `migrate` warning was treated as a fatal error).
+
+**Fix:** `start.sh` must NOT have `set -e`. Use `|| true` or `|| echo "warning"` for non-fatal commands.
 
 ### "Unable to find component" / Livewire Errors
 
-- Ensure you are NOT running `php artisan route:cache` in production. Filament and Livewire register routes dynamically.
-- Check that `docker/start.sh` is correctly skipping route caching.
+- Ensure you are NOT running `php artisan route:cache` in production
+- Verify `start.sh` is skipping route cache (step 10)
+- Run `php artisan package:discover --ansi` if components are newly added
 
 ### Migrations fail on first deploy
 
-The `start.sh` script runs migrations automatically on every container start (`--force`). If they fail, check:
-1. `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` are all correctly set
-2. The MySQL service is running in Coolify
+The `start.sh` script runs migrations automatically on every container start. If they fail:
+1. Check `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` in Coolify env vars
+2. Verify the MySQL service is running and healthy in Coolify
+3. Check that `DB_HOST` exactly matches the internal hostname shown in the MySQL service settings
 
 ### Files / uploads not persisting between deploys
 
@@ -485,9 +581,19 @@ By default, `storage/app/public` lives inside the container and is wiped on each
 1. In Coolify, add a **Volume** mount: `/var/www/html/storage/app/public` → a named volume
 2. Or use an S3-compatible storage (MinIO) — see `docs/phases/phase-27-minio-backup.md`
 
+### Storage permission errors (`chmod: Operation not permitted`)
+
+**Fix in start.sh** — use `chmod 777` before `chown`, and run them separately:
+```sh
+chmod -R 777 /var/www/html/storage
+chmod -R 777 /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
+```
+
 ---
 
-## 🛠️ Troubleshooting — Local Development
+## Local Development Issues
 
 ### `rename(...): Access is denied` (Windows)
 
@@ -513,6 +619,14 @@ composer dump-autoload
 php artisan optimize:clear
 ```
 
+### npm install fails with peer dependency errors
+
+```bash
+npm install --legacy-peer-deps
+```
+
+Filament 4 requires this flag due to peer dependency conflicts in its npm packages.
+
 ### Migrations fail with `Table already exists`
 
 Your database has stale tables. Either drop and recreate the database, or run:
@@ -527,7 +641,7 @@ Make sure you ran `php artisan storage:link`. Check that `storage/app/public` is
 
 ---
 
-## 📦 Tech Stack Reference
+# 📦 Tech Stack Reference
 
 | Layer | Technology |
 |---|---|
@@ -542,9 +656,10 @@ Make sure you ran `php artisan storage:link`. Check that `storage/app/public` is
 | Frontend | Vite + Tailwind (via Filament) |
 | Queue | Redis (production) / Database (local) |
 | Cache/Session | Redis (production) / Database (local) |
-| Web Server | Nginx + PHP-FPM (Docker, Supervisor) |
-| Container | Docker multi-stage build |
+| Web Server | Nginx + PHP-FPM (Alpine, via Supervisor) |
+| Container | Docker 3-stage build (composer → node → php-alpine) |
 | Hosting | Contabo VPS + Coolify |
+| Notifications | Twilio (WhatsApp API) + WhatsApp Web (wa.me links) |
 
 ---
 
@@ -569,10 +684,10 @@ booklix-app/
 │   ├── migrations/         ← All DB migrations
 │   └── seeders/            ← Role/permission + demo data seeders
 ├── docker/
-│   ├── nginx.conf          ← Nginx server block
+│   ├── nginx.conf          ← Nginx server block (TCP fastcgi 127.0.0.1:9000)
 │   ├── php.ini             ← PHP runtime config
-│   ├── supervisord.conf    ← Supervisor config (nginx + php-fpm)
-│   └── start.sh            ← Container bootstrap script
+│   ├── supervisord.conf    ← Supervisor (nginx + php-fpm + queue + scheduler)
+│   └── start.sh            ← Container bootstrap (no set -e, non-fatal errors)
 ├── docs/                   ← Project documentation & phase specs
 └── storage/
     └── app/public/         ← Uploaded files (symlinked to public/storage)
@@ -580,4 +695,4 @@ booklix-app/
 
 ---
 
-*Last updated: April 2026 — Adventure Balloon v1.0 (Phase 28)*
+*Last updated: May 2026 — Adventure Balloon v1.0 (Phase 28+)*
