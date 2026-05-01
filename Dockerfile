@@ -30,42 +30,23 @@ COPY --from=deps /app/vendor ./vendor
 RUN npm run build
 
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
-# Using Ubuntu 24.04 so PHP 8.3 and all extensions install as pre-built .deb packages
-# This COMPLETELY bypasses compilation from C source — cuts build time from ~30min to ~15 seconds.
-# cache-bust: 2026-04-30-v3-ubuntu
-FROM ubuntu:24.04 AS production
+FROM php:8.2-fpm-alpine AS production
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=UTC
+# ── System dependencies & PHP extensions ────────────────────────────────────────
+RUN apk add --no-cache \
+    nginx supervisor curl \
+    libpng-dev libjpeg-turbo-dev freetype-dev \
+    libzip-dev oniguruma-dev icu-dev \
+    zlib zlib-dev git unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+        pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
 
-# Force cache invalidation — remove this label after first successful build
-LABEL org.opencontainers.image.revision="ubuntu-fix-v4"
-
-# ── System dependencies & PHP 8.3 ───────────────────────────────────────────────
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    nginx \
-    supervisor \
-    curl \
-    git \
-    unzip \
-    ca-certificates \
-    php8.3-fpm \
-    php8.3-cli \
-    php8.3-mysql \
-    php8.3-mbstring \
-    php8.3-xml \
-    php8.3-bcmath \
-    php8.3-gd \
-    php8.3-zip \
-    php8.3-intl \
-    php8.3-curl \
-    php8.3-redis \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Create directory for PHP-FPM socket
-RUN mkdir -p /run/php && chown -R www-data:www-data /run/php
+# ── Redis extension (requires pecl) ─────────────────────────────────────────────
+RUN apk add --no-cache $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del $PHPIZE_DEPS
 
 # ── Composer ────────────────────────────────────────────────────────────────────
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -78,7 +59,6 @@ COPY --chown=www-data:www-data . .
 COPY --from=builder --chown=www-data:www-data /app/public/build ./public/build
 
 # ── Install PHP dependencies ────────────────────────────────────────────────────
-# Run composer as root; we will fix the vendor folder ownership in the next step.
 RUN composer install \
         --no-dev \
         --no-scripts \
@@ -87,15 +67,12 @@ RUN composer install \
         --prefer-dist
 
 # ── Storage & cache dirs ────────────────────────────────────────────────────────
-# Create them and ensure they are owned by www-data immediately.
 RUN mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
     storage/logs \
-    bootstrap/cache \
-    && chown -R www-data:www-data vendor storage bootstrap/cache \
-    && chmod -R 775 storage bootstrap/cache
+    bootstrap/cache
 
 # ── Package discover (requires a temporary .env with APP_KEY) ───────────────────
 RUN cp .env.example .env && \
@@ -103,18 +80,18 @@ RUN cp .env.example .env && \
     php artisan package:discover --ansi && \
     rm .env
 
-# ── Nginx config (Debian uses sites-enabled, not http.d) ───────────────────────
-RUN mkdir -p /etc/nginx/sites-enabled
-COPY docker/nginx.conf       /etc/nginx/sites-enabled/default
-COPY docker/php.ini          /etc/php/8.3/fpm/conf.d/99-custom.ini
-COPY docker/php.ini          /etc/php/8.3/cli/conf.d/99-custom.ini
+# ── Config files ────────────────────────────────────────────────────────────────
+# Alpine nginx uses http.d/, not sites-enabled/
+COPY docker/nginx.conf       /etc/nginx/http.d/default.conf
+COPY docker/php.ini          /usr/local/etc/php/conf.d/99-custom.ini
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/start.sh         /start.sh
 RUN chmod +x /start.sh
 
-# ── Final cleanup ──────────────────────────────────────────────────────────────
-# We removed the RUN chown -R /var/www/html because it was timing out.
-# All files are already owned by www-data thanks to COPY --chown and specific RUN chowns above.
+# ── Final permissions ────────────────────────────────────────────────────────────
+# Only touch what needs www-data — avoids timing out on vendor/ (40k+ files)
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
 
 EXPOSE 80
 
