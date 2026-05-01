@@ -8,7 +8,7 @@ use App\Filament\Partner\Resources\Guides\Pages\ListPartnerGuides;
 use App\Models\Guide;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
