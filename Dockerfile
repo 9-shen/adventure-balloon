@@ -43,6 +43,7 @@ USER root
 # Only 3 small extensions compile here (~1-2 min), not all of PHP.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libicu-dev \
+        libgd-dev \
         libpng-dev \
         libjpeg62-turbo-dev \
         libfreetype6-dev \
