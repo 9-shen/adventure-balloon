@@ -92,30 +92,6 @@ class EditDispatch extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Action::make('send_notifications')
-                ->label('Send Notifications')
-                ->icon('heroicon-o-bell')
-                ->color('warning')
-                ->requiresConfirmation()
-                ->modalHeading('Send Dispatch Notifications')
-                ->modalDescription(
-                    'This will email the transport company and notify all assigned drivers. Continue?'
-                )
-                ->action(function () {
-                    /** @var Dispatch $dispatch */
-                    $dispatch = $this->getRecord();
-                    $service  = app(DispatchService::class);
-
-                    $service->notifyTransporter($dispatch);
-                    $service->notifyDrivers($dispatch);
-
-                    Notification::make()
-                        ->title('Notifications Sent')
-                        ->body('Transporter and drivers have been notified.')
-                        ->success()
-                        ->send();
-                }),
-
             Action::make('update_status')
                 ->label('Update Status')
                 ->icon('heroicon-o-arrow-path')
