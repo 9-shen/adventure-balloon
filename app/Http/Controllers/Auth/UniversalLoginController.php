@@ -73,6 +73,7 @@ class UniversalLoginController extends Controller
             $user->hasAnyRole(['super_admin', 'admin']) => '/admin',
             $user->hasRole('manager')                   => '/manager',
             $user->hasRole('accountant')                => '/accountant',
+            $user->hasRole('dispatcher')                => '/dispatcher',
             $user->hasRole('greeter')                   => '/greeter',
             $user->hasRole('transport')                 => '/transport',
             $user->hasRole('driver')                    => '/driver',
