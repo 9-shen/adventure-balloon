@@ -37,12 +37,18 @@ FROM serversideup/php:8.2-fpm-nginx AS production
 
 USER root
 
-# ── Install missing PHP extensions (serversideup ships without intl/gd/exif) ───
-# serversideup is Debian-based — use apt + php8.2-* packages (no C compilation)
+# ── Install missing PHP extensions (intl, gd, exif) ────────────────────────────
+# serversideup uses compiled PHP (same as official php:8.2 Docker image).
+# Extensions must use docker-php-ext-install + dev libs — NOT apt php8.2-* packages.
+# Only 3 small extensions compile here (~1-2 min), not all of PHP.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        php8.2-intl \
-        php8.2-gd \
-        php8.2-exif \
+        libicu-dev \
+        libpng-dev \
+        libjpeg62-turbo-dev \
+        libfreetype6-dev \
+        libexif-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) intl gd exif \
     && rm -rf /var/lib/apt/lists/*
 
 # ── Composer ────────────────────────────────────────────────────────────────────
