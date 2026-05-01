@@ -100,7 +100,7 @@ class BookingEditForm
                                 ->columnSpan(1), // Takes 1 column (middle)
 
                             TextInput::make('dropoff_location')
-                                ->label('Drop-off Location (optional)')
+                                ->label('Drop-off Location')
                                 ->nullable()
                                 ->maxLength(255)
                                 ->placeholder('Leave empty if same as pick-up')
