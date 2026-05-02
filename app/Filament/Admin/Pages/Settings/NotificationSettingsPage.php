@@ -65,6 +65,10 @@ class NotificationSettingsPage extends Page implements HasForms
 
             // PAX Alerts
             'pax_alert_email'                    => $s->pax_alert_email,
+
+            // Finance
+            'invoice_issued_partner_email'           => $s->invoice_issued_partner_email,
+            'transport_bill_transport_company_email' => $s->transport_bill_transport_company_email,
         ]);
     }
 
@@ -173,6 +177,26 @@ class NotificationSettingsPage extends Page implements HasForms
                         ]),
                     ]),
 
+                // ── Finance Notifications ──────────────────────────────────────
+                Section::make('Finance Notifications')
+                    ->description('Sent to financial partners when invoices or bills are generated.')
+                    ->icon('heroicon-o-banknotes')
+                    ->schema([
+                        Grid::make(3)->schema([
+                            Toggle::make('invoice_issued_partner_email')
+                                ->label('Email Invoice to Partner')
+                                ->helperText('Auto-email invoices to the partner when generated or marked as sent.')
+                                ->onColor('success')
+                                ->offColor('danger'),
+
+                            Toggle::make('transport_bill_transport_company_email')
+                                ->label('Email Bill to Transport Company')
+                                ->helperText('Auto-email transport bills to the company when generated or marked as sent.')
+                                ->onColor('success')
+                                ->offColor('danger'),
+                        ]),
+                    ]),
+
             ])
             ->statePath('data');
     }
@@ -202,6 +226,8 @@ class NotificationSettingsPage extends Page implements HasForms
         $s->booking_cancelled_guide_email      = (bool) ($data['booking_cancelled_guide_email'] ?? false);
         $s->booking_cancelled_admin_email      = (bool) ($data['booking_cancelled_admin_email'] ?? false);
         $s->pax_alert_email                    = (bool) ($data['pax_alert_email'] ?? false);
+        $s->invoice_issued_partner_email       = (bool) ($data['invoice_issued_partner_email'] ?? false);
+        $s->transport_bill_transport_company_email = (bool) ($data['transport_bill_transport_company_email'] ?? false);
         $s->save();
 
         Notification::make()

@@ -29,9 +29,9 @@ The security audit identified **8 actionable issues** across 3 severity levels.
 | Severity | Count | Summary |
 |----------|-------|---------|
 | 🔴 HIGH   | 2     | Role boundary violations — wrong roles access `/admin`; admin can modify super_admin |
-| 🟠 MEDIUM | 5     | Mass-assignment risk, debug flag, email config gaps, dispatcher query scope, notification gaps |
+| 🟠 MEDIUM | 6     | Mass-assignment risk, debug flag, email config gaps, dispatcher query scope, notification gaps, finance notification standard |
 | 🟡 LOW    | 2     | Password strength, code robustness |
-| **Total** | **9** | |
+| **Total** | **10**| |
 
 > **Note:** The previous draft listed FIX-2 (remove accountant resources from AdminPanelProvider) and FIX-5 (duplicate resource registration) as issues. These have been **removed** — admin/super_admin having full financial oversight in `/admin` is correct and intentional. The only admin-level security rule is the super_admin protection in FIX-2 below.
 
@@ -449,6 +449,31 @@ TextInput::make('new_password')
 
 ---
 
+### 🟠 FIX-10 — Inconsistent Finance Notification Settings
+
+**Files:**
+- `app/Settings/NotificationSettings.php`
+- `app/Filament/Admin/Pages/Settings/NotificationSettingsPage.php`
+- `app/Services/InvoiceService.php`
+- `app/Services/TransportBillService.php`
+
+**Risk:** Financial communications (invoices sent to partners and bills sent to transport companies) lacked unified control. Invoices were hardcoded to auto-send on generation, while Transport Bills had no notification logic at all. This lack of standardization could cause partners to be spammed with draft invoices, and transport companies to miss their generated bills.
+
+**Current State (Finance Notification Gaps):**
+- **Partner Invoices:** Unconditionally emailed on generation/send. Cannot be toggled off.
+- **Transport Bills:** Never emailed. Manual external communication required.
+
+**Planned Fix:**
+1. **Update Settings:** Add `invoice_issued_partner_email` and `transport_bill_transport_company_email` toggles.
+2. **Update InvoiceService:** Wrap the `InvoiceIssuedNotification` dispatch in a settings check.
+3. **Update TransportBillService:** Create `TransportBillIssuedNotification` and dispatch it on generation/send if the toggle is enabled.
+
+**Files to change:** `NotificationSettings.php`, `NotificationSettingsPage.php`, `InvoiceService.php`, `TransportBillService.php`, and `TransportBillIssuedNotification.php`.  
+**Risk of change:** Low.  
+**Testing:** Generate a transport bill and verify the transport company receives the email.
+
+---
+
 ## Implementation Order
 
 ```
@@ -475,6 +500,9 @@ Step 7: FIX-4           →  Add production debug guard to AppServiceProvider
 
 Step 8: FIX-9           →  Add Guide and Admin missing email notifications
          Files: NotificationSettings.php, EditBooking.php, Notification classes
+
+Step 9: FIX-10          →  Standardize Finance email notifications (Invoices & Bills)
+         Files: NotificationSettings.php, NotificationSettingsPage.php, InvoiceService.php, TransportBillService.php
 ```
 
 ---
@@ -498,11 +526,13 @@ Step 8: FIX-9           →  Add Guide and Admin missing email notifications
 | `app/Filament/Greeter/Pages/Profile.php` | FIX-7 | Validation rule |
 | `app/Filament/Dispatcher/Pages/Profile.php` | FIX-7 | Validation rule |
 | `app/Providers/AppServiceProvider.php` | FIX-4 | Add production debug guard log |
-| `app/Settings/NotificationSettings.php` | FIX-9 | Add guide/admin toggles |
-| `app/Filament/Admin/Pages/Settings/NotificationSettingsPage.php` | FIX-9 | Add guide/admin toggles |
+| `app/Settings/NotificationSettings.php` | FIX-9, 10 | Add toggles |
+| `app/Filament/Admin/Pages/Settings/NotificationSettingsPage.php` | FIX-9, 10 | Add toggles UI |
 | `app/Filament/Admin/Resources/Bookings/Pages/EditBooking.php` | FIX-9 | Add guide/admin trigger logic |
+| `app/Services/InvoiceService.php` | FIX-10 | Wrap notification in toggle check |
+| `app/Services/TransportBillService.php` | FIX-10 | Add bill notification logic |
 
-**Total: 18 files** across 8 steps.
+**Total: 20 files** across 9 steps.
 
 ---
 

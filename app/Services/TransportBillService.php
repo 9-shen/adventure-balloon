@@ -6,9 +6,12 @@ use App\Models\TransportBill;
 use App\Models\TransportBillItem;
 use App\Models\TransportCompany;
 use App\Models\Dispatch;
+use App\Notifications\TransportBillIssuedNotification;
+use App\Settings\NotificationSettings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TransportBillService
 {
@@ -92,7 +95,24 @@ class TransportBillService
                 'balance_due'  => $totalAmount,
             ]);
 
-            return $bill->fresh();
+            $bill = $bill->fresh(['transportCompany', 'items.dispatch']);
+
+            // ── Email bill to transport company ───────────────────────────────────────
+            $ns = app(NotificationSettings::class);
+            if ($ns->transport_bill_transport_company_email && $bill->transportCompany?->email) {
+                try {
+                    $pdfContent = $this->generatePdf($bill)->output();
+                    $bill->transportCompany->notify(
+                        new TransportBillIssuedNotification($bill, $pdfContent)
+                    );
+                } catch (\Exception $e) {
+                    Log::error("TransportBillService: failed to email transport company [{$bill->bill_ref}]: " . $e->getMessage());
+                }
+            } else {
+                Log::warning("TransportBillService: transport company has no email or toggle is disabled, skipping notification [{$bill->bill_ref}]");
+            }
+
+            return $bill;
         });
     }
 
@@ -123,6 +143,22 @@ class TransportBillService
             'status'  => 'sent',
             'sent_at' => now(),
         ]);
+
+        // ── Re-send bill email to transport company when manually marked as sent ───
+        $bill->loadMissing(['transportCompany', 'items.dispatch', 'createdBy']);
+        
+        $ns = app(NotificationSettings::class);
+
+        if ($ns->transport_bill_transport_company_email && $bill->transportCompany?->email) {
+            try {
+                $pdfContent = $this->generatePdf($bill)->output();
+                $bill->transportCompany->notify(
+                    new TransportBillIssuedNotification($bill, $pdfContent, isResend: true)
+                );
+            } catch (\Exception $e) {
+                Log::error("TransportBillService: failed to re-send bill email [{$bill->bill_ref}]: " . $e->getMessage());
+            }
+        }
 
         return $bill->fresh();
     }

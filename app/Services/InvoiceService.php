@@ -10,6 +10,7 @@ use App\Notifications\InvoiceIssuedNotification;
 use App\Settings\AppSettings;
 use App\Settings\BankSettings;
 use App\Settings\LegalSettings;
+use App\Settings\NotificationSettings;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -81,7 +82,8 @@ class InvoiceService
         $invoice = $invoice->fresh(['partner', 'items.booking', 'items.booking.product']);
 
         // ── Email invoice to partner ───────────────────────────────────────
-        if ($invoice->partner?->email) {
+        $ns = app(NotificationSettings::class);
+        if ($ns->invoice_issued_partner_email && $invoice->partner?->email) {
             try {
                 $pdfContent = $this->generatePdf($invoice);
                 $invoice->partner->notify(
@@ -140,8 +142,10 @@ class InvoiceService
 
         // ── Re-send invoice email to partner when manually marked as sent ───
         $invoice->loadMissing(['partner', 'items.booking.product', 'createdBy']);
+        
+        $ns = app(NotificationSettings::class);
 
-        if ($invoice->partner?->email) {
+        if ($ns->invoice_issued_partner_email && $invoice->partner?->email) {
             try {
                 $pdfContent = $this->generatePdf($invoice);
                 $invoice->partner->notify(

@@ -30,6 +30,10 @@ class NotificationSettings extends Settings
     // ── PAX Capacity Alerts ─────────────────────────────────────────────────
     public bool $pax_alert_email;             // Email to admin
 
+    // ── Finance Notifications ───────────────────────────────────────────────
+    public bool $invoice_issued_partner_email;               // Email to partner when invoice is generated
+    public bool $transport_bill_transport_company_email;     // Email to transport company when bill is generated
+
     public static function group(): string
     {
         return 'notifications';
