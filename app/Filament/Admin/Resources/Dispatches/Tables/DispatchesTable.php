@@ -7,10 +7,15 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\ForceDeleteBulkAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 
@@ -85,6 +90,8 @@ class DispatchesTable
                     ->label('Transport Company')
                     ->options(TransportCompany::where('is_active', true)->pluck('company_name', 'id'))
                     ->searchable(),
+
+                TrashedFilter::make(),
             ])
             ->actions([
                 ViewAction::make(),
@@ -95,10 +102,34 @@ class DispatchesTable
                         $user = Auth::user();
                         return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
                     }),
+                RestoreAction::make()
+                    ->visible(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                    }),
+                ForceDeleteAction::make()
+                    ->visible(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                    }),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
+                        ->visible(function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                        }),
+                    RestoreBulkAction::make()
+                        ->visible(function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                        }),
+                    ForceDeleteBulkAction::make()
                         ->visible(function () {
                             /** @var \App\Models\User|null $user */
                             $user = Auth::user();
