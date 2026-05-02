@@ -791,22 +791,18 @@ supervisorctl restart queue-worker      # Restart queue worker
 | 23 | Guide Portal | ✅ Complete |
 | 24 | Booking Calendar | ✅ Complete |
 | 25 | Finance Reporting Optimization | ✅ Complete |
-| 26 | Notification System Overhaul | 🔶 Partial (26-A done) |
-| 27 | MinIO Backup System | 🔲 In Planning |
+| 26 | Notification System Overhaul | ✅ Complete |
+| 27 | Security Hardening & Isolation | ✅ Complete |
 | 28 | Dispatcher Portal | ✅ Complete |
+| 29 | MinIO Backup System | 🔲 In Planning |
 
 ### Next Up
 
-**Phase 26 (remaining sub-phases):**
-- `26-B` — Unified driver WhatsApp (single send from dispatch page)
-- `26-C` — Booking cancellation notification → partner
-- `26-D` — PAX capacity alert notification → admin
-
-**Phase 27:**
+**Phase 29 (MinIO Backup System):**
 - MinIO S3-compatible self-hosted backup via `spatie/laravel-backup`
 - Architecture: VPS (Coolify/Contabo) → Docker MinIO → Tailscale transfer
 
-**Phase 21 (remaining):**
+**Phase 21 (remaining polish):**
 - Activity log viewer (Spatie)
 - Global search across bookings
 - Bulk confirm/cancel/export operations
