@@ -445,7 +445,7 @@ Login with the seeded super admin credentials:
 - [ ] Set up a custom domain and verify SSL is active (🔒 padlock in browser)
 - [ ] Enable Coolify's **Auto-deploy on push** (webhook) for future deploys
 - [ ] Add a Coolify **Volume** for `/var/www/html/storage/app/public` to persist uploads across redeploys
-- [ ] (Optional) Set up automated backups — see `docs/phases/phase-29-minio-backup.md`
+- [ ] (Optional) Set up automated backups — see `docs/phases/phase-27-minio-backup.md`
 
 ---
 
@@ -579,7 +579,7 @@ The `start.sh` script runs migrations automatically on every container start. If
 By default, `storage/app/public` lives inside the container and is wiped on each redeploy. To persist uploads:
 
 1. In Coolify, add a **Volume** mount: `/var/www/html/storage/app/public` → a named volume
-2. Or use an S3-compatible storage (MinIO) — see `docs/phases/phase-29-minio-backup.md`
+2. Or use an S3-compatible storage (MinIO) — see `docs/phases/phase-27-minio-backup.md`
 
 ### Storage permission errors (`chmod: Operation not permitted`)
 
