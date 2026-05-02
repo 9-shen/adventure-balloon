@@ -13,11 +13,11 @@
 3. [Architecture at a Glance](#3-architecture-at-a-glance)
 4. [Portal Map — Who Goes Where](#4-portal-map--who-goes-where)
 5. [Business Workflows](#5-business-workflows)
-   - [Booking Lifecycle (Regular)](#51-booking-lifecycle-regular)
-   - [Booking Lifecycle (Partner)](#52-booking-lifecycle-partner)
-   - [Dispatch Workflow](#53-dispatch-workflow)
-   - [Invoice Workflow](#54-invoice-workflow)
-   - [Payment Workflow](#55-payment-workflow)
+    - [Booking Lifecycle (Regular)](#51-booking-lifecycle-regular)
+    - [Booking Lifecycle (Partner)](#52-booking-lifecycle-partner)
+    - [Dispatch Workflow](#53-dispatch-workflow)
+    - [Invoice Workflow](#54-invoice-workflow)
+    - [Payment Workflow](#55-payment-workflow)
 6. [Code Conventions & Patterns](#6-code-conventions--patterns)
 7. [Adding a New Feature — Step-by-Step](#7-adding-a-new-feature--step-by-step)
 8. [Adding a New Role / Portal](#8-adding-a-new-role--portal)
@@ -33,12 +33,12 @@
 
 **Adventure Balloon** is a full-featured business operations platform for a Hot Air Balloon company. It manages:
 
-| Domain | Description |
-|--------|-------------|
-| **CRM** | Partner accounts, KYC data, customer records |
-| **Bookings** | Regular (admin-created) and Partner (self-service) booking streams |
-| **Dispatch** | Driver/vehicle assignment with email + WhatsApp notifications |
-| **Finance** | Payment tracking, invoicing (PDF), transport billing |
+| Domain         | Description                                                            |
+| -------------- | ---------------------------------------------------------------------- |
+| **CRM**        | Partner accounts, KYC data, customer records                           |
+| **Bookings**   | Regular (admin-created) and Partner (self-service) booking streams     |
+| **Dispatch**   | Driver/vehicle assignment with email + WhatsApp notifications          |
+| **Finance**    | Payment tracking, invoicing (PDF), transport billing                   |
 | **Operations** | Greeter attendance, accountant payment verification, guide assignments |
 
 ### Core Principles
@@ -136,17 +136,17 @@ npm run dev
 
 **Access Points:**
 
-| URL | Panel | Role |
-|-----|-------|------|
-| `http://127.0.0.1:8000/admin` | Admin Panel | super_admin, admin |
-| `http://127.0.0.1:8000/accountant` | Finance Portal | accountant |
-| `http://127.0.0.1:8000/manager` | Manager Panel | manager |
-| `http://127.0.0.1:8000/partner` | Partner Panel | partner |
-| `http://127.0.0.1:8000/transport` | Transport Panel | transport |
-| `http://127.0.0.1:8000/driver` | Driver Panel | driver |
-| `http://127.0.0.1:8000/greeter` | Greeter Panel | greeter |
-| `http://127.0.0.1:8000/guide` | Guide Panel | guide |
-| `http://127.0.0.1:8000/dispatcher` | Dispatcher Panel | dispatcher |
+| URL                                | Panel            | Role               |
+| ---------------------------------- | ---------------- | ------------------ |
+| `http://127.0.0.1:8000/admin`      | Admin Panel      | super_admin, admin |
+| `http://127.0.0.1:8000/accountant` | Finance Portal   | accountant         |
+| `http://127.0.0.1:8000/manager`    | Manager Panel    | manager            |
+| `http://127.0.0.1:8000/partner`    | Partner Panel    | partner            |
+| `http://127.0.0.1:8000/transport`  | Transport Panel  | transport          |
+| `http://127.0.0.1:8000/driver`     | Driver Panel     | driver             |
+| `http://127.0.0.1:8000/greeter`    | Greeter Panel    | greeter            |
+| `http://127.0.0.1:8000/guide`      | Guide Panel      | guide              |
+| `http://127.0.0.1:8000/dispatcher` | Dispatcher Panel | dispatcher         |
 
 ---
 
@@ -294,11 +294,13 @@ Admin/Manager creates booking (5-step wizard)
 ```
 
 **Booking Reference Format:**
+
 - Regular: `BLX-2026-0001`
 - Partner: `PBX-2026-0001`
 - Sequence resets annually (per year, per prefix)
 
 **PAX Capacity Check:**
+
 ```php
 // BookingService::getAvailablePax(Carbon $date): int
 // Counts ALL bookings (regular + partner) with status pending|confirmed
@@ -329,6 +331,7 @@ Partner logs into /partner portal
 ```
 
 **Partner Price Priority:**
+
 ```
 1. partner_products.partner_adult_price  (if pivot row exists and is active)
 2. products.base_adult_price             (fallback)
@@ -360,6 +363,7 @@ Admin confirms booking
 ```
 
 **Driver Assignment Algorithm:**
+
 ```
 drivers_needed = ceil(total_pax / vehicle_capacity)
 First driver gets: min(remaining_pax, vehicle_capacity)
@@ -615,14 +619,14 @@ php artisan make:filament-panel MyRolePanelProvider
 
 ### Notification Classes
 
-| Class | Trigger | Channel | Queue |
-|-------|---------|---------|-------|
-| `PartnerBookingNotification` | Partner booking created | Email → admin | notifications |
-| `InvoiceIssuedNotification` | Invoice generated/sent | Email → partner (PDF attached) | notifications |
-| `BookingConfirmedNotification` | Booking confirmed (pending→confirmed) | Email → partner | notifications |
-| `DispatchAssignedNotification` | Dispatch created | Email → transport company | notifications |
-| `DriverAssignedNotification` | Dispatch created | Email → each driver | notifications |
-| WhatsApp (Twilio, direct) | Manual "Send WhatsApp" action | Twilio API | synchronous |
+| Class                          | Trigger                               | Channel                        | Queue         |
+| ------------------------------ | ------------------------------------- | ------------------------------ | ------------- |
+| `PartnerBookingNotification`   | Partner booking created               | Email → admin                  | notifications |
+| `InvoiceIssuedNotification`    | Invoice generated/sent                | Email → partner (PDF attached) | notifications |
+| `BookingConfirmedNotification` | Booking confirmed (pending→confirmed) | Email → partner                | notifications |
+| `DispatchAssignedNotification` | Dispatch created                      | Email → transport company      | notifications |
+| `DriverAssignedNotification`   | Dispatch created                      | Email → each driver            | notifications |
+| WhatsApp (Twilio, direct)      | Manual "Send WhatsApp" action         | Twilio API                     | synchronous   |
 
 ### Queue Worker (Required)
 
@@ -651,15 +655,15 @@ if (!$whatsapp->enabled || empty($whatsapp->account_sid)) return;
 
 ### Setting Groups
 
-| Class | Group | Key Fields |
-|-------|-------|------------|
-| `AppSettings` | app | company_name, company_email, company_phone, address |
-| `EmailSettings` | email | host, port, username, password, encryption, from_address, from_name |
-| `WhatsAppSettings` | whatsapp | account_sid, auth_token, from_number, enabled |
-| `PaxSettings` | pax | daily_pax_capacity (250), warning_threshold (20) |
-| `BankSettings` | bank | bank_name, holder_name, account_number, iban, swift |
-| `LegalSettings` | legal | if_number, ice, cnss, patente, rc |
-| `NotificationSettings` | notifications | booking_confirmed_enabled, etc. |
+| Class                  | Group         | Key Fields                                                          |
+| ---------------------- | ------------- | ------------------------------------------------------------------- |
+| `AppSettings`          | app           | company_name, company_email, company_phone, address                 |
+| `EmailSettings`        | email         | host, port, username, password, encryption, from_address, from_name |
+| `WhatsAppSettings`     | whatsapp      | account_sid, auth_token, from_number, enabled                       |
+| `PaxSettings`          | pax           | daily_pax_capacity (250), warning_threshold (20)                    |
+| `BankSettings`         | bank          | bank_name, holder_name, account_number, iban, swift                 |
+| `LegalSettings`        | legal         | if_number, ice, cnss, patente, rc                                   |
+| `NotificationSettings` | notifications | booking_confirmed_enabled, etc.                                     |
 
 ### The Mail Config Pattern
 
@@ -675,18 +679,18 @@ if (!$whatsapp->enabled || empty($whatsapp->account_sid)) return;
 
 ## 11. Common Pitfalls (Filament v4)
 
-| ❌ Wrong | ✅ Correct | Why |
-|---------|-----------|-----|
-| `use Filament\Forms\Get` | `use Filament\Schemas\Components\Utilities\Get` | v4 moved reactive utilities |
-| `use Filament\Tables\Actions\ViewAction` | `use Filament\Actions\ViewAction` | `Tables\Actions` namespace removed |
-| `protected static string $view` on Page | `protected string $view` (non-static) | PHP inheritance type mismatch |
-| `static $heading` on ChartWidget | `protected ?string $heading` (non-static) | Parent uses non-static |
-| `static $columnSpan` on Widget | `protected array\|string\|int $columnSpan` | Must match parent union type |
-| `TextInput::default()` for relationships on Edit | `Placeholder::make()->content(fn($record) => ...)` | `default()` is create-only |
-| `ManageRelatedRecords` custom blade with `$this->selectedXxx` | Keep blade as bare `<x-filament-panels::page>` wrapper | Component renders the table natively |
-| Custom Blade view → `getTableRecordKey()` missing on aggregate | Override `getTableRecordKey(Model\|array $record): string` | Aggregates have no `id` |
-| `$this->ownerRecord` in `getTableQuery()` during Livewire AJAX | Guard with null check or re-fetch from DB using record ID | Component partially hydrates on re-render |
-| `AppSettings::$email` | `AppSettings::$company_email` | Actual property name |
+| ❌ Wrong                                                       | ✅ Correct                                                 | Why                                       |
+| -------------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------- |
+| `use Filament\Forms\Get`                                       | `use Filament\Schemas\Components\Utilities\Get`            | v4 moved reactive utilities               |
+| `use Filament\Tables\Actions\ViewAction`                       | `use Filament\Actions\ViewAction`                          | `Tables\Actions` namespace removed        |
+| `protected static string $view` on Page                        | `protected string $view` (non-static)                      | PHP inheritance type mismatch             |
+| `static $heading` on ChartWidget                               | `protected ?string $heading` (non-static)                  | Parent uses non-static                    |
+| `static $columnSpan` on Widget                                 | `protected array\|string\|int $columnSpan`                 | Must match parent union type              |
+| `TextInput::default()` for relationships on Edit               | `Placeholder::make()->content(fn($record) => ...)`         | `default()` is create-only                |
+| `ManageRelatedRecords` custom blade with `$this->selectedXxx`  | Keep blade as bare `<x-filament-panels::page>` wrapper     | Component renders the table natively      |
+| Custom Blade view → `getTableRecordKey()` missing on aggregate | Override `getTableRecordKey(Model\|array $record): string` | Aggregates have no `id`                   |
+| `$this->ownerRecord` in `getTableQuery()` during Livewire AJAX | Guard with null check or re-fetch from DB using record ID  | Component partially hydrates on re-render |
+| `AppSettings::$email`                                          | `AppSettings::$company_email`                              | Actual property name                      |
 
 ---
 
@@ -764,45 +768,47 @@ supervisorctl restart queue-worker      # Restart queue worker
 
 ## 13. Current Phase Status
 
-| Phase | Name | Status |
-|-------|------|--------|
-| 1 | Foundation | ✅ Complete |
-| 2 | Settings & Config | ✅ Complete |
-| 3 | User Management | ✅ Complete |
-| 4 | Product Management | ✅ Complete |
-| 5 | Partner Management | ✅ Complete |
-| 6 | Transport Management | ✅ Complete |
-| 7 | Regular Booking System | ✅ Complete |
-| 8 | Partner Booking System | ✅ Complete |
-| 9 | Dispatch System | ✅ Complete |
-| 10 | Greeter Module | ✅ Complete |
-| 11 | Accountant Module | ✅ Complete |
-| 12 | Invoicing System | ✅ Complete |
-| 13 | Financial Reports | ✅ Complete |
-| 14 | Notifications & Automation | ✅ Complete |
-| 15 | Partner Portal | ✅ Complete |
-| 16 | Transport Portal | ✅ Complete |
-| 17 | Driver Portal | ✅ Complete |
-| 18 | Greeter Portal | ✅ Complete |
-| 19 | Accountant Portal (`/accountant` — Finance Portal, Blue) | ✅ Complete |
-| 20 | Manager Portal | ✅ Complete |
-| 21 | Polish & Advanced Features | 🔲 Pending |
-| 22 | PDF & Dashboard Enhancements | ✅ Complete |
-| 23 | Guide Portal | ✅ Complete |
-| 24 | Booking Calendar | ✅ Complete |
-| 25 | Finance Reporting Optimization | ✅ Complete |
-| 26 | Notification System Overhaul | ✅ Complete |
-| 27 | Security Hardening & Isolation | ✅ Complete |
-| 28 | Dispatcher Portal | ✅ Complete |
-| 29 | MinIO Backup System | 🔲 In Planning |
+| Phase | Name                                                     | Status      |
+| ----- | -------------------------------------------------------- | ----------- |
+| 1     | Foundation                                               | ✅ Complete |
+| 2     | Settings & Config                                        | ✅ Complete |
+| 3     | User Management                                          | ✅ Complete |
+| 4     | Product Management                                       | ✅ Complete |
+| 5     | Partner Management                                       | ✅ Complete |
+| 6     | Transport Management                                     | ✅ Complete |
+| 7     | Regular Booking System                                   | ✅ Complete |
+| 8     | Partner Booking System                                   | ✅ Complete |
+| 9     | Dispatch System                                          | ✅ Complete |
+| 10    | Greeter Module                                           | ✅ Complete |
+| 11    | Accountant Module                                        | ✅ Complete |
+| 12    | Invoicing System                                         | ✅ Complete |
+| 13    | Financial Reports                                        | ✅ Complete |
+| 14    | Notifications & Automation                               | ✅ Complete |
+| 15    | Partner Portal                                           | ✅ Complete |
+| 16    | Transport Portal                                         | ✅ Complete |
+| 17    | Driver Portal                                            | ✅ Complete |
+| 18    | Greeter Portal                                           | ✅ Complete |
+| 19    | Accountant Portal (`/accountant` — Finance Portal, Blue) | ✅ Complete |
+| 20    | Manager Portal                                           | ✅ Complete |
+| 21    | Polish & Advanced Features                               | 🔲 Pending  |
+| 22    | PDF & Dashboard Enhancements                             | ✅ Complete |
+| 23    | Guide Portal                                             | ✅ Complete |
+| 24    | Booking Calendar                                         | ✅ Complete |
+| 25    | Finance Reporting Optimization                           | ✅ Complete |
+| 26    | Notification System Overhaul                             | ✅ Complete |
+| 27    | Security Hardening & Isolation                           | ✅ Complete |
+| 28    | Dispatcher Portal                                        | ✅ Complete |
+| 29    | Backup System (Cloudflare R2 + Local Coolify)            | 🔲 In Planning |
 
 ### Next Up
 
-**Phase 29 (MinIO Backup System):**
-- MinIO S3-compatible self-hosted backup via `spatie/laravel-backup`
-- Architecture: VPS (Coolify/Contabo) → Docker MinIO → Tailscale transfer
+**Phase 29 (Backup System):**
+
+- Automated S3-compatible cloud backup via `spatie/laravel-backup` directly to **Cloudflare R2**
+- Local database/file backup managed securely on the **Coolify** instance
 
 **Phase 21 (remaining polish):**
+
 - Activity log viewer (Spatie)
 - Global search across bookings
 - Bulk confirm/cancel/export operations
@@ -811,5 +817,5 @@ supervisorctl restart queue-worker      # Restart queue worker
 
 ---
 
-*Maintained by: Adventure Balloon dev team*  
-*For architectural decisions and phase details, see [`PROGRESS.md`](./PROGRESS.md) and [`docs/phases/`](./phases/).*
+_Maintained by: Adventure Balloon dev team_  
+_For architectural decisions and phase details, see [`PROGRESS.md`](./PROGRESS.md) and [`docs/phases/`](./phases/)._
