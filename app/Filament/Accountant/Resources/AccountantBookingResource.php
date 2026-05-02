@@ -10,6 +10,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
@@ -255,6 +258,22 @@ class AccountantBookingResource extends Resource
 
                 ViewAction::make()
                     ->label('Details'),
+                DeleteAction::make()
+                    ->visible(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                    }),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->visible(function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                        }),
+                ]),
             ]);
     }
 
