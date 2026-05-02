@@ -138,6 +138,7 @@ class Profile extends Page implements HasForms
 
     public function save(): void
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $state = $this->form->getState();
 

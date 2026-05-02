@@ -501,10 +501,10 @@ Step 6: FIX-5           → [x] Verify DispatchResource query scope
 Step 7: FIX-6           → [x] Remove FKs from mass-assignment ($fillable)
          Files: User.php + User form save logic
 
-Step 8: FIX-9           →  Add Guide and Admin missing email notifications
+Step 8: FIX-9           → [x] Add Guide and Admin missing email notifications
          Files: NotificationSettings.php, EditBooking.php, Notification classes
 
-Step 9: FIX-10          →  Standardize Finance email notifications (Invoices & Bills)
+Step 9: FIX-10          → [x] Standardize Finance email notifications (Invoices & Bills)
          Files: NotificationSettings.php, NotificationSettingsPage.php, InvoiceService.php, TransportBillService.php
 ```
 
