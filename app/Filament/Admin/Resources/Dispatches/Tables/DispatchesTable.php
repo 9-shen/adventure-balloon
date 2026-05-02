@@ -3,13 +3,16 @@
 namespace App\Filament\Admin\Resources\Dispatches\Tables;
 
 use App\Models\TransportCompany;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class DispatchesTable
 {
@@ -87,7 +90,22 @@ class DispatchesTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(function () {
+                        /** @var \App\Models\User|null $user */
+                        $user = Auth::user();
+                        return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                    }),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make()
+                        ->visible(function () {
+                            /** @var \App\Models\User|null $user */
+                            $user = Auth::user();
+                            return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
+                        }),
+                ]),
             ])
             ->defaultSort('flight_date', 'desc');
     }
