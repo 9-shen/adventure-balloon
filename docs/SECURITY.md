@@ -29,9 +29,9 @@ The security audit identified **8 actionable issues** across 3 severity levels.
 | Severity | Count | Summary |
 |----------|-------|---------|
 | 🔴 HIGH   | 2     | Role boundary violations — wrong roles access `/admin`; admin can modify super_admin |
-| 🟠 MEDIUM | 4     | Mass-assignment risk, debug flag, email config gaps, dispatcher query scope |
+| 🟠 MEDIUM | 5     | Mass-assignment risk, debug flag, email config gaps, dispatcher query scope, notification gaps |
 | 🟡 LOW    | 2     | Password strength, code robustness |
-| **Total** | **8** | |
+| **Total** | **9** | |
 
 > **Note:** The previous draft listed FIX-2 (remove accountant resources from AdminPanelProvider) and FIX-5 (duplicate resource registration) as issues. These have been **removed** — admin/super_admin having full financial oversight in `/admin` is correct and intentional. The only admin-level security rule is the super_admin protection in FIX-2 below.
 
@@ -424,6 +424,31 @@ TextInput::make('new_password')
 
 ---
 
+### 🟠 FIX-9 — Incomplete Email Notification Coverage for Assigned Parties
+
+**Files:**
+- `app/Filament/Admin/Resources/Bookings/Pages/EditBooking.php`
+- `app/Settings/NotificationSettings.php`
+- `app/Filament/Admin/Pages/Settings/NotificationSettingsPage.php`
+
+**Risk:** While the system correctly notifies the Partner, Transport Company, and Drivers during key booking lifecycle events (Confirmation, Dispatch, Cancellation), it **fails to notify the assigned Guide**. Additionally, there is no configuration to notify the central Admin/Company email when an operational user (e.g., Dispatcher or Manager) cancels a confirmed booking. This leads to operational blind spots where guides may show up for cancelled bookings or miss confirmed ones.
+
+**Current State (Notification Gaps):**
+- **Booking Confirmation:** Partner is notified. **Guide is NOT notified.**
+- **Booking Cancellation:** Partner, Transport, and Drivers are notified. **Guide is NOT notified.** Admin is NOT notified.
+
+**Planned Fix:**
+1. **Update Settings:** Add `booking_confirmed_guide_email`, `booking_cancelled_guide_email`, and `booking_cancelled_admin_email` toggles to `NotificationSettings.php` and `NotificationSettingsPage.php`.
+2. **Update Cancellation Logic:** In `EditBooking.php` (and any other cancellation points), add logic to email the assigned `Guide` (if present) and the `Admin` when a booking is cancelled.
+3. **Update Confirmation Logic:** In `EditBooking.php`, add logic to email the assigned `Guide` when a booking is confirmed.
+4. **Create Notification Classes:** Create or update notification classes to handle Guide and Admin cancellation/confirmation templates.
+
+**Files to change:** `NotificationSettings.php`, `NotificationSettingsPage.php`, `EditBooking.php`, and `app/Notifications/`.  
+**Risk of change:** Low — adds new notification logic without altering core booking state transitions.  
+**Testing:** Cancel a booking with an assigned guide and verify both the guide and admin receive cancellation emails.
+
+---
+
 ## Implementation Order
 
 ```
@@ -447,6 +472,9 @@ Step 6: FIX-6           →  Restrict FK mass-assignment on User model
 
 Step 7: FIX-4           →  Add production debug guard to AppServiceProvider
          Files: AppServiceProvider.php
+
+Step 8: FIX-9           →  Add Guide and Admin missing email notifications
+         Files: NotificationSettings.php, EditBooking.php, Notification classes
 ```
 
 ---
@@ -470,8 +498,11 @@ Step 7: FIX-4           →  Add production debug guard to AppServiceProvider
 | `app/Filament/Greeter/Pages/Profile.php` | FIX-7 | Validation rule |
 | `app/Filament/Dispatcher/Pages/Profile.php` | FIX-7 | Validation rule |
 | `app/Providers/AppServiceProvider.php` | FIX-4 | Add production debug guard log |
+| `app/Settings/NotificationSettings.php` | FIX-9 | Add guide/admin toggles |
+| `app/Filament/Admin/Pages/Settings/NotificationSettingsPage.php` | FIX-9 | Add guide/admin toggles |
+| `app/Filament/Admin/Resources/Bookings/Pages/EditBooking.php` | FIX-9 | Add guide/admin trigger logic |
 
-**Total: 15 files** across 7 steps.
+**Total: 18 files** across 8 steps.
 
 ---
 

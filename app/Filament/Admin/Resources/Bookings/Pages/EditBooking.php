@@ -8,9 +8,13 @@ use App\Models\Product;
 use App\Notifications\BookingCancelledNotification;
 use App\Notifications\BookingConfirmedNotification;
 use App\Notifications\PartnerBookingCancelledNotification;
+use App\Notifications\BookingConfirmedGuideNotification;
+use App\Notifications\BookingCancelledGuideNotification;
+use App\Notifications\BookingCancelledAdminNotification;
 use App\Services\BookingService;
 use App\Services\DispatchService;
 use App\Settings\NotificationSettings;
+use App\Settings\AppSettings;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\Textarea;
@@ -60,6 +64,14 @@ class EditBooking extends EditRecord
                         }
                     }
 
+                    if ($ns->booking_confirmed_guide_email && $booking->guide?->email) {
+                        try {
+                            $booking->guide->notify(new BookingConfirmedGuideNotification($booking));
+                        } catch (\Exception $e) {
+                            Log::error("ConfirmBooking: failed to email guide [{$booking->booking_ref}]: " . $e->getMessage());
+                        }
+                    }
+
                     Notification::make()
                         ->title('Booking Confirmed')
                         ->body("Booking {$booking->booking_ref} has been confirmed.")
@@ -95,6 +107,7 @@ class EditBooking extends EditRecord
                     $booking->loadMissing(['partner', 'product', 'dispatch.transportCompany', 'dispatch.dispatchDriverRows.driver']);
                     $dispatch = $booking->dispatch;
                     $ns       = app(NotificationSettings::class);
+                    $app      = app(AppSettings::class);
 
                     // ── 1. Notify partner (if partner booking) ────────────────────
                     if ($ns->booking_cancelled_partner_email && $booking->type === 'partner' && $booking->partner?->email) {
@@ -134,8 +147,26 @@ class EditBooking extends EditRecord
                                 }
                             }
                         }
+                    }
 
+                    // ── 3. Notify Guide ────────────────────────────────────────────
+                    if ($ns->booking_cancelled_guide_email && $booking->guide?->email) {
+                        try {
+                            $booking->guide->notify(new BookingCancelledGuideNotification($booking, $reason));
+                        } catch (\Exception $e) {
+                            Log::error("CancelBooking: failed to email guide [{$booking->booking_ref}]: " . $e->getMessage());
+                        }
+                    }
 
+                    // ── 4. Notify Admin ────────────────────────────────────────────
+                    if ($ns->booking_cancelled_admin_email && $app->company_email) {
+                        try {
+                            (new AnonymousNotifiable)
+                                ->route('mail', $app->company_email)
+                                ->notify(new BookingCancelledAdminNotification($booking, $reason, Auth::user()));
+                        } catch (\Exception $e) {
+                            Log::error("CancelBooking: failed to email admin [{$booking->booking_ref}]: " . $e->getMessage());
+                        }
                     }
 
                     Notification::make()

@@ -51,6 +51,7 @@ class NotificationSettingsPage extends Page implements HasForms
 
             // Booking Confirmation
             'booking_confirmed_partner_email'    => $s->booking_confirmed_partner_email,
+            'booking_confirmed_guide_email'      => $s->booking_confirmed_guide_email,
 
             // Driver Assignment
             'driver_assigned_email'              => $s->driver_assigned_email,
@@ -59,6 +60,8 @@ class NotificationSettingsPage extends Page implements HasForms
             'booking_cancelled_partner_email'    => $s->booking_cancelled_partner_email,
             'booking_cancelled_transport_email'  => $s->booking_cancelled_transport_email,
             'booking_cancelled_driver_email'     => $s->booking_cancelled_driver_email,
+            'booking_cancelled_guide_email'      => $s->booking_cancelled_guide_email,
+            'booking_cancelled_admin_email'      => $s->booking_cancelled_admin_email,
 
             // PAX Alerts
             'pax_alert_email'                    => $s->pax_alert_email,
@@ -93,6 +96,12 @@ class NotificationSettingsPage extends Page implements HasForms
                             Toggle::make('booking_confirmed_partner_email')
                                 ->label('Email to Partner')
                                 ->helperText('Notify the partner by email when their booking is confirmed.')
+                                ->onColor('success')
+                                ->offColor('danger'),
+
+                            Toggle::make('booking_confirmed_guide_email')
+                                ->label('Email to Guide')
+                                ->helperText('Notify the assigned guide by email.')
                                 ->onColor('success')
                                 ->offColor('danger'),
                         ]),
@@ -135,6 +144,18 @@ class NotificationSettingsPage extends Page implements HasForms
                                 ->helperText('Notify each assigned driver by email.')
                                 ->onColor('success')
                                 ->offColor('danger'),
+
+                            Toggle::make('booking_cancelled_guide_email')
+                                ->label('Email to Guide')
+                                ->helperText('Notify the assigned guide by email.')
+                                ->onColor('success')
+                                ->offColor('danger'),
+
+                            Toggle::make('booking_cancelled_admin_email')
+                                ->label('Email to Admin')
+                                ->helperText('Notify the company email when a booking is cancelled.')
+                                ->onColor('success')
+                                ->offColor('danger'),
                         ]),
                     ]),
 
@@ -173,10 +194,13 @@ class NotificationSettingsPage extends Page implements HasForms
 
         $s->partner_booking_email              = (bool) ($data['partner_booking_email'] ?? false);
         $s->booking_confirmed_partner_email    = (bool) ($data['booking_confirmed_partner_email'] ?? false);
+        $s->booking_confirmed_guide_email      = (bool) ($data['booking_confirmed_guide_email'] ?? false);
         $s->driver_assigned_email              = (bool) ($data['driver_assigned_email'] ?? false);
         $s->booking_cancelled_partner_email    = (bool) ($data['booking_cancelled_partner_email'] ?? false);
         $s->booking_cancelled_transport_email  = (bool) ($data['booking_cancelled_transport_email'] ?? false);
         $s->booking_cancelled_driver_email     = (bool) ($data['booking_cancelled_driver_email'] ?? false);
+        $s->booking_cancelled_guide_email      = (bool) ($data['booking_cancelled_guide_email'] ?? false);
+        $s->booking_cancelled_admin_email      = (bool) ($data['booking_cancelled_admin_email'] ?? false);
         $s->pax_alert_email                    = (bool) ($data['pax_alert_email'] ?? false);
         $s->save();
 

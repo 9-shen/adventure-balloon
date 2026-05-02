@@ -15,6 +15,7 @@ class NotificationSettings extends Settings
 
     // ── Booking Confirmation (partner notified when booking confirmed) ───────
     public bool $booking_confirmed_partner_email;  // Email to partner
+    public bool $booking_confirmed_guide_email;    // Email to guide
 
     // ── Driver Dispatch Assignment ──────────────────────────────────────────
     public bool $driver_assigned_email;       // Email to driver
@@ -23,6 +24,8 @@ class NotificationSettings extends Settings
     public bool $booking_cancelled_partner_email;    // Email to partner
     public bool $booking_cancelled_transport_email;  // Email to transport company
     public bool $booking_cancelled_driver_email;     // Email to each driver
+    public bool $booking_cancelled_guide_email;      // Email to guide
+    public bool $booking_cancelled_admin_email;      // Email to admin
 
     // ── PAX Capacity Alerts ─────────────────────────────────────────────────
     public bool $pax_alert_email;             // Email to admin
