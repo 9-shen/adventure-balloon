@@ -73,9 +73,4 @@ class DispatchResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScope(\Illuminate\Database\Eloquent\SoftDeletingScope::class);
-    }
 }
