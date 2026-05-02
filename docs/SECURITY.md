@@ -477,14 +477,17 @@ TextInput::make('new_password')
 ## Implementation Order
 
 ```
-Step 1: FIX-1 + FIX-8  →  Rewrite canAccessPanel() — match + remove greeter/transport/driver from admin
-         Files: app/Models/User.php
+Step 1: FIX-1           → [x] Restrict /admin access in User::canAccessPanel
+         Files: User.php
 
-Step 2: FIX-2           →  Admin cannot edit/delete super_admin users
-         Files: UserResource.php + UserForm.php
+Step 2: FIX-1B          → [x] Update UniversalLoginController fallback
+         Files: UniversalLoginController.php
 
-Step 3: FIX-3           →  Add ApplyEmailSettings to 4 missing panels
-         Files: Manager, Driver, Dispatcher, Accountant PanelProviders
+Step 3: FIX-2           → [x] Protect super_admin from admin modification
+         Files: UserResource.php
+
+Step 4: FIX-3           → [x] ApplyEmailSettings middleware
+         Files: Manager/Driver/Dispatcher/Accountant PanelProviders
 
 Step 4: FIX-7           →  Add minLength(8) to all 6 Profile pages
          Files: 6 Profile pages

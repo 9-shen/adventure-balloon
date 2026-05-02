@@ -51,6 +51,7 @@ class DriverPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
+                \App\Http\Middleware\ApplyEmailSettings::class,
             ])
             ->authMiddleware([
                 Authenticate::class,

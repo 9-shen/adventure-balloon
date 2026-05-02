@@ -46,15 +46,43 @@ class UserResource extends Resource
     }
 
     /**
-     * A user cannot delete themselves.
-     * A super_admin cannot be deleted if it is the last one.
+     * admin cannot edit a super_admin user.
+     * super_admin can edit anyone.
+     */
+    public static function canEdit($record): bool
+    {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        // admin cannot modify a super_admin
+        if ($authUser->hasRole('admin') && $record->hasRole('super_admin')) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * admin cannot delete a super_admin.
+     * No one can delete themselves.
+     * The last super_admin cannot be deleted by anyone.
      */
     public static function canDelete($record): bool
     {
+        /** @var \App\Models\User $authUser */
+        $authUser = Auth::user();
+
+        // No one can delete themselves
         if ($record->id === Auth::id()) {
             return false;
         }
 
+        // admin cannot delete a super_admin (regardless of count)
+        if ($authUser->hasRole('admin') && $record->hasRole('super_admin')) {
+            return false;
+        }
+
+        // The last super_admin cannot be deleted by anyone
         if ($record->hasRole('super_admin') && User::role('super_admin')->count() <= 1) {
             return false;
         }

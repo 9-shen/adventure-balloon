@@ -79,7 +79,7 @@ class UniversalLoginController extends Controller
             $user->hasRole('driver')                    => '/driver',
             $user->hasRole('partner')                   => '/partner',
             $user->hasRole('guide')                     => '/guide',
-            default                                     => '/admin',
+            default                                     => abort(403, 'Unauthorized access or unassigned role.'),
         };
     }
 }

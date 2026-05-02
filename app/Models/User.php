@@ -80,47 +80,26 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             return false;
         }
 
-        if ($panel->getId() === 'partner') {
-            return $this->hasRole('partner') && $this->partner_id !== null;
-        }
+        return match ($panel->getId()) {
+            // /admin — super_admin and admin ONLY — full access to everything
+            'admin'      => $this->hasAnyRole(['super_admin', 'admin']),
 
-        if ($panel->getId() === 'transport') {
-            return $this->hasRole('transport') && $this->transport_company_id !== null;
-        }
+            // /accountant — accountant role ONLY
+            'accountant' => $this->hasRole('accountant'),
 
-        if ($panel->getId() === 'driver') {
-            return $this->hasRole('driver') && $this->driver_id !== null;
-        }
+            // /manager — manager + admin/super_admin for oversight
+            'manager'    => $this->hasAnyRole(['manager', 'admin', 'super_admin']),
 
-        if ($panel->getId() === 'guide') {
-            return $this->hasRole('guide') && $this->guide_id !== null;
-        }
+            // Each portal role is locked to its own portal only:
+            'partner'    => $this->hasRole('partner') && $this->partner_id !== null,
+            'transport'  => $this->hasRole('transport') && $this->transport_company_id !== null,
+            'driver'     => $this->hasRole('driver') && $this->driver_id !== null,
+            'guide'      => $this->hasRole('guide') && $this->guide_id !== null,
+            'greeter'    => $this->hasRole('greeter'),
+            'dispatcher' => $this->hasRole('dispatcher'),
 
-        if ($panel->getId() === 'greeter') {
-            return $this->hasRole('greeter');
-        }
-
-        if ($panel->getId() === 'dispatcher') {
-            return $this->hasRole('dispatcher');
-        }
-
-        if ($panel->getId() === 'accountant') {
-            return $this->hasAnyRole(['accountant', 'admin', 'super_admin']);
-        }
-
-        if ($panel->getId() === 'manager') {
-            return $this->hasAnyRole(['manager', 'admin', 'super_admin']);
-        }
-
-        // Admin panel — staff roles only
-        return $this->hasAnyRole([
-            'super_admin',
-            'admin',
-            'accountant',
-            'greeter',
-            'transport',
-            'driver',
-        ]);
+            default      => false,  // explicit deny-all
+        };
     }
 
     // ─── Events ───────────────────────────────────────────────────────────────────
