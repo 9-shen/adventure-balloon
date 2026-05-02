@@ -86,8 +86,7 @@ class DispatchesTable
                     ->options(TransportCompany::where('is_active', true)->pluck('company_name', 'id'))
                     ->searchable(),
             ])
-            ->recordAction('view')
-            ->recordActions([
+            ->actions([
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make()
@@ -97,7 +96,7 @@ class DispatchesTable
                         return $user?->hasAnyRole(['super_admin', 'admin']) ?? false;
                     }),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make()
                         ->visible(function () {
