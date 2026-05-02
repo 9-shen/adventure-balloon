@@ -37,10 +37,6 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'address',
         'is_active',
         'last_login_at',
-        'partner_id',
-        'transport_company_id',
-        'driver_id',
-        'guide_id',
     ];
 
     /**

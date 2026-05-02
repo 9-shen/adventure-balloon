@@ -489,17 +489,17 @@ Step 3: FIX-2           → [x] Protect super_admin from admin modification
 Step 4: FIX-3           → [x] ApplyEmailSettings middleware
          Files: Manager/Driver/Dispatcher/Accountant PanelProviders
 
-Step 4: FIX-7           →  Add minLength(8) to all 6 Profile pages
+Step 4: FIX-7           → [x] Add minLength(8) to all 6 Profile pages
          Files: 6 Profile pages
 
-Step 5: FIX-5           →  Verify + harden Dispatcher DispatchResource query scope
+Step 5: FIX-4           → [x] Production debug guard in AppServiceProvider
+         Files: AppServiceProvider.php
+
+Step 6: FIX-5           → [x] Verify DispatchResource query scope
          Files: DispatchResource.php (Dispatcher namespace)
 
-Step 6: FIX-6           →  Restrict FK mass-assignment on User model
+Step 7: FIX-6           → [x] Remove FKs from mass-assignment ($fillable)
          Files: User.php + User form save logic
-
-Step 7: FIX-4           →  Add production debug guard to AppServiceProvider
-         Files: AppServiceProvider.php
 
 Step 8: FIX-9           →  Add Guide and Admin missing email notifications
          Files: NotificationSettings.php, EditBooking.php, Notification classes

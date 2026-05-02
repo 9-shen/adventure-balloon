@@ -89,6 +89,8 @@ class Profile extends Page implements HasForms
                             TextInput::make('new_password')
                                 ->label('New Password')
                                 ->password()
+                                ->minLength(8)
+                                ->rules(['min:8'])
                                 ->rule(Password::default())
                                 ->requiredWith('new_password_confirmation'),
 

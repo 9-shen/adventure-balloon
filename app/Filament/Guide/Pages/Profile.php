@@ -101,6 +101,8 @@ class Profile extends Page implements HasForms
                                 ->label('New Password')
                                 ->password()
                                 ->revealable()
+                                ->minLength(8)
+                                ->rules(['min:8'])
                                 ->rule(Password::defaults())
                                 ->confirmed()
                                 ->dehydrated(false),

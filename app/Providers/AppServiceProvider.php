@@ -16,6 +16,11 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Warn in logs if debug is on in production
+        if (app()->isProduction() && config('app.debug')) {
+            \Illuminate\Support\Facades\Log::critical('SECURITY: APP_DEBUG=true detected in production!');
+        }
+
         if (config('app.env') === 'production') {
             URL::forceScheme('https');
         }
