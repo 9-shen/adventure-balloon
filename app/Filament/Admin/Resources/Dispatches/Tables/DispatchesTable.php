@@ -84,6 +84,11 @@ class DispatchesTable
                     ->searchable(),
             ])
             ->recordAction('view')
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
             ->defaultSort('flight_date', 'desc');
     }
 }
