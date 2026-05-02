@@ -135,14 +135,7 @@ class EditBooking extends EditRecord
                             }
                         }
 
-                        // WhatsApp each driver
-                        if ($ns->booking_cancelled_driver_whatsapp) {
-                            try {
-                                app(DispatchService::class)->sendCancellationWhatsApp($dispatch, $reason);
-                            } catch (\Exception $e) {
-                                Log::error("CancelBooking: WhatsApp cancellation failed [{$booking->booking_ref}]: " . $e->getMessage());
-                            }
-                        }
+
                     }
 
                     Notification::make()

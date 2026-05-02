@@ -8,12 +8,10 @@ use App\Notifications\PaxCapacityAlertNotification;
 use App\Settings\AppSettings;
 use App\Settings\NotificationSettings;
 use App\Settings\PaxSettings;
-use App\Settings\WhatsAppSettings;
 use Carbon\Carbon;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Twilio\Rest\Client as TwilioClient;
 
 class BookingService
 {
@@ -231,42 +229,7 @@ class BookingService
                 }
             }
 
-            // ── 2. WhatsApp alert ───────────────────────────────────────────────
-            /** @var WhatsAppSettings $wa */
-            $wa = app(WhatsAppSettings::class);
 
-            if ($ns->pax_alert_whatsapp && $wa->enabled && $wa->account_sid && $wa->auth_token && $wa->from_number && $adminPhone) {
-                try {
-                    $toPhone = str_starts_with($adminPhone, '+') ? $adminPhone : '+' . $adminPhone;
-                    $twilio  = new TwilioClient($wa->account_sid, $wa->auth_token);
-
-                    $urgency = $remaining <= 0
-                        ? '🔴 FULLY BOOKED'
-                        : ($remaining <= 10 ? '🟠 CRITICALLY LOW' : '🟡 LOW CAPACITY');
-
-                    $message = implode("\n", [
-                        "⚠️ *PAX Capacity Alert — {$appSettings->company_name}*",
-                        "",
-                        "{$urgency}",
-                        "",
-                        "📅 Date      : {$date->format('d/m/Y')}",
-                        "👥 Capacity  : {$capacity} PAX",
-                        "✅ Used      : {$used} PAX",
-                        "⚡ Remaining : {$remaining} PAX",
-                        "",
-                        "Review bookings before accepting new reservations.",
-                    ]);
-
-                    $twilio->messages->create("whatsapp:{$toPhone}", [
-                        'from' => 'whatsapp:' . $wa->from_number,
-                        'body' => $message,
-                    ]);
-
-                    Log::info("PaxAlert: WhatsApp sent for [{$date->toDateString()}] — {$remaining} remaining");
-                } catch (\Exception $e) {
-                    Log::error("PaxAlert: WhatsApp failed for [{$date->toDateString()}]: " . $e->getMessage());
-                }
-            }
 
         } catch (\Exception $e) {
             // Never crash booking creation due to alert failure

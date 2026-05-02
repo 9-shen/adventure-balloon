@@ -54,17 +54,14 @@ class NotificationSettingsPage extends Page implements HasForms
 
             // Driver Assignment
             'driver_assigned_email'              => $s->driver_assigned_email,
-            'driver_assigned_whatsapp'           => $s->driver_assigned_whatsapp,
 
             // Cancellation
             'booking_cancelled_partner_email'    => $s->booking_cancelled_partner_email,
             'booking_cancelled_transport_email'  => $s->booking_cancelled_transport_email,
             'booking_cancelled_driver_email'     => $s->booking_cancelled_driver_email,
-            'booking_cancelled_driver_whatsapp'  => $s->booking_cancelled_driver_whatsapp,
 
             // PAX Alerts
             'pax_alert_email'                    => $s->pax_alert_email,
-            'pax_alert_whatsapp'                 => $s->pax_alert_whatsapp,
         ]);
     }
 
@@ -112,12 +109,6 @@ class NotificationSettingsPage extends Page implements HasForms
                                 ->helperText('Send assignment details to the driver\'s email address.')
                                 ->onColor('success')
                                 ->offColor('danger'),
-
-                            Toggle::make('driver_assigned_whatsapp')
-                                ->label('WhatsApp to Driver')
-                                ->helperText('Send assignment details via WhatsApp to the driver\'s phone.')
-                                ->onColor('success')
-                                ->offColor('danger'),
                         ]),
                     ]),
 
@@ -144,12 +135,6 @@ class NotificationSettingsPage extends Page implements HasForms
                                 ->helperText('Notify each assigned driver by email.')
                                 ->onColor('success')
                                 ->offColor('danger'),
-
-                            Toggle::make('booking_cancelled_driver_whatsapp')
-                                ->label('WhatsApp to Drivers')
-                                ->helperText('Send cancellation via WhatsApp to each assigned driver.')
-                                ->onColor('success')
-                                ->offColor('danger'),
                         ]),
                     ]),
 
@@ -162,12 +147,6 @@ class NotificationSettingsPage extends Page implements HasForms
                             Toggle::make('pax_alert_email')
                                 ->label('Email Alert')
                                 ->helperText('Send capacity warning to company email.')
-                                ->onColor('success')
-                                ->offColor('danger'),
-
-                            Toggle::make('pax_alert_whatsapp')
-                                ->label('WhatsApp Alert')
-                                ->helperText('Send capacity warning via WhatsApp to company phone.')
                                 ->onColor('success')
                                 ->offColor('danger'),
                         ]),
@@ -195,13 +174,10 @@ class NotificationSettingsPage extends Page implements HasForms
         $s->partner_booking_email              = (bool) ($data['partner_booking_email'] ?? false);
         $s->booking_confirmed_partner_email    = (bool) ($data['booking_confirmed_partner_email'] ?? false);
         $s->driver_assigned_email              = (bool) ($data['driver_assigned_email'] ?? false);
-        $s->driver_assigned_whatsapp           = (bool) ($data['driver_assigned_whatsapp'] ?? false);
         $s->booking_cancelled_partner_email    = (bool) ($data['booking_cancelled_partner_email'] ?? false);
         $s->booking_cancelled_transport_email  = (bool) ($data['booking_cancelled_transport_email'] ?? false);
         $s->booking_cancelled_driver_email     = (bool) ($data['booking_cancelled_driver_email'] ?? false);
-        $s->booking_cancelled_driver_whatsapp  = (bool) ($data['booking_cancelled_driver_whatsapp'] ?? false);
         $s->pax_alert_email                    = (bool) ($data['pax_alert_email'] ?? false);
-        $s->pax_alert_whatsapp                 = (bool) ($data['pax_alert_whatsapp'] ?? false);
         $s->save();
 
         Notification::make()

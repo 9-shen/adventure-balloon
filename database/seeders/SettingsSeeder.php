@@ -7,7 +7,6 @@ use App\Settings\BankSettings;
 use App\Settings\EmailSettings;
 use App\Settings\LegalSettings;
 use App\Settings\PaxSettings;
-use App\Settings\WhatsAppSettings;
 use Illuminate\Database\Seeder;
 
 class SettingsSeeder extends Seeder
@@ -61,15 +60,6 @@ class SettingsSeeder extends Seeder
         $email->from_name    = 'Adventure Balloon';
         $email->save();
 
-        // ── WhatsApp Settings ─────────────────────────────────────────────────────
-        // ⚠️  Do NOT commit real Twilio credentials here.
-        //     Configure via Admin → Settings → WhatsApp after deployment.
-        $wa = app(WhatsAppSettings::class);
-        $wa->account_sid = null;
-        $wa->auth_token  = null;
-        $wa->from_number = null;
-        $wa->enabled     = false;
-        $wa->save();
 
         $this->command->info('✅ All settings seeded with defaults.');
     }
