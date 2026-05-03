@@ -9,10 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Models\Partner;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\TracksDeletedBy;
 
 class Booking extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, TracksDeletedBy;
 
     protected $fillable = [
         'booking_ref',
@@ -257,5 +258,24 @@ class Booking extends Model
     public function isInvoiced(): bool
     {
         return $this->invoiced_at !== null;
+    }
+
+    // ─── Model Events ─────────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (Booking $booking) {
+            // When permanently deleting a booking, we must cascade through related
+            // records that have RESTRICT foreign keys to avoid DB constraint errors.
+            $dispatch = $booking->dispatch()->withTrashed()->first();
+
+            if ($dispatch) {
+                // The Dispatch model's forceDeleting event handles dispatch_drivers and transport_bill_items
+                $dispatch->forceDelete();
+            }
+
+            // Hard-delete booking customers (no cascade defined at DB level)
+            $booking->customers()->delete();
+        });
     }
 }

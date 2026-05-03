@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\TracksDeletedBy;
 
 class Dispatch extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, TracksDeletedBy;
 
     protected $fillable = [
         'dispatch_ref',
@@ -105,5 +106,21 @@ class Dispatch extends Model
             ->with('vehicle')
             ->get()
             ->sum(fn($row) => (float) ($row->vehicle?->price_per_trip ?? 0));
+    }
+
+    // ─── Model Events ─────────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (Dispatch $dispatch) {
+            // 1. Remove dispatch_drivers pivot rows (no FK issues)
+            $dispatch->dispatchDriverRows()->delete();
+
+            // 2. Delete transport_bill_items to release the RESTRICT FK
+            //    on dispatches.id, as dispatch_id is non-nullable.
+            \Illuminate\Support\Facades\DB::table('transport_bill_items')
+                ->where('dispatch_id', $dispatch->id)
+                ->delete();
+        });
     }
 }

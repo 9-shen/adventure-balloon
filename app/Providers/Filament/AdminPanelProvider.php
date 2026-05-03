@@ -85,6 +85,8 @@ class AdminPanelProvider extends PanelProvider
                 NavigationGroup::make('User Management'),
                 NavigationGroup::make('Settings')
                     ->collapsed(),
+                NavigationGroup::make('Deletion Records')
+                    ->collapsed(),
             ])
             ->middleware([
                 EncryptCookies::class,

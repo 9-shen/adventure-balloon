@@ -33,7 +33,8 @@
 | 20  | [Manager Portal](#phase-20--manager-portal)                        | 🟡 MEDIUM   | 2–3             | ✅ **COMPLETE** |
 | 21  | [Polish & Advanced Features](#phase-21--polish--advanced-features) | 🟢 LOW      | 3–5             | 🔲 Pending      |
 | 28  | [Dispatcher Portal](#phase-28--dispatcher-portal)                  | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
-|     | **TOTAL**                                                          |             | **~66–87 days** |                 |
+| 30  | [Deletion Records & Recycle Bin](#phase-30--deletion-records--recycle-bin) | 🟠 MED-HIGH | 2–3             | ✅ **COMPLETE** |
+|     | **TOTAL**                                                          |             | **~68–90 days** |                 |
 
 ---
 
@@ -718,6 +719,21 @@
 - [ ] `BookingConfirmedNotification` → customer email
 - [ ] `PaymentReminderNotification` → partner (scheduled)
 - [ ] Database indexes on `flight_date`, `booking_status`, `partner_id`
+
+---
+
+## Phase 30 — Deletion Records & Recycle Bin
+
+📁 Details: [`docs/phases/phase-30-deletion-records.md`](phases/phase-30-deletion-records.md)  
+**Status: ✅ COMPLETE**
+
+### To Do
+- [ ] Create `add_deleted_by` migration for bookings, dispatches, partners, transport_companies, users, vehicles, drivers, products.
+- [ ] Create `TracksDeletedBy` trait to hook into the `deleting` event and assign `Auth::id()`.
+- [ ] Create "Deletion Records" navigation group in Admin panel.
+- [ ] Generate `Deleted{Entity}Resource` for each soft-deleted model.
+- [ ] Add columns for `deleted_at` and `deletedBy.name` in these resources.
+- [ ] Add `RestoreAction` and `ForceDeleteAction` to rows and bulk actions.
 
 ---
 

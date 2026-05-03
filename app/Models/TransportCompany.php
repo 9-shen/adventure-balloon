@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use App\Traits\TracksDeletedBy;
 
 class TransportCompany extends Model implements \Spatie\MediaLibrary\HasMedia
 {
-    use HasFactory, SoftDeletes, Notifiable, \Spatie\MediaLibrary\InteractsWithMedia;
+    use HasFactory, SoftDeletes, Notifiable, \Spatie\MediaLibrary\InteractsWithMedia, TracksDeletedBy;
 
     protected $fillable = [
         'company_name',

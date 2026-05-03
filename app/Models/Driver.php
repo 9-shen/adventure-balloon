@@ -12,10 +12,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Traits\TracksDeletedBy;
 
 class Driver extends Model implements HasMedia
 {
-    use HasFactory, SoftDeletes, Notifiable, InteractsWithMedia;
+    use HasFactory, SoftDeletes, Notifiable, InteractsWithMedia, TracksDeletedBy;
 
     protected $fillable = [
         'transport_company_id',

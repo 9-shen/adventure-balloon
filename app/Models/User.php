@@ -15,11 +15,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Traits\TracksDeletedBy;
 
 class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, HasRoles, Notifiable, InteractsWithMedia, SoftDeletes;
+    use HasFactory, HasRoles, Notifiable, InteractsWithMedia, SoftDeletes, TracksDeletedBy;
 
     /**
      * The attributes that are mass assignable.
@@ -111,6 +112,14 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
                     $user->guide->fill($user->only(['name', 'email', 'phone', 'is_active']))->saveQuietly();
                 }
             }
+        });
+
+        static::forceDeleting(function (User $user) {
+            // Nullify transport_bills.created_by to prevent RESTRICT FK constraint errors
+            // since the transport_bills migration didn't specify nullOnDelete()
+            \Illuminate\Support\Facades\DB::table('transport_bills')
+                ->where('created_by', $user->id)
+                ->update(['created_by' => null]);
         });
     }
 

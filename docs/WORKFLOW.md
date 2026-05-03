@@ -799,6 +799,7 @@ supervisorctl restart queue-worker      # Restart queue worker
 | 27    | Security Hardening & Isolation                           | ✅ Complete |
 | 28    | Dispatcher Portal                                        | ✅ Complete |
 | 29    | Backup System (Cloudflare R2 + Local Coolify)            | 🔲 In Planning |
+| 30    | Deletion Records & Recycle Bin                           | ✅ Complete |
 
 ### Next Up
 
