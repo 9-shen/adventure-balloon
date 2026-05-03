@@ -19,6 +19,12 @@ class CreateUser extends CreateRecord
         $user->guide_id = $data['guide_id'] ?? null;
         $user->save();
 
+        try {
+            $user->notify(new \App\Notifications\UserAccountCreatedNotification($user->name, $user->email));
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to notify user: " . $e->getMessage());
+        }
+
         return $user;
     }
 }

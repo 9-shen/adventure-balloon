@@ -6,7 +6,9 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class GuideAccountCreatedNotification extends Notification
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class GuideAccountCreatedNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -24,7 +26,7 @@ class GuideAccountCreatedNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Your Booklix Guide Account is Ready')
+            ->subject('Your Guide Account is Ready')
             ->greeting('Hello ' . $this->guideName . ',')
             ->line('Your guide account has been created successfully.')
             ->line('You can now log in to the Guide Portal to view and create bookings on behalf of your agency.')
