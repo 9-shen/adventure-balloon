@@ -38,6 +38,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'address',
         'is_active',
         'last_login_at',
+        // Portal FK columns — required so model observers can assign these without being blocked by mass-assignment protection
+        'partner_id',
+        'driver_id',
+        'guide_id',
+        'transport_company_id',
     ];
 
     /**
