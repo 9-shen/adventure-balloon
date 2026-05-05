@@ -46,10 +46,18 @@ class PwaServiceProvider extends ServiceProvider
         <link rel="manifest" href="/manifest.json">
         <meta name="theme-color" content="#e71a39">
         <meta name="mobile-web-app-capable" content="yes">
+
+        <!-- iOS PWA (Safari) specific — required for "Add to Home Screen" to work properly -->
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Adventure Balloon">
+
+        <!-- iOS home screen icon — 180x180 is the size Safari uses for iPhone/iPad -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/icons/icon-180x180.png">
+        <link rel="apple-touch-icon" sizes="192x192" href="/images/icons/icon-192x192.png">
         <link rel="apple-touch-icon" href="/images/icons/icon-192x192.png">
+
+        <!-- Windows tile -->
         <meta name="msapplication-TileImage" content="/images/icons/icon-192x192.png">
         <meta name="msapplication-TileColor" content="#e71a39">
         HTML;
