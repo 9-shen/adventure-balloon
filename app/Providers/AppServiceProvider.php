@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Auth\Http\Responses\LogoutResponse;
 use App\Support\MailConfig;
+use Filament\Auth\Http\Responses\Contracts\LogoutResponse as LogoutResponseContract;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -11,7 +13,8 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Redirect all Filament panel logouts to the home page
+        $this->app->bind(LogoutResponseContract::class, LogoutResponse::class);
     }
 
     public function boot(): void
