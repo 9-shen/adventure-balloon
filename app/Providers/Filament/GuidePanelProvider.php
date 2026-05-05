@@ -29,7 +29,7 @@ class GuidePanelProvider extends PanelProvider
             ->path('guide')
             ->login()
             ->passwordReset()
-            ->logoutUrl('/')
+            
             ->brandName('Guide Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

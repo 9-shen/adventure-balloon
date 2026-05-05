@@ -28,7 +28,7 @@ class PartnerPanelProvider extends PanelProvider
             ->id('partner')
             ->path('partner')
             ->login()
-            ->logoutUrl('/')
+            
             ->brandName('Partner Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

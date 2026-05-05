@@ -28,7 +28,7 @@ class TransportPanelProvider extends PanelProvider
             ->id('transport')
             ->path('transport')
             ->login()
-            ->logoutUrl('/')
+            
             ->brandName('Transport Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([
