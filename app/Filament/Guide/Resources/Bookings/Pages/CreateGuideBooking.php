@@ -34,8 +34,11 @@ class CreateGuideBooking extends CreateRecord
     public function form(Schema $schema): Schema
     {
         /** @var \App\Models\User $user */
-        $user      = Auth::user();
-        $partnerId = $user->partner_id;
+        $user = Auth::user();
+
+        // Guide users do NOT have partner_id on the users table.
+        // The guide→partner relationship is: users.guide_id → guides.id → guides.partner_id
+        $partnerId = $user->guide?->partner_id;
 
         return $schema->components([
             Wizard::make([
@@ -203,8 +206,11 @@ class CreateGuideBooking extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         /** @var \App\Models\User $user */
-        $user      = Auth::user();
-        $partnerId = $user->partner_id;
+        $user = Auth::user();
+
+        // Guide users do NOT have partner_id on the users table.
+        // Resolve via the Guide model: users.guide_id → guides.partner_id
+        $partnerId = $user->guide?->partner_id;
 
         $product = Product::find($data['product_id']);
         $pricing = app(BookingService::class)->calculatePricing(
