@@ -28,6 +28,7 @@ class DriverPanelProvider extends PanelProvider
             ->path('driver')
             ->login()
             ->passwordReset()
+            ->logoutUrl('/')
             ->brandName('Driver Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

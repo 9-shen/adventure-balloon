@@ -26,6 +26,7 @@ class DispatcherPanelProvider extends PanelProvider
             ->id('dispatcher')
             ->path('dispatcher')
             ->login()
+            ->logoutUrl('/')
             ->brandName('Dispatcher Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

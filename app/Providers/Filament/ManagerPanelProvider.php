@@ -27,6 +27,7 @@ class ManagerPanelProvider extends PanelProvider
             ->id('manager')
             ->path('manager')
             ->login()
+            ->logoutUrl('/')
             ->brandName('Manager Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->logoutUrl('/')
             ->brandName('Adventure Balloon')
             ->favicon(asset('images/logo.jpg'))
             ->sidebarCollapsibleOnDesktop()

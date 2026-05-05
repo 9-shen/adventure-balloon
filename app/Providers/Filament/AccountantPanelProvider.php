@@ -27,6 +27,7 @@ class AccountantPanelProvider extends PanelProvider
             ->id('accountant')
             ->path('accountant')
             ->login()
+            ->logoutUrl('/')
             ->brandName('Finance Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([

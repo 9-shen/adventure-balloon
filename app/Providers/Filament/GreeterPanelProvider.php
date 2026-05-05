@@ -28,6 +28,7 @@ class GreeterPanelProvider extends PanelProvider
             ->id('greeter')
             ->path('greeter')
             ->login()
+            ->logoutUrl('/')
             ->brandName('Greeter Portal')
             ->favicon(asset('images/logo.jpg'))
             ->colors([
