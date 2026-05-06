@@ -127,6 +127,14 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_reports', 'export_reports',
                 'view_partners',
             ],
+
+            // ── Balloon Dispatcher — dedicated balloon dispatch portal user
+            'balloon_dispatcher' => [
+                'view_bookings',
+                'view_flights',
+                'create_flights',
+                'view_partners',
+            ],
         ];
 
         foreach ($roles as $roleName => $rolePermissions) {

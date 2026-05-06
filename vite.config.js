@@ -12,6 +12,7 @@ export default defineConfig({
                 'resources/css/filament/manager/theme.css',
                 'resources/css/filament/accountant/theme.css',
                 'resources/css/filament/dispatcher/theme.css',
+                'resources/css/filament/balloon-dispatcher/theme.css',
             ],
             refresh: true,
         }),

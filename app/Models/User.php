@@ -43,6 +43,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         'driver_id',
         'guide_id',
         'transport_company_id',
+        'balloon_dispatcher_id',
     ];
 
     /**
@@ -96,9 +97,10 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             'partner'    => $this->hasRole('partner') && $this->partner_id !== null,
             'transport'  => $this->hasRole('transport') && $this->transport_company_id !== null,
             'driver'     => $this->hasRole('driver') && $this->driver_id !== null,
-            'guide'      => $this->hasRole('guide') && $this->guide_id !== null,
-            'greeter'    => $this->hasRole('greeter'),
-            'dispatcher' => $this->hasRole('dispatcher'),
+            'guide'               => $this->hasRole('guide') && $this->guide_id !== null,
+            'greeter'             => $this->hasRole('greeter'),
+            'dispatcher'          => $this->hasRole('dispatcher'),
+            'balloon-dispatcher'  => $this->hasRole('balloon_dispatcher') && $this->balloon_dispatcher_id !== null,
 
             default      => false,  // explicit deny-all
         };
@@ -148,6 +150,11 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     public function guide(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Guide::class);
+    }
+
+    public function balloonDispatcher(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(BalloonDispatcher::class);
     }
 
     public function managedPartners(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
