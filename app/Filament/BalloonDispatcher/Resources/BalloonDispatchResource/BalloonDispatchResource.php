@@ -107,12 +107,8 @@ class BalloonDispatchResource extends Resource
             ])
             ->defaultSort('dispatch_date', 'desc')
             ->actions([
-                ViewAction::make()
-                    ->modalWidth('4xl'),
-
-                EditAction::make()
-                    ->modalWidth('4xl'),
-
+                ViewAction::make(),
+                EditAction::make(),
                 DeleteAction::make(),
             ])
             ->bulkActions([
@@ -124,8 +120,10 @@ class BalloonDispatchResource extends Resource
     public static function getPages(): array
     {
         return [
-            // Only the index page — all CRUD happens in modals
-            'index' => Pages\ListBalloonDispatches::route('/'),
+            'index'  => Pages\ListBalloonDispatches::route('/'),
+            'create' => Pages\CreateBalloonDispatch::route('/create'),
+            'view'   => Pages\ViewBalloonDispatch::route('/{record}'),
+            'edit'   => Pages\EditBalloonDispatch::route('/{record}/edit'),
         ];
     }
 }
