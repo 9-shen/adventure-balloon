@@ -45,7 +45,7 @@ class BookingsResource extends Resource
                     ->copyable()
                     ->weight('semibold'),
 
-                TextColumn::make('booking_type')
+                TextColumn::make('type')
                     ->label('Type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
@@ -87,7 +87,7 @@ class BookingsResource extends Resource
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
             ])
             ->filters([
-                SelectFilter::make('booking_type')
+                SelectFilter::make('type')
                     ->label('Booking Type')
                     ->options([
                         'regular' => 'Regular Booking',
