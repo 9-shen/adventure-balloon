@@ -3,14 +3,17 @@
 namespace App\Filament\BalloonDispatcher\Resources\BalloonDispatchResource;
 
 use App\Models\BalloonDispatch;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -42,8 +45,7 @@ class BalloonDispatchResource extends Resource
                         ->label('Dispatch Date')
                         ->required()
                         ->native(false)
-                        ->displayFormat('d/m/Y')
-                        ->minDate(today()),
+                        ->displayFormat('d/m/Y'),
 
                     RichEditor::make('content')
                         ->label('Operational Notes')
@@ -66,8 +68,6 @@ class BalloonDispatchResource extends Resource
                         ->label('Attach Image')
                         ->collection('balloon-dispatch-images')
                         ->image()
-                        ->imageResizeMode('cover')
-                        ->imageCropAspectRatio('16:9')
                         ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
                         ->maxSize(5120)
                         ->helperText('Optional. Upload one image (JPEG, PNG, WEBP — max 5MB).')
@@ -107,20 +107,25 @@ class BalloonDispatchResource extends Resource
             ])
             ->defaultSort('dispatch_date', 'desc')
             ->actions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->modalWidth('4xl'),
+
+                EditAction::make()
+                    ->modalWidth('4xl'),
+
+                DeleteAction::make(),
             ])
-            ->bulkActions([])
+            ->bulkActions([
+                DeleteBulkAction::make(),
+            ])
             ->striped();
     }
 
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListBalloonDispatches::route('/'),
-            'create' => Pages\CreateBalloonDispatch::route('/create'),
-            'view'   => Pages\ViewBalloonDispatch::route('/{record}'),
-            'edit'   => Pages\EditBalloonDispatch::route('/{record}/edit'),
+            // Only the index page — all CRUD happens in modals
+            'index' => Pages\ListBalloonDispatches::route('/'),
         ];
     }
 }

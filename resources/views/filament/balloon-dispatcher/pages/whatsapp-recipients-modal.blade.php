@@ -1,5 +1,11 @@
 <div style="padding: 8px 0;">
 
+    @if($dispatch)
+    <p style="font-size:12px;color:#6b7280;margin:0 0 8px 0;">
+        Sending notifications for dispatch on <strong>{{ \Carbon\Carbon::parse($dispatch->dispatch_date)->format('d/m/Y') }}</strong>.
+    </p>
+    @endif
+
     @if(empty($links))
         <div style="display:flex;align-items:center;gap:12px;border:1px solid #fcd34d;background:#fffbeb;border-radius:8px;padding:16px;">
             <p style="font-size:14px;color:#92400e;margin:0;">
