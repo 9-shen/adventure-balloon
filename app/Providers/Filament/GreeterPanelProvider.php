@@ -55,6 +55,7 @@ class GreeterPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Attendance'),
                 NavigationGroup::make('Reports'),
+                NavigationGroup::make('Balloon Dispatch'),
             ])
             ->middleware([
                 EncryptCookies::class,
