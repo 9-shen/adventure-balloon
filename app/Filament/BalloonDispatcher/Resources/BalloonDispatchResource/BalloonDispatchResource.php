@@ -28,52 +28,74 @@ class BalloonDispatchResource extends Resource
         return 'heroicon-o-paper-airplane';
     }
 
-    public static function getNavigationLabel(): string  { return 'Balloon Dispatch'; }
-    public static function getModelLabel(): string       { return 'Balloon Dispatch'; }
-    public static function getPluralModelLabel(): string { return 'Balloon Dispatches'; }
-    public static function getNavigationGroup(): ?string { return 'Balloon Dispatch'; }
-    public static function getNavigationSort(): ?int     { return 1; }
+    public static function getNavigationLabel(): string
+    {
+        return 'Balloon Dispatch';
+    }
+    public static function getModelLabel(): string
+    {
+        return 'Balloon Dispatch';
+    }
+    public static function getPluralModelLabel(): string
+    {
+        return 'Balloon Dispatches';
+    }
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Balloon Dispatch';
+    }
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function form(Schema $form): Schema
     {
-        return $form->components([
-            Section::make('Dispatch Details')
-                ->description('Fill in the balloon dispatch information for the day.')
-                ->columns(1)
-                ->components([
-                    DatePicker::make('dispatch_date')
-                        ->label('Dispatch Date')
-                        ->required()
-                        ->native(false)
-                        ->displayFormat('d/m/Y'),
+        return $form
+            ->columns(2)
+            ->components([
+                Section::make('Dispatch Details')
+                    ->description('Fill in the balloon dispatch information for the day.')
+                    ->columnSpan(1)
+                    ->components([
+                        DatePicker::make('dispatch_date')
+                            ->label('Dispatch Date')
+                            ->required()
+                            ->native(false)
+                            ->displayFormat('d/m/Y'),
 
-                    RichEditor::make('content')
-                        ->label('Operational Notes')
-                        ->required()
-                        ->toolbarButtons([
-                            'bold',
-                            'italic',
-                            'underline',
-                            'bulletList',
-                            'orderedList',
-                            'link',
-                            'h2',
-                            'h3',
-                            'undo',
-                            'redo',
-                        ])
-                        ->columnSpanFull(),
+                        RichEditor::make('content')
+                            ->label('Operational Notes')
+                            ->required()
+                            ->toolbarButtons([
+                                'bold',
+                                'italic',
+                                'underline',
+                                'bulletList',
+                                'orderedList',
+                                'link',
+                                'h2',
+                                'h3',
+                                'undo',
+                                'redo'
+                            ])
 
-                    SpatieMediaLibraryFileUpload::make('image')
-                        ->label('Attach Image')
-                        ->collection('balloon-dispatch-images')
-                        ->image()
-                        ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                        ->maxSize(5120)
-                        ->helperText('Optional. Upload one image (JPEG, PNG, WEBP — max 5MB).')
-                        ->columnSpanFull(),
-                ]),
-        ]);
+
+                    ]),
+
+                Section::make('Attach Image')
+                    ->description('Upload an optional photo for the dispatch.')
+                    ->columnSpan(1)
+                    ->components([
+                        SpatieMediaLibraryFileUpload::make('image')
+                            ->hiddenLabel()
+                            ->collection('balloon-dispatch-images')
+                            ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(5120)
+                            ->helperText('Optional. Upload one image (JPEG, PNG, WEBP — max 5MB).'),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -88,13 +110,13 @@ class BalloonDispatchResource extends Resource
 
                 TextColumn::make('content_excerpt')
                     ->label('Notes Preview')
-                    ->getStateUsing(fn (BalloonDispatch $record): string => $record->getContentExcerpt(100))
+                    ->getStateUsing(fn(BalloonDispatch $record): string => $record->getContentExcerpt(100))
                     ->wrap(),
 
                 IconColumn::make('has_image')
                     ->label('Image')
                     ->boolean()
-                    ->getStateUsing(fn (BalloonDispatch $record): bool => $record->hasImage()),
+                    ->getStateUsing(fn(BalloonDispatch $record): bool => $record->hasImage()),
 
                 TextColumn::make('creator.name')
                     ->label('Created By')

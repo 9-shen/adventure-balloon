@@ -10,6 +10,13 @@ class ListBalloonDispatches extends ListRecords
 {
     protected static string $resource = BalloonDispatchResource::class;
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            \Filament\Actions\CreateAction::make(),
+        ];
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [
