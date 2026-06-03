@@ -66,6 +66,17 @@ class ViewBalloonDispatch extends ViewRecord
                 })
                 ->action(fn () => null),
 
+            Action::make('download_image')
+                ->label('Download Image')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('info')
+                ->url(fn () => $this->getRecord()->hasImage()
+                    ? route('balloon-dispatch.image.download', $this->getRecord())
+                    : null
+                )
+                ->hidden(fn () => ! $this->getRecord()->hasImage())
+                ->openUrlInNewTab(false),
+
             \Filament\Actions\EditAction::make(),
         ];
     }

@@ -18,6 +18,17 @@ class ViewGreeterBalloonDispatch extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('download_image')
+                ->label('Download Image')
+                ->icon('heroicon-o-arrow-down-tray')
+                ->color('success')
+                ->url(fn () => $this->getRecord()->hasImage()
+                    ? route('balloon-dispatch.image.download', $this->getRecord())
+                    : null
+                )
+                ->hidden(fn () => ! $this->getRecord()->hasImage())
+                ->openUrlInNewTab(false),
+
             Action::make('back')
                 ->label('Back to List')
                 ->icon('heroicon-o-arrow-left')
