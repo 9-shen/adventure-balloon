@@ -35,10 +35,20 @@ class ViewBalloonDispatch extends ViewRecord
                         ->get();
 
                     $date    = Carbon::parse($dispatch->dispatch_date)->format('d/m/Y');
-                    $excerpt = \Illuminate\Support\Str::limit(strip_tags($dispatch->content ?? ''), 500);
+                    $rawHtml = $dispatch->content ?? '';
+                    // Convert block-level tags to newlines before stripping HTML
+                    $withNewlines = preg_replace(
+                        ['/<\/p\s*>/i', '/<br\s*\/?>/i', '/<\/li\s*>/i', '/<\/div\s*>/i'],
+                        "\n",
+                        $rawHtml
+                    );
+                    $plainText = html_entity_decode(strip_tags($withNewlines), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                    // Normalise: collapse 3+ blank lines → max 2, then trim
+                    $plainText = preg_replace('/\n{3,}/', "\n\n", trim($plainText));
+                    $excerpt   = \Illuminate\Support\Str::limit($plainText, 500);
 
                     $links = $recipients->map(function (User $user) use ($date, $excerpt): array {
-                        $msg   = "*Adventure Balloon — Balloon Dispatch Update*\n\n📅 Date: {$date}\n\n{$excerpt}\n\n— Adventure Balloon Operations";
+                        $msg   = "*Adventure Balloon — Balloon Dispatch Update*\n\n Date: {$date}\n\n{$excerpt}\n\n— Adventure Balloon Operations";
                         $phone = ltrim($user->phone, '+');
 
                         return [
