@@ -66,7 +66,7 @@ class DriverForm
                     TextInput::make('phone')
                         ->label('Phone (WhatsApp)')
                         ->tel()
-                        ->placeholder('eg: +212666555777')
+                        ->placeholder('+212669611393 | Country Code | Number')
                         ->required()
                         ->maxLength(50)
                         ->helperText('Used for dispatch WhatsApp notifications'),

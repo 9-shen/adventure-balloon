@@ -58,7 +58,8 @@ class UserForm
                             ->components([
                                 TextInput::make('phone')
                                     ->tel()
-                                    ->default(null),
+                                    ->default(null)
+                                    ->placeholder('+212669611393 | Country Code | Number'),
                                     
                                 TextInput::make('national_id')
                                     ->label('National ID / Passport')

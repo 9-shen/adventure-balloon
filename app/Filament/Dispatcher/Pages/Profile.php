@@ -87,7 +87,8 @@ class Profile extends Page implements HasForms
 
                             TextInput::make('phone')
                                 ->tel()
-                                ->maxLength(50),
+                                ->maxLength(50)
+                                ->placeholder('+212669611393 | Country Code | Number'),
 
                             TextInput::make('national_id')
                                 ->label('National ID / Passport')

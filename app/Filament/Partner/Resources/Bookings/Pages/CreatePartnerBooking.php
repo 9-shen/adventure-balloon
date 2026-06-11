@@ -180,7 +180,8 @@ class CreatePartnerBooking extends CreateRecord
                                         ->label('Phone')
                                         ->tel()
                                         ->required(fn($get): bool => (bool) $get('is_primary'))
-                                        ->maxLength(50),
+                                        ->maxLength(50)
+                                        ->placeholder('+212669611393 | Country Code | Number'),
 
                                     TextInput::make('nationality')
                                         ->label('Nationality')

@@ -76,7 +76,8 @@ class DriverResource extends Resource
                             ->label('Phone / WhatsApp')
                             ->tel()
                             ->required()
-                            ->maxLength(50),
+                            ->maxLength(50)
+                            ->placeholder('+212669611393 | Country Code | Number'),
 
                         TextInput::make('email')
                             ->email()

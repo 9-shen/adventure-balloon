@@ -72,7 +72,8 @@ class Profile extends Page implements HasForms
                             TextInput::make('phone')
                                 ->label('Phone / WhatsApp')
                                 ->tel()
-                                ->maxLength(50),
+                                ->maxLength(50)
+                                ->placeholder('+212669611393 | Country Code | Number'),
 
                             TextInput::make('email')
                                 ->label('Login Email')

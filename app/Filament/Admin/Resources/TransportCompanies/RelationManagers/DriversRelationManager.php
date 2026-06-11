@@ -41,7 +41,8 @@ class DriversRelationManager extends RelationManager
                 ->label('Phone (WhatsApp)')
                 ->tel()
                 ->required()
-                ->maxLength(50),
+                ->maxLength(50)
+                ->placeholder('+212669611393 | Country Code | Number'),
 
             TextInput::make('email')
                 ->label('Email (for portal access)')

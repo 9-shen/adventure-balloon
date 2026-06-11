@@ -87,7 +87,8 @@ class Profile extends Page implements HasForms
                             TextInput::make('phone')
                                 ->label('Phone')
                                 ->tel()
-                                ->maxLength(50),
+                                ->maxLength(50)
+                                ->placeholder('+212669611393 | Country Code | Number'),
 
                             Textarea::make('address')
                                 ->rows(3)

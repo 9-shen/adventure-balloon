@@ -153,7 +153,8 @@ class CreateGuideBooking extends CreateRecord
                                     Toggle::make('is_primary')->label('Primary Contact')->default(false)->inline(false)->live(),
                                     TextInput::make('email')->label('Email')->email()->nullable()->maxLength(255),
                                     TextInput::make('phone')->label('Phone')->tel()
-                                        ->required(fn ($get): bool => (bool) $get('is_primary'))->maxLength(50),
+                                        ->required(fn ($get): bool => (bool) $get('is_primary'))->maxLength(50)
+                                        ->placeholder('+212669611393 | Country Code | Number'),
                                     TextInput::make('nationality')->label('Nationality')->nullable()->maxLength(100),
                                     TextInput::make('passport_number')->label('Passport No.')->nullable()->maxLength(100),
                                     DatePicker::make('date_of_birth')->label('Date of Birth')->nullable()->native(false),

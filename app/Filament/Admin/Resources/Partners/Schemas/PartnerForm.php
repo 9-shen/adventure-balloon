@@ -45,7 +45,8 @@ class PartnerForm
 
                                 TextInput::make('phone')
                                     ->tel()
-                                    ->maxLength(50),
+                                    ->maxLength(50)
+                                    ->placeholder('+212669611393 | Country Code | Number'),
 
                                 TextInput::make('city')
                                     ->maxLength(100),

@@ -80,7 +80,8 @@ class BookingCustomersRelationManager extends RelationManager
 
             TextInput::make('phone')
                 ->tel()
-                ->nullable(),
+                ->nullable()
+                ->placeholder('+212669611393 | Country Code | Number'),
 
             TextInput::make('nationality')
                 ->nullable(),

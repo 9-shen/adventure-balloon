@@ -40,7 +40,7 @@ class TransportCompanyForm
 
                             TextInput::make('phone')
                                 ->label('Phone / WhatsApp')
-                                ->placeholder('[Country Code][Number] eg: 212666777888')
+                                ->placeholder('+212669611393 | Country Code | Number')
                                 ->tel()
                                 ->maxLength(50)
                                 ->columnSpanFull(),
