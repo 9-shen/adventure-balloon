@@ -75,6 +75,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make('Bookings'),
                 NavigationGroup::make('Greeter'),
+                NavigationGroup::make('Balloon Dispatch'),
                 NavigationGroup::make('Accountant Module'),
                 NavigationGroup::make('Invoicing'),
                 NavigationGroup::make('Transport Finance'),
