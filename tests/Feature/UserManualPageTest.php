@@ -32,7 +32,7 @@ class UserManualPageTest extends TestCase
         $response = $this->actingAs($user)->get('/admin/user-manual-page');
 
         $response->assertStatus(200);
-        $response->assertSee('Operations &amp; Portal Manual');
+        $response->assertSee('Operations & Portal Manual');
 
         // Clean up if created during test
         if ($created) {
