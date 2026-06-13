@@ -63,6 +63,12 @@ class Profile extends Page implements HasForms
             'bank_iban'           => $partner->bank_iban,
             'bank_swift'          => $partner->bank_swift,
             'payment_terms_days'  => $partner->payment_terms_days,
+            'user_name'           => $user->name,
+            'user_phone'          => $user->phone,
+            'user_email'          => $user->email,
+            'current_password'    => '',
+            'new_password'        => '',
+            'new_password_confirmation' => '',
         ]);
     }
 
@@ -70,6 +76,53 @@ class Profile extends Page implements HasForms
     {
         return $form
             ->schema([
+                Section::make('User Account Information')
+                    ->description('Update your personal login credentials and profile details.')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            TextInput::make('user_name')
+                                ->label('Full Name')
+                                ->required()
+                                ->maxLength(255),
+
+                            TextInput::make('user_phone')
+                                ->label('Phone Number')
+                                ->tel()
+                                ->maxLength(50)
+                                ->placeholder('+212669611393 | Country Code | Number'),
+
+                            TextInput::make('user_email')
+                                ->label('Login Email')
+                                ->email()
+                                ->disabled()
+                                ->columnSpanFull(),
+                        ]),
+                    ]),
+
+                Section::make('Change Password')
+                    ->description('Leave blank if you do not want to change your password.')
+                    ->schema([
+                         Grid::make(1)->schema([
+                            TextInput::make('current_password')
+                                ->label('Current Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:new_password', 'current_password']),
+
+                            TextInput::make('new_password')
+                                ->label('New Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:current_password', 'min:8', 'confirmed']),
+
+                            TextInput::make('new_password_confirmation')
+                                ->label('Confirm New Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:new_password']),
+                        ]),
+                    ]),
+
                 Section::make('Company Information')
                     ->description('Your company contact and address details.')
                     ->schema([
@@ -169,6 +222,21 @@ class Profile extends Page implements HasForms
             'bank_swift'         => $validated['bank_swift'] ?? null,
             'payment_terms_days' => $validated['payment_terms_days'] ?? 30,
         ]);
+
+        $user->update([
+            'name'  => $validated['user_name'],
+            'phone' => $validated['user_phone'] ?? null,
+        ]);
+
+        if (!empty($validated['new_password'])) {
+            $user->update([
+                'password' => \Illuminate\Support\Facades\Hash::make($validated['new_password']),
+            ]);
+
+            $this->data['current_password'] = null;
+            $this->data['new_password'] = null;
+            $this->data['new_password_confirmation'] = null;
+        }
 
         Notification::make()
             ->title('Profile Updated')

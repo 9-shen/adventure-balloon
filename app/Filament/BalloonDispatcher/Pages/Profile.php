@@ -40,6 +40,8 @@ class Profile extends Page implements HasForms
 
         $this->form->fill([
             'name'                     => $user->name,
+            'phone'                    => $user->phone,
+            'email'                    => $user->email,
             'current_password'         => '',
             'new_password'             => '',
             'new_password_confirmation' => '',
@@ -51,40 +53,49 @@ class Profile extends Page implements HasForms
         return $form
             ->schema([
                 Section::make('Personal Information')
-                    ->description('Update your display name.')
+                    ->description('Update your contact details.')
                     ->schema([
-                        TextInput::make('name')
-                            ->label('Full Name')
-                            ->required()
-                            ->maxLength(255),
+                        Grid::make(2)->schema([
+                            TextInput::make('name')
+                                ->label('Full Name')
+                                ->required()
+                                ->maxLength(255),
+
+                            TextInput::make('phone')
+                                ->label('Phone Number')
+                                ->tel()
+                                ->maxLength(50)
+                                ->placeholder('+212669611393 | Country Code | Number'),
+
+                            TextInput::make('email')
+                                ->label('Email Address')
+                                ->email()
+                                ->disabled()
+                                ->columnSpanFull(),
+                        ]),
                     ]),
 
                 Section::make('Change Password')
                     ->description('Leave blank if you do not want to change your password.')
                     ->schema([
-                        Grid::make(1)->schema([
+                         Grid::make(1)->schema([
                             TextInput::make('current_password')
                                 ->label('Current Password')
                                 ->password()
                                 ->revealable()
-                                ->currentPassword()
-                                ->dehydrated(false),
+                                ->rules(['required_with:new_password', 'current_password']),
 
                             TextInput::make('new_password')
                                 ->label('New Password')
                                 ->password()
                                 ->revealable()
-                                ->minLength(8)
-                                ->rules(['min:8'])
-                                ->rule(Password::defaults())
-                                ->confirmed()
-                                ->dehydrated(false),
+                                ->rules(['required_with:current_password', 'min:8', 'confirmed']),
 
                             TextInput::make('new_password_confirmation')
                                 ->label('Confirm New Password')
                                 ->password()
                                 ->revealable()
-                                ->dehydrated(false),
+                                ->rules(['required_with:new_password']),
                         ]),
                     ]),
             ])
@@ -107,11 +118,15 @@ class Profile extends Page implements HasForms
         $data = $this->form->getState();
 
         $user->name = $data['name'];
+        $user->phone = $data['phone'] ?? null;
 
         // Sync back to BalloonDispatcher record
         if ($user->balloon_dispatcher_id) {
             BalloonDispatcherModel::where('id', $user->balloon_dispatcher_id)
-                ->update(['name' => $data['name']]);
+                ->update([
+                    'name' => $data['name'],
+                    'phone' => $data['phone'] ?? null,
+                ]);
         }
 
         if (! empty($data['new_password'])) {

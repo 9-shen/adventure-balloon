@@ -50,9 +50,12 @@ class Profile extends Page implements HasForms
         $user = Auth::user();
 
         $this->form->fill([
-            'name'  => $user->name,
-            'phone' => $user->phone,
-            'email' => $user->email,
+            'name'             => $user->name,
+            'phone'            => $user->phone,
+            'email'            => $user->email,
+            'current_password' => '',
+            'new_password'     => '',
+            'new_password_confirmation' => '',
         ]);
     }
 
@@ -85,22 +88,26 @@ class Profile extends Page implements HasForms
                     ]),
 
                 Section::make('Change Password')
-                    ->description('Update the password used to log in.')
+                    ->description('Leave blank if you do not want to change your password.')
                     ->schema([
-                        Grid::make(2)->schema([
+                         Grid::make(1)->schema([
+                            TextInput::make('current_password')
+                                ->label('Current Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:new_password', 'current_password']),
+
                             TextInput::make('new_password')
                                 ->label('New Password')
                                 ->password()
-                                ->minLength(8)
-                                ->rules(['min:8'])
-                                ->rule(Password::default())
-                                ->requiredWith('new_password_confirmation'),
+                                ->revealable()
+                                ->rules(['required_with:current_password', 'min:8', 'confirmed']),
 
                             TextInput::make('new_password_confirmation')
                                 ->label('Confirm New Password')
                                 ->password()
-                                ->same('new_password')
-                                ->requiredWith('new_password'),
+                                ->revealable()
+                                ->rules(['required_with:new_password']),
                         ]),
                     ]),
             ])
@@ -135,6 +142,7 @@ class Profile extends Page implements HasForms
             ]);
             
             // Clear passwords from form state
+            $this->data['current_password'] = null;
             $this->data['new_password'] = null;
             $this->data['new_password_confirmation'] = null;
         }

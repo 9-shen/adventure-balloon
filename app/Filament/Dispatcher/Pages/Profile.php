@@ -58,6 +58,9 @@ class Profile extends Page implements HasForms
             'nationality'   => $user->nationality,
             'date_of_birth' => $user->date_of_birth,
             'address'       => $user->address,
+            'current_password' => '',
+            'new_password'     => '',
+            'new_password_confirmation' => '',
         ]);
     }
 
@@ -81,9 +84,8 @@ class Profile extends Page implements HasForms
 
                             TextInput::make('email')
                                 ->email()
-                                ->required()
-                                ->maxLength(255)
-                                ->unique(ignoreRecord: true),
+                                ->disabled()
+                                ->maxLength(255),
 
                             TextInput::make('phone')
                                 ->tel()
@@ -107,21 +109,27 @@ class Profile extends Page implements HasForms
                     ]),
 
                 Section::make('Change Password')
-                    ->description('Ensure your account is using a long, random password to stay secure.')
+                    ->description('Leave blank if you do not want to change your password.')
                     ->schema([
-                        TextInput::make('new_password')
-                            ->password()
-                            ->label('New Password')
-                            ->minLength(8)
-                            ->rules(['min:8'])
-                            ->nullable()
-                            ->rule(Password::default()),
+                        Grid::make(1)->schema([
+                            TextInput::make('current_password')
+                                ->label('Current Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:new_password', 'current_password']),
 
-                        TextInput::make('new_password_confirmation')
-                            ->password()
-                            ->label('Confirm New Password')
-                            ->same('new_password')
-                            ->requiredWith('new_password'),
+                            TextInput::make('new_password')
+                                ->label('New Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:current_password', 'min:8', 'confirmed']),
+
+                            TextInput::make('new_password_confirmation')
+                                ->label('Confirm New Password')
+                                ->password()
+                                ->revealable()
+                                ->rules(['required_with:new_password']),
+                        ]),
                     ]),
             ])
             ->statePath('data')
@@ -145,7 +153,6 @@ class Profile extends Page implements HasForms
 
         $user->update([
             'name'          => $state['name'],
-            'email'         => $state['email'],
             'phone'         => $state['phone'] ?? null,
             'national_id'   => $state['national_id'] ?? null,
             'nationality'   => $state['nationality'] ?? null,
@@ -157,6 +164,10 @@ class Profile extends Page implements HasForms
             $user->update([
                 'password' => Hash::make($state['new_password']),
             ]);
+
+            $this->data['current_password'] = null;
+            $this->data['new_password'] = null;
+            $this->data['new_password_confirmation'] = null;
         }
 
         Notification::make()

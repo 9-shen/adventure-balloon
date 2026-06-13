@@ -64,7 +64,7 @@ class Profile extends Page implements HasForms
         return $form
             ->schema([
                 Section::make('Personal Information')
-                    ->description('Update your display name, email address, and phone number.')
+                    ->description('Update your display name and phone number.')
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
@@ -76,7 +76,7 @@ class Profile extends Page implements HasForms
                             TextInput::make('email')
                                 ->label('Email Address')
                                 ->email()
-                                ->required()
+                                ->disabled()
                                 ->maxLength(255),
 
                             TextInput::make('phone')
@@ -87,7 +87,7 @@ class Profile extends Page implements HasForms
                         ]),
                     ]),
 
-                Section::make('Change Password')
+                 Section::make('Change Password')
                     ->description('Leave blank if you do not want to change your password.')
                     ->schema([
                         Grid::make(1)->schema([
@@ -95,24 +95,28 @@ class Profile extends Page implements HasForms
                                 ->label('Current Password')
                                 ->password()
                                 ->revealable()
-                                ->currentPassword()
-                                ->dehydrated(false),
+                                ->required(fn ($get) => filled($get('new_password')))
+                                ->rule(function () {
+                                    return function (string $attribute, $value, \Closure $fail) {
+                                        if (!Hash::check($value, Auth::user()->password)) {
+                                            $fail('The current password is incorrect.');
+                                        }
+                                    };
+                                }),
 
                             TextInput::make('new_password')
                                 ->label('New Password')
                                 ->password()
                                 ->revealable()
-                                ->minLength(8)
+                                ->required(fn ($get) => filled($get('current_password')))
                                 ->rules(['min:8'])
-                                ->rule(Password::defaults())
-                                ->confirmed()
-                                ->dehydrated(false),
+                                ->same('new_password_confirmation'),
 
                             TextInput::make('new_password_confirmation')
                                 ->label('Confirm New Password')
                                 ->password()
                                 ->revealable()
-                                ->dehydrated(false),
+                                ->required(fn ($get) => filled($get('new_password'))),
                         ]),
                     ]),
             ])
@@ -137,14 +141,12 @@ class Profile extends Page implements HasForms
 
         // Update personal info
         $user->name  = $data['name'];
-        $user->email = $data['email'];
         $user->phone = $data['phone'] ?? null;
 
         // Update Guide record if it exists
         if ($user->guide_id) {
             Guide::where('id', $user->guide_id)->update([
                 'name'  => $data['name'],
-                'email' => $data['email'],
                 'phone' => $data['phone'] ?? null,
             ]);
         }
@@ -152,6 +154,11 @@ class Profile extends Page implements HasForms
         // Change password only if a new one is supplied
         if (!empty($data['new_password'])) {
             $user->password = Hash::make($data['new_password']);
+            
+            // Clear passwords from form state
+            $this->data['current_password'] = null;
+            $this->data['new_password'] = null;
+            $this->data['new_password_confirmation'] = null;
         }
 
         $user->save();
