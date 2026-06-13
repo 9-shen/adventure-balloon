@@ -176,4 +176,40 @@ class PortalProfileSecurityTest extends TestCase
         $this->assertEquals('+212699999991', $partnerUser->phone);
         $this->assertTrue(Hash::check('newsecret123', $partnerUser->password));
     }
+
+    /**
+     * Test that saving Guide profile fails when phone number is missing.
+     */
+    public function test_guide_profile_fails_when_phone_is_missing(): void
+    {
+        Livewire::actingAs($this->user)
+            ->test(\App\Filament\Guide\Pages\Profile::class)
+            ->set('data.phone', '')
+            ->call('save')
+            ->assertHasErrors(['data.phone']);
+    }
+
+    /**
+     * Test that saving Partner profile fails when user phone number is missing.
+     */
+    public function test_partner_profile_fails_when_user_phone_is_missing(): void
+    {
+        $partnerRole = Role::where('name', 'partner')->first();
+        
+        $partnerUser = User::create([
+            'name' => 'Partner Owner',
+            'email' => 'partner_owner_2@example.com',
+            'password' => Hash::make('password123'),
+            'phone' => '+212600000002',
+            'partner_id' => $this->partner->id,
+            'is_active' => true,
+        ]);
+        $partnerUser->roles()->attach($partnerRole->id);
+
+        Livewire::actingAs($partnerUser)
+            ->test(\App\Filament\Partner\Pages\Profile::class)
+            ->set('data.user_phone', '')
+            ->call('save')
+            ->assertHasErrors(['data.user_phone']);
+    }
 }

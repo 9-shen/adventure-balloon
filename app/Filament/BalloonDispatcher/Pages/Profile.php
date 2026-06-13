@@ -64,6 +64,7 @@ class Profile extends Page implements HasForms
                             TextInput::make('phone')
                                 ->label('Phone Number')
                                 ->tel()
+                                ->required()
                                 ->maxLength(50)
                                 ->placeholder('+212669611393 | Country Code | Number'),
 
