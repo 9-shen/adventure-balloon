@@ -32,20 +32,54 @@ class EditUser extends EditRecord
     {
         $record->update($data);
 
-        if (array_key_exists('partner_id', $data)) {
-            $record->partner_id = $data['partner_id'];
-        }
-        if (array_key_exists('transport_company_id', $data)) {
-            $record->transport_company_id = $data['transport_company_id'];
-        }
-        if (array_key_exists('driver_id', $data)) {
-            $record->driver_id = $data['driver_id'];
-        }
-        if (array_key_exists('guide_id', $data)) {
-            $record->guide_id = $data['guide_id'];
-        }
-        $record->save();
-
         return $record;
+    }
+
+    protected function afterSave(): void
+    {
+        $user = $this->record;
+        $user->refresh();
+
+        if ($user->hasRole('guide')) {
+            $guide = null;
+            if ($user->guide_id) {
+                $guide = \App\Models\Guide::find($user->guide_id);
+            }
+            if (!$guide) {
+                $guide = \App\Models\Guide::where('email', $user->email)->first();
+            }
+
+            if (!$guide) {
+                $count = \App\Models\Guide::withTrashed()->count() + 1;
+                $guideRef = 'GD-' . str_pad($count, 3, '0', STR_PAD_LEFT);
+
+                $guide = \App\Models\Guide::create([
+                    'partner_id' => $user->partner_id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'guide_reference' => $guideRef,
+                    'is_active' => $user->is_active,
+                ]);
+            } else {
+                $guide->update([
+                    'partner_id' => $user->partner_id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'is_active' => $user->is_active,
+                ]);
+            }
+
+            if ($user->guide_id !== $guide->id) {
+                $user->guide_id = $guide->id;
+                $user->saveQuietly();
+            }
+        } else {
+            if ($user->guide_id !== null) {
+                $user->guide_id = null;
+                $user->saveQuietly();
+            }
+        }
     }
 }

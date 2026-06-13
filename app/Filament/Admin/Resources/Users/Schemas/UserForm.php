@@ -58,7 +58,7 @@ class UserForm
                             ->components([
                                 TextInput::make('phone')
                                     ->tel()
-                                    ->default(null)
+                                    ->required()
                                     ->placeholder('+212669611393 | Country Code | Number'),
                                     
                                 TextInput::make('national_id')
@@ -106,10 +106,10 @@ class UserForm
                             ->visible(function (\Filament\Schemas\Components\Utilities\Get $get) {
                                 $roles = (array) $get('roles');
                                 if (empty($roles)) return false;
-                                $partnerRoles = \Spatie\Permission\Models\Role::where('name', 'partner')->pluck('id')->toArray();
-                                return count(array_intersect($roles, $partnerRoles)) > 0 || in_array('partner', $roles);
+                                $targetRoles = \Spatie\Permission\Models\Role::whereIn('name', ['partner', 'guide'])->pluck('id')->toArray();
+                                return count(array_intersect($roles, $targetRoles)) > 0 || in_array('partner', $roles) || in_array('guide', $roles);
                             })
-                            ->helperText('Link this user to a partner company for partner portal access.'),
+                            ->helperText('Link this user to a partner company for partner or guide portal access.'),
 
                         Select::make('transport_company_id')
                             ->label('Transport Company')

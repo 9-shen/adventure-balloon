@@ -51,12 +51,12 @@ class SettingsSeeder extends Seeder
         // ⚠️  Do NOT commit real credentials here.
         //     Configure SMTP via Admin → Settings → Email after deployment.
         $email = app(EmailSettings::class);
-        $email->host         = null;
+        $email->host         = '';
         $email->port         = 587;
         $email->username     = null;
         $email->password     = null;
         $email->encryption   = 'tls';
-        $email->from_address = null;
+        $email->from_address = '';
         $email->from_name    = 'Adventure Balloon';
         $email->save();
 

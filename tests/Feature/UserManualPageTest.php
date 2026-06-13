@@ -3,10 +3,21 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class UserManualPageTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(\Database\Seeders\RolesAndPermissionsSeeder::class);
+        $this->seed(\Database\Seeders\SettingsSeeder::class);
+    }
+
     public function test_guest_cannot_access_user_manual_page(): void
     {
         $response = $this->get('/admin/user-manual-page');

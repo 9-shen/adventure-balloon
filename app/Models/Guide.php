@@ -74,21 +74,23 @@ class Guide extends Model
                         'phone'     => $guide->phone,
                         'is_active' => $guide->is_active,
                         'guide_id'  => $guide->id,
-                        // NOTE: partner_id is intentionally NOT stored here.
-                        // Guides access the /guide panel, not /partner.
-                        // The guide-to-partner relationship is via the Guide model itself.
+                        'partner_id' => $guide->partner_id,
                     ]
                 );
 
                 // If the user already existed (firstOrCreate found a match),
-                // ensure guide_id is correctly linked.
+                // ensure guide_id and partner_id are correctly linked.
                 if (!$user->wasRecentlyCreated) {
-                    $user->forceFill(['guide_id' => $guide->id])->saveQuietly();
+                    $user->forceFill([
+                        'guide_id' => $guide->id,
+                        'partner_id' => $guide->partner_id,
+                    ])->saveQuietly();
                 }
 
-                // Sync to exactly 'guide' role — removes any stale roles
-                // (e.g., transport, partner) the user may have had previously.
-                $user->syncRoles(['guide']);
+                // Assign 'guide' role safely
+                if (!$user->hasRole('guide')) {
+                    $user->assignRole('guide');
+                }
 
                 try {
                     $guide->notify(new \App\Notifications\GuideAccountCreatedNotification($guide->name, $guide->email, $rawPassword));

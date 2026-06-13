@@ -10,7 +10,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        DB::statement("ALTER TABLE bookings MODIFY COLUMN payment_method ENUM('cash', 'wire', 'online', 'l_c', 'voucher') DEFAULT 'cash'");
+        if (DB::getSchemaBuilder()->getConnection()->getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE bookings MODIFY COLUMN payment_method ENUM('cash', 'wire', 'online', 'l_c', 'voucher') DEFAULT 'cash'");
+        }
     }
 
     /**
@@ -20,6 +22,8 @@ return new class extends Migration
     {
         // Reverting this might drop data if they have 'l_c' or 'voucher' selected, so it's safer to keep the column as is, or revert back safely.
         // We will just recreate the original enum in down, but be careful with existing values.
-        DB::statement("ALTER TABLE bookings MODIFY COLUMN payment_method ENUM('cash', 'wire', 'online') DEFAULT 'cash'");
+        if (DB::getSchemaBuilder()->getConnection()->getDriverName() !== 'sqlite') {
+            DB::statement("ALTER TABLE bookings MODIFY COLUMN payment_method ENUM('cash', 'wire', 'online') DEFAULT 'cash'");
+        }
     }
 };
