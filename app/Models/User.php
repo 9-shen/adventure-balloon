@@ -23,6 +23,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     use HasFactory, HasRoles, Notifiable, InteractsWithMedia, SoftDeletes, TracksDeletedBy;
 
     public static bool $isRestoringLinked = false;
+    public static bool $isDeletingLinked = false;
 
     /**
      * The attributes that are mass assignable.
@@ -124,41 +125,56 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
         });
 
         static::deleting(function (User $user) {
-            // Clear Spatie Permission cache
+            // Suffix email to free it up for reuse (always run, even if triggered by cascading delete)
+            if ($user->email && !str_contains($user->email, '_deleted_')) {
+                $user->email = $user->email . '_deleted_' . time();
+                $user->saveQuietly();
+            }
+
+            // Clear Spatie Permission cache (always run)
             try {
                 app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
             } catch (\Exception $e) {
                 \Illuminate\Support\Facades\Log::warning("Failed to clear permission cache: " . $e->getMessage());
             }
 
-            if ($user->isForceDeleting()) {
-                // Cascade force delete profiles
-                if ($user->driver_id) {
-                    Driver::withTrashed()->find($user->driver_id)?->forceDelete();
-                }
-                if ($user->guide_id) {
-                    Guide::withTrashed()->find($user->guide_id)?->forceDelete();
-                }
-                if ($user->balloon_dispatcher_id) {
-                    BalloonDispatcher::withTrashed()->find($user->balloon_dispatcher_id)?->forceDelete();
-                }
-            } else {
-                // Suffix email to free it up for reuse
-                if ($user->email && !str_contains($user->email, '_deleted_')) {
-                    $user->email = $user->email . '_deleted_' . time();
-                    $user->saveQuietly();
-                }
+            if (static::$isDeletingLinked) {
+                return;
+            }
+            static::$isDeletingLinked = true;
 
-                // Cascade soft delete profiles
-                if ($user->driver_id) {
-                    Driver::find($user->driver_id)?->delete();
+            try {
+                if ($user->isForceDeleting()) {
+                    // Cascade force delete profiles
+                    if ($user->driver_id) {
+                        Driver::withTrashed()->find($user->driver_id)?->forceDelete();
+                    }
+                    if ($user->guide_id) {
+                        Guide::withTrashed()->find($user->guide_id)?->forceDelete();
+                    }
+                    if ($user->balloon_dispatcher_id) {
+                        BalloonDispatcher::withTrashed()->find($user->balloon_dispatcher_id)?->forceDelete();
+                    }
+                } else {
+                    // Cascade soft delete profiles
+                    if ($user->driver_id && ($driver = Driver::find($user->driver_id))) {
+                        Driver::$isDeletingLinked = true;
+                        $driver->delete();
+                    }
+                    if ($user->guide_id && ($guide = Guide::find($user->guide_id))) {
+                        Guide::$isDeletingLinked = true;
+                        $guide->delete();
+                    }
+                    if ($user->balloon_dispatcher_id && ($dispatcher = BalloonDispatcher::find($user->balloon_dispatcher_id))) {
+                        BalloonDispatcher::$isDeletingLinked = true;
+                        $dispatcher->delete();
+                    }
                 }
-                if ($user->guide_id) {
-                    Guide::find($user->guide_id)?->delete();
-                }
-                if ($user->balloon_dispatcher_id) {
-                    BalloonDispatcher::find($user->balloon_dispatcher_id)?->delete();
-                }
+            } finally {
+                static::$isDeletingLinked = false;
+                Driver::$isDeletingLinked = false;
+                Guide::$isDeletingLinked = false;
+                BalloonDispatcher::$isDeletingLinked = false;
             }
         });
 
@@ -180,16 +196,22 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
 
                 // Restore linked profiles
                 if ($user->driver_id) {
+                    Driver::$isRestoringLinked = true;
                     Driver::onlyTrashed()->find($user->driver_id)?->restore();
                 }
                 if ($user->guide_id) {
+                    Guide::$isRestoringLinked = true;
                     Guide::onlyTrashed()->find($user->guide_id)?->restore();
                 }
                 if ($user->balloon_dispatcher_id) {
+                    BalloonDispatcher::$isRestoringLinked = true;
                     BalloonDispatcher::onlyTrashed()->find($user->balloon_dispatcher_id)?->restore();
                 }
             } finally {
                 static::$isRestoringLinked = false;
+                Driver::$isRestoringLinked = false;
+                Guide::$isRestoringLinked = false;
+                BalloonDispatcher::$isRestoringLinked = false;
             }
         });
 

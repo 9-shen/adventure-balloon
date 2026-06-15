@@ -19,6 +19,7 @@ class Driver extends Model implements HasMedia
     use HasFactory, SoftDeletes, Notifiable, InteractsWithMedia, TracksDeletedBy;
 
     public static bool $isRestoringLinked = false;
+    public static bool $isDeletingLinked = false;
 
     protected $fillable = [
         'transport_company_id',
@@ -142,14 +143,32 @@ class Driver extends Model implements HasMedia
         });
 
         static::deleting(function (Driver $driver) {
-            if ($driver->isForceDeleting()) {
-                $driver->user()->forceDelete();
-            } else {
-                if ($driver->email && !str_contains($driver->email, '_deleted_')) {
-                    $driver->email = $driver->email . '_deleted_' . time();
-                    $driver->saveQuietly();
+            // Suffix email to free it up (always run, even if triggered by cascading delete)
+            if ($driver->email && !str_contains($driver->email, '_deleted_')) {
+                $driver->email = $driver->email . '_deleted_' . time();
+                $driver->saveQuietly();
+            }
+
+            if (static::$isDeletingLinked) {
+                return;
+            }
+            static::$isDeletingLinked = true;
+
+            try {
+                if ($driver->isForceDeleting()) {
+                    if ($user = User::withTrashed()->where('driver_id', $driver->id)->first()) {
+                        User::$isDeletingLinked = true;
+                        $user->forceDelete();
+                    }
+                } else {
+                    if ($user = $driver->user) {
+                        User::$isDeletingLinked = true;
+                        $user->delete();
+                    }
                 }
-                $driver->user()->delete();
+            } finally {
+                static::$isDeletingLinked = false;
+                User::$isDeletingLinked = false;
             }
         });
 
@@ -161,12 +180,21 @@ class Driver extends Model implements HasMedia
 
             try {
                 if ($driver->email && str_contains($driver->email, '_deleted_')) {
-                    $driver->email = explode('_deleted_', $driver->email)[0];
+                    $originalEmail = explode('_deleted_', $driver->email)[0];
+                    if (static::where('email', $originalEmail)->exists()) {
+                        throw new \Exception("Cannot restore driver: The email '{$originalEmail}' is already taken by another active driver.");
+                    }
+                    $driver->email = $originalEmail;
                     $driver->saveQuietly();
                 }
-                User::onlyTrashed()->where('driver_id', $driver->id)->first()?->restore();
+
+                if ($user = User::onlyTrashed()->where('driver_id', $driver->id)->first()) {
+                    User::$isRestoringLinked = true;
+                    $user->restore();
+                }
             } finally {
                 static::$isRestoringLinked = false;
+                User::$isRestoringLinked = false;
             }
         });
     }

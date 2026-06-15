@@ -50,6 +50,10 @@ class PartnerGuideResource extends Resource
                 ->email()
                 ->required()
                 ->unique('guides', 'email', ignorable: fn ($record) => $record)
+                ->rules([
+                    fn ($record) => \Illuminate\Validation\Rule::unique('users', 'email')
+                        ->ignore($record?->user?->id),
+                ])
                 ->maxLength(255)
                 ->helperText('A guide portal account will be created automatically.'),
 
@@ -65,6 +69,11 @@ class PartnerGuideResource extends Resource
                 ->required()
                 ->maxLength(100)
                 ->placeholder('e.g. GD-001')
+                ->rules([
+                    fn ($record) => \Illuminate\Validation\Rule::unique('guides', 'guide_reference')
+                        ->where('partner_id', \Illuminate\Support\Facades\Auth::user()->partner_id)
+                        ->ignore($record?->id),
+                ])
                 ->helperText('Must be unique within your agency.'),
 
             \Filament\Forms\Components\Toggle::make('is_active')

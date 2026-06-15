@@ -15,6 +15,7 @@ class Guide extends Model
     use HasFactory, SoftDeletes, TracksDeletedBy;
 
     public static bool $isRestoringLinked = false;
+    public static bool $isDeletingLinked = false;
 
     protected $fillable = [
         'partner_id',
@@ -111,14 +112,36 @@ class Guide extends Model
         });
 
         static::deleting(function (Guide $guide) {
-            if ($guide->isForceDeleting()) {
-                $guide->user()->forceDelete();
-            } else {
-                if ($guide->email && !str_contains($guide->email, '_deleted_')) {
-                    $guide->email = $guide->email . '_deleted_' . time();
-                    $guide->saveQuietly();
+            // Suffix email and guide_reference to free them up (always run, even if triggered by cascading delete)
+            if ($guide->email && !str_contains($guide->email, '_deleted_')) {
+                $guide->email = $guide->email . '_deleted_' . time();
+                $guide->saveQuietly();
+            }
+            if ($guide->guide_reference && !str_contains($guide->guide_reference, '_deleted_')) {
+                $guide->guide_reference = $guide->guide_reference . '_deleted_' . time();
+                $guide->saveQuietly();
+            }
+
+            if (static::$isDeletingLinked) {
+                return;
+            }
+            static::$isDeletingLinked = true;
+
+            try {
+                if ($guide->isForceDeleting()) {
+                    if ($user = User::withTrashed()->where('guide_id', $guide->id)->first()) {
+                        User::$isDeletingLinked = true;
+                        $user->forceDelete();
+                    }
+                } else {
+                    if ($user = $guide->user) {
+                        User::$isDeletingLinked = true;
+                        $user->delete();
+                    }
                 }
-                $guide->user()->delete();
+            } finally {
+                static::$isDeletingLinked = false;
+                User::$isDeletingLinked = false;
             }
         });
 
@@ -137,9 +160,23 @@ class Guide extends Model
                     $guide->email = $originalEmail;
                     $guide->saveQuietly();
                 }
-                User::onlyTrashed()->where('guide_id', $guide->id)->first()?->restore();
+
+                if ($guide->guide_reference && str_contains($guide->guide_reference, '_deleted_')) {
+                    $originalRef = explode('_deleted_', $guide->guide_reference)[0];
+                    if (static::where('partner_id', $guide->partner_id)->where('guide_reference', $originalRef)->exists()) {
+                        throw new \Exception("Cannot restore guide: The reference '{$originalRef}' is already taken by another active guide for this partner.");
+                    }
+                    $guide->guide_reference = $originalRef;
+                    $guide->saveQuietly();
+                }
+
+                if ($user = User::onlyTrashed()->where('guide_id', $guide->id)->first()) {
+                    User::$isRestoringLinked = true;
+                    $user->restore();
+                }
             } finally {
                 static::$isRestoringLinked = false;
+                User::$isRestoringLinked = false;
             }
         });
     }

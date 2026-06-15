@@ -13,6 +13,7 @@ class BalloonDispatcher extends Model
     use HasFactory, SoftDeletes, TracksDeletedBy;
 
     public static bool $isRestoringLinked = false;
+    public static bool $isDeletingLinked = false;
 
     protected $fillable = [
         'name',
@@ -93,14 +94,32 @@ class BalloonDispatcher extends Model
         });
 
         static::deleting(function (BalloonDispatcher $dispatcher) {
-            if ($dispatcher->isForceDeleting()) {
-                $dispatcher->user()->forceDelete();
-            } else {
-                if ($dispatcher->email && !str_contains($dispatcher->email, '_deleted_')) {
-                    $dispatcher->email = $dispatcher->email . '_deleted_' . time();
-                    $dispatcher->saveQuietly();
+            // Suffix email to free it up (always run, even if triggered by cascading delete)
+            if ($dispatcher->email && !str_contains($dispatcher->email, '_deleted_')) {
+                $dispatcher->email = $dispatcher->email . '_deleted_' . time();
+                $dispatcher->saveQuietly();
+            }
+
+            if (static::$isDeletingLinked) {
+                return;
+            }
+            static::$isDeletingLinked = true;
+
+            try {
+                if ($dispatcher->isForceDeleting()) {
+                    if ($user = User::withTrashed()->where('balloon_dispatcher_id', $dispatcher->id)->first()) {
+                        User::$isDeletingLinked = true;
+                        $user->forceDelete();
+                    }
+                } else {
+                    if ($user = $dispatcher->user) {
+                        User::$isDeletingLinked = true;
+                        $user->delete();
+                    }
                 }
-                $dispatcher->user()->delete();
+            } finally {
+                static::$isDeletingLinked = false;
+                User::$isDeletingLinked = false;
             }
         });
 
@@ -119,9 +138,14 @@ class BalloonDispatcher extends Model
                     $dispatcher->email = $originalEmail;
                     $dispatcher->saveQuietly();
                 }
-                User::onlyTrashed()->where('balloon_dispatcher_id', $dispatcher->id)->first()?->restore();
+
+                if ($user = User::onlyTrashed()->where('balloon_dispatcher_id', $dispatcher->id)->first()) {
+                    User::$isRestoringLinked = true;
+                    $user->restore();
+                }
             } finally {
                 static::$isRestoringLinked = false;
+                User::$isRestoringLinked = false;
             }
         });
     }
