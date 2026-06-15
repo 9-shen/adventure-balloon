@@ -14,6 +14,8 @@ class Guide extends Model
 {
     use HasFactory, SoftDeletes, TracksDeletedBy;
 
+    public static bool $isRestoringLinked = false;
+
     protected $fillable = [
         'partner_id',
         'name',
@@ -112,7 +114,32 @@ class Guide extends Model
             if ($guide->isForceDeleting()) {
                 $guide->user()->forceDelete();
             } else {
+                if ($guide->email && !str_contains($guide->email, '_deleted_')) {
+                    $guide->email = $guide->email . '_deleted_' . time();
+                    $guide->saveQuietly();
+                }
                 $guide->user()->delete();
+            }
+        });
+
+        static::restoring(function (Guide $guide) {
+            if (static::$isRestoringLinked) {
+                return;
+            }
+            static::$isRestoringLinked = true;
+
+            try {
+                if ($guide->email && str_contains($guide->email, '_deleted_')) {
+                    $originalEmail = explode('_deleted_', $guide->email)[0];
+                    if (static::where('email', $originalEmail)->exists()) {
+                        throw new \Exception("Cannot restore guide: The email '{$originalEmail}' is already taken by another active guide.");
+                    }
+                    $guide->email = $originalEmail;
+                    $guide->saveQuietly();
+                }
+                User::onlyTrashed()->where('guide_id', $guide->id)->first()?->restore();
+            } finally {
+                static::$isRestoringLinked = false;
             }
         });
     }

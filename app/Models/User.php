@@ -22,6 +22,8 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
     /** @use HasFactory<UserFactory> */
     use HasFactory, HasRoles, Notifiable, InteractsWithMedia, SoftDeletes, TracksDeletedBy;
 
+    public static bool $isRestoringLinked = false;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -118,6 +120,76 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
                 if ($user->guide) {
                     $user->guide->fill($user->only(['name', 'email', 'phone', 'is_active']))->saveQuietly();
                 }
+            }
+        });
+
+        static::deleting(function (User $user) {
+            // Clear Spatie Permission cache
+            try {
+                app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Failed to clear permission cache: " . $e->getMessage());
+            }
+
+            if ($user->isForceDeleting()) {
+                // Cascade force delete profiles
+                if ($user->driver_id) {
+                    Driver::withTrashed()->find($user->driver_id)?->forceDelete();
+                }
+                if ($user->guide_id) {
+                    Guide::withTrashed()->find($user->guide_id)?->forceDelete();
+                }
+                if ($user->balloon_dispatcher_id) {
+                    BalloonDispatcher::withTrashed()->find($user->balloon_dispatcher_id)?->forceDelete();
+                }
+            } else {
+                // Suffix email to free it up for reuse
+                if ($user->email && !str_contains($user->email, '_deleted_')) {
+                    $user->email = $user->email . '_deleted_' . time();
+                    $user->saveQuietly();
+                }
+
+                // Cascade soft delete profiles
+                if ($user->driver_id) {
+                    Driver::find($user->driver_id)?->delete();
+                }
+                if ($user->guide_id) {
+                    Guide::find($user->guide_id)?->delete();
+                }
+                if ($user->balloon_dispatcher_id) {
+                    BalloonDispatcher::find($user->balloon_dispatcher_id)?->delete();
+                }
+            }
+        });
+
+        static::restoring(function (User $user) {
+            if (static::$isRestoringLinked) {
+                return;
+            }
+            static::$isRestoringLinked = true;
+
+            try {
+                if ($user->email && str_contains($user->email, '_deleted_')) {
+                    $originalEmail = explode('_deleted_', $user->email)[0];
+                    if (static::where('email', $originalEmail)->exists()) {
+                        throw new \Exception("Cannot restore user: The email '{$originalEmail}' is already taken by another active user.");
+                    }
+                    $user->email = $originalEmail;
+                    $user->saveQuietly();
+                }
+
+                // Restore linked profiles
+                if ($user->driver_id) {
+                    Driver::onlyTrashed()->find($user->driver_id)?->restore();
+                }
+                if ($user->guide_id) {
+                    Guide::onlyTrashed()->find($user->guide_id)?->restore();
+                }
+                if ($user->balloon_dispatcher_id) {
+                    BalloonDispatcher::onlyTrashed()->find($user->balloon_dispatcher_id)?->restore();
+                }
+            } finally {
+                static::$isRestoringLinked = false;
             }
         });
 

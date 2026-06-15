@@ -18,6 +18,8 @@ class Driver extends Model implements HasMedia
 {
     use HasFactory, SoftDeletes, Notifiable, InteractsWithMedia, TracksDeletedBy;
 
+    public static bool $isRestoringLinked = false;
+
     protected $fillable = [
         'transport_company_id',
         'vehicle_id',
@@ -143,7 +145,28 @@ class Driver extends Model implements HasMedia
             if ($driver->isForceDeleting()) {
                 $driver->user()->forceDelete();
             } else {
+                if ($driver->email && !str_contains($driver->email, '_deleted_')) {
+                    $driver->email = $driver->email . '_deleted_' . time();
+                    $driver->saveQuietly();
+                }
                 $driver->user()->delete();
+            }
+        });
+
+        static::restoring(function (Driver $driver) {
+            if (static::$isRestoringLinked) {
+                return;
+            }
+            static::$isRestoringLinked = true;
+
+            try {
+                if ($driver->email && str_contains($driver->email, '_deleted_')) {
+                    $driver->email = explode('_deleted_', $driver->email)[0];
+                    $driver->saveQuietly();
+                }
+                User::onlyTrashed()->where('driver_id', $driver->id)->first()?->restore();
+            } finally {
+                static::$isRestoringLinked = false;
             }
         });
     }

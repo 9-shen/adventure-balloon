@@ -12,6 +12,8 @@ class BalloonDispatcher extends Model
 {
     use HasFactory, SoftDeletes, TracksDeletedBy;
 
+    public static bool $isRestoringLinked = false;
+
     protected $fillable = [
         'name',
         'email',
@@ -94,7 +96,32 @@ class BalloonDispatcher extends Model
             if ($dispatcher->isForceDeleting()) {
                 $dispatcher->user()->forceDelete();
             } else {
+                if ($dispatcher->email && !str_contains($dispatcher->email, '_deleted_')) {
+                    $dispatcher->email = $dispatcher->email . '_deleted_' . time();
+                    $dispatcher->saveQuietly();
+                }
                 $dispatcher->user()->delete();
+            }
+        });
+
+        static::restoring(function (BalloonDispatcher $dispatcher) {
+            if (static::$isRestoringLinked) {
+                return;
+            }
+            static::$isRestoringLinked = true;
+
+            try {
+                if ($dispatcher->email && str_contains($dispatcher->email, '_deleted_')) {
+                    $originalEmail = explode('_deleted_', $dispatcher->email)[0];
+                    if (static::where('email', $originalEmail)->exists()) {
+                        throw new \Exception("Cannot restore balloon dispatcher: The email '{$originalEmail}' is already taken by another active dispatcher.");
+                    }
+                    $dispatcher->email = $originalEmail;
+                    $dispatcher->saveQuietly();
+                }
+                User::onlyTrashed()->where('balloon_dispatcher_id', $dispatcher->id)->first()?->restore();
+            } finally {
+                static::$isRestoringLinked = false;
             }
         });
     }
