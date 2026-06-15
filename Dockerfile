@@ -22,19 +22,11 @@ RUN npm run build
 # ─── Stage 2: PHP Production Image ─────────────────────────────────────────────
 FROM php:8.2-fpm-alpine AS production
 
-RUN apk add --no-cache \
-    nginx supervisor curl \
-    libpng-dev libjpeg-turbo-dev freetype-dev \
-    libzip-dev oniguruma-dev icu-dev \
-    zlib zlib-dev git unzip \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install \
-        pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-RUN apk add --no-cache $PHPIZE_DEPS \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
-    && apk del $PHPIZE_DEPS
+RUN apk add --no-cache nginx supervisor curl git unzip \
+    && chmod +x /usr/local/bin/install-php-extensions \
+    && install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd zip intl opcache redis
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
