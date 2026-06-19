@@ -38,7 +38,7 @@ class RevenueChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'                     => 'Revenue (MAD)',
+                    'label'                     => 'Revenue (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')',
                     'data'                      => $data,
                     'borderColor'               => '#e71a39',
                     'backgroundColor'           => 'rgba(231, 26, 57, 0.08)',

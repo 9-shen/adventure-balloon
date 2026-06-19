@@ -42,10 +42,11 @@ class RevenueReportExport implements FromQuery, WithHeadings, WithMapping, Shoul
 
     public function headings(): array
     {
+        $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
         return [
             'Booking Ref', 'Type', 'Partner / Source', 'Product',
             'Flight Date', 'Adults', 'Children', 'Total PAX',
-            'Final Amount (MAD)', 'Amount Paid (MAD)', 'Balance Due (MAD)',
+            "Final Amount ({$currency})", "Amount Paid ({$currency})", "Balance Due ({$currency})",
             'Payment Status', 'Booking Status',
         ];
     }

@@ -93,7 +93,7 @@ class ViewTransporterDispatches extends ManageRelatedRecords
 
                     Notification::make()
                         ->title('✅ Bill ' . $bill->bill_ref . ' created!')
-                        ->body($bill->items->count() . ' dispatch(es) — MAD ' . number_format((float) $bill->total_amount, 2))
+                        ->body($bill->items->count() . ' dispatch(es) — ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $bill->total_amount, 2))
                         ->success()
                         ->send();
 

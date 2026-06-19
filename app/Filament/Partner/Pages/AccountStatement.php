@@ -364,7 +364,8 @@ class AccountStatement extends Page implements HasTable
     {
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Booking Ref','Flight Date','Product','Adults','Children','Total PAX','Amount (MAD)','Payment Status','Booking Status']);
+            $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
+            fputcsv($out, ['Booking Ref','Flight Date','Product','Adults','Children','Total PAX',"Amount ({$currency})",'Payment Status','Booking Status']);
             foreach ($rows as $r) {
                 fputcsv($out, [
                     $r->booking_ref,
@@ -386,7 +387,8 @@ class AccountStatement extends Page implements HasTable
     {
         return response()->streamDownload(function () use ($rows) {
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Invoice #','Period From','Period To','Subtotal (MAD)','Tax (MAD)','Total (MAD)','Status','Sent At','Paid At']);
+            $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
+            fputcsv($out, ['Invoice #','Period From','Period To',"Subtotal ({$currency})","Tax ({$currency})","Total ({$currency})",'Status','Sent At','Paid At']);
             foreach ($rows as $r) {
                 fputcsv($out, [
                     $r->invoice_ref,

@@ -47,7 +47,7 @@ class PartnerStatsWidget extends BaseWidget
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success'),
 
-            Stat::make('Total Invoiced', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format((float) $totalBilled, 2) . ' MAD</span>'))
+            Stat::make('Total Invoiced', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format((float) $totalBilled, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . '</span>'))
                 ->description(number_format((float) $totalOutstanding, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' outstanding')
                 ->icon('heroicon-o-document-text')
                 ->color('warning'),

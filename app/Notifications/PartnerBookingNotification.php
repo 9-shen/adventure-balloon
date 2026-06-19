@@ -62,7 +62,7 @@ class PartnerBookingNotification extends Notification implements ShouldQueue
             ->line("**Total PAX    :** {$totalPax}")
             ->line('')
             ->line('**💰 FINANCIALS**')
-            ->line("**Final Amount :** {$amount} MAD")
+            ->line("**Final Amount :** {$amount} " . app(AppSettings::class)->getIsoCurrency())
             ->line("**Payment      :** " . ucfirst(str_replace('_', ' ', $booking->payment_status ?? 'due')))
             ->line('')
             ->line('---')

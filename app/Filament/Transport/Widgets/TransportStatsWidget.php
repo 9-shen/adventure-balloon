@@ -42,12 +42,12 @@ class TransportStatsWidget extends BaseWidget
                 ->description('Successfully completed')
                 ->color('success'),
 
-            Stat::make('Expected Payment', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($expectedPayment, 2) . ' MAD</span>'))
+            Stat::make('Expected Payment', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($expectedPayment, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . '</span>'))
                 ->icon('heroicon-o-clock')
                 ->description('From confirmed dispatches')
                 ->color('warning'),
                 
-            Stat::make('Payment Due', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($paymentDue, 2) . ' MAD</span>'))
+            Stat::make('Payment Due', new HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($paymentDue, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . '</span>'))
                 ->icon('heroicon-o-banknotes')
                 ->description('From delivered & unbilled dispatches')
                 ->color('danger'),

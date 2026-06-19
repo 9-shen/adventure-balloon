@@ -553,15 +553,16 @@ class BookingWizard
             ->where('product_id', $productId)
             ->first();
 
+        $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
         if ($pivot) {
-            return "✅ Partner prices applied — Adult: MAD " . number_format((float) $pivot->partner_adult_price, 2)
-                . " | Child: MAD " . number_format((float) $pivot->partner_child_price, 2);
+            return "✅ Partner prices applied — Adult: {$currency} " . number_format((float) $pivot->partner_adult_price, 2)
+                . " | Child: {$currency} " . number_format((float) $pivot->partner_child_price, 2);
         }
 
         $product = Product::find($productId);
-        return "⚠️ No partner-specific price found. Using base price — Adult: MAD "
+        return "⚠️ No partner-specific price found. Using base price — Adult: {$currency} "
             . number_format((float) ($product?->base_adult_price ?? 0), 2)
-            . " | Child: MAD "
+            . " | Child: {$currency} "
             . number_format((float) ($product?->base_child_price ?? 0), 2);
     }
 }

@@ -23,15 +23,16 @@ class FinanceReportQueryExport implements FromQuery, WithHeadings, WithMapping, 
 
     public function headings(): array
     {
+        $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
         return [
             'Reference',
             'Flight Date',
             'Partner / Type',
             'Partner Ref',
             'PAX',
-            'Final Amount',
-            'Amount Paid',
-            'Balance Due',
+            "Final Amount ({$currency})",
+            "Amount Paid ({$currency})",
+            "Balance Due ({$currency})",
             'Payment Status',
             'Payment Method',
         ];

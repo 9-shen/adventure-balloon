@@ -47,6 +47,8 @@ class InvoiceIssuedNotification extends Notification implements ShouldQueue
         $taxRate    = $invoice->tax_rate;
         $itemCount  = $invoice->items?->count() ?? 0;
 
+        $currency   = app(AppSettings::class)->getIsoCurrency();
+
         $subject = $this->isResend
             ? "Invoice {$invoice->invoice_ref} — Payment Requested | {$appName}"
             : "Invoice {$invoice->invoice_ref} from {$appName}";
@@ -67,9 +69,9 @@ class InvoiceIssuedNotification extends Notification implements ShouldQueue
             ->line("**Bookings     :** {$itemCount} items")
             ->line('')
             ->line("**💰 FINANCIALS**")
-            ->line("**Subtotal     :** {$subtotal} MAD")
-            ->when($taxRate > 0, fn ($m) => $m->line("**Tax ({$taxRate}%)  :** " . number_format((float) $invoice->tax_amount, 2) . " MAD"))
-            ->line("**TOTAL DUE    :** {$total} MAD")
+            ->line("**Subtotal     :** {$subtotal} {$currency}")
+            ->when($taxRate > 0, fn ($m) => $m->line("**Tax ({$taxRate}%)  :** " . number_format((float) $invoice->tax_amount, 2) . " {$currency}"))
+            ->line("**TOTAL DUE    :** {$total} {$currency}")
             ->line('')
             ->when($invoice->notes, fn ($m) => $m->line("**Notes:** {$invoice->notes}")->line(''))
             ->line('---')

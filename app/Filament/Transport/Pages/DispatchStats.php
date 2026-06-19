@@ -187,8 +187,9 @@ class DispatchStats extends Page implements HasTable
     private function streamDispatchesCsv($rows): StreamedResponse
     {
         return response()->streamDownload(function () use ($rows) {
+            $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
             $out = fopen('php://output', 'w');
-            fputcsv($out, ['Dispatch Ref', 'Booking Ref', 'Flight Date', 'Time', 'Total PAX', 'Pickup Location', 'Dropoff Location', 'Cost (MAD)', 'Status']);
+            fputcsv($out, ['Dispatch Ref', 'Booking Ref', 'Flight Date', 'Time', 'Total PAX', 'Pickup Location', 'Dropoff Location', "Cost ({$currency})", 'Status']);
             
             foreach ($rows as $r) {
                 fputcsv($out, [

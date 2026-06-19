@@ -27,12 +27,12 @@ class AccountantTotalRevenueWidget extends BaseWidget
         $pendingPaymentsCount = Booking::where('balance_due', '>', 0)->count();
 
         return [
-            Stat::make('Total Collected Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($totalPaid, 2) . ' MAD</span>'))
+            Stat::make('Total Collected Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($totalPaid, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . '</span>'))
                 ->description('All-time payments collected')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('success'),
                 
-            Stat::make('Total Outstanding Balance', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($outstanding, 2) . ' MAD</span>'))
+            Stat::make('Total Outstanding Balance', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . number_format($outstanding, 2) . ' ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . '</span>'))
                 ->description('Total unpaid across all bookings')
                 ->descriptionIcon('heroicon-m-exclamation-circle')
                 ->color('danger'),

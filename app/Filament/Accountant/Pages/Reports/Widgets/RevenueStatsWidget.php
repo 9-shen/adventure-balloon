@@ -21,17 +21,17 @@ class RevenueStatsWidget extends BaseWidget
         $totalPax       = (int) (clone $query)->sum(DB::raw('adult_pax + child_pax'));
 
         return [
-            Stat::make('Total Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalRevenue, 2) . '</span>'))
+            Stat::make('Total Revenue', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalRevenue, 2) . '</span>'))
                 ->description('All active bookings')
                 ->descriptionIcon('heroicon-m-banknotes')
                 ->color('primary'),
 
-            Stat::make('Collected', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($collected, 2) . '</span>'))
+            Stat::make('Collected', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($collected, 2) . '</span>'))
                 ->description('Total payments received')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Outstanding', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($outstanding, 2) . '</span>'))
+            Stat::make('Outstanding', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($outstanding, 2) . '</span>'))
                 ->description('Pending balance due')
                 ->descriptionIcon('heroicon-m-exclamation-circle')
                 ->color('danger'),

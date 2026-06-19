@@ -92,7 +92,7 @@
                                             {{ $day['total_bookings'] }} {{ $day['total_bookings'] === 1 ? 'booking' : 'bookings' }}
                                         </span>
                                         <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                                            {{ number_format($day['total_revenue'], 0) }} MAD
+                                            {{ number_format($day['total_revenue'], 0) }} {{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}
                                         </p>
                                     </div>
                                 @endif
@@ -128,7 +128,7 @@
                     <div class="pb-4 border-b border-gray-100 dark:border-gray-800">
                         <p class="text-3xl font-extrabold text-gray-900 dark:text-white leading-none">
                             {{ number_format($monthStats['total_revenue'], 0) }}
-                            <span class="text-lg font-semibold text-gray-400">MAD</span>
+                            <span class="text-lg font-semibold text-gray-400">{{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}</span>
                         </p>
                         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Total Revenue</p>
                     </div>
@@ -136,7 +136,7 @@
                     <div>
                         <p class="text-3xl font-extrabold text-gray-900 dark:text-white leading-none">
                             {{ number_format($monthStats['avg_booking_value'], 0) }}
-                            <span class="text-lg font-semibold text-gray-400">MAD</span>
+                            <span class="text-lg font-semibold text-gray-400">{{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}</span>
                         </p>
                         <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Avg. Booking Value</p>
                     </div>
@@ -208,7 +208,7 @@
                             </div>
                             <span class="text-sm font-bold text-gray-900 dark:text-white">
                                 {{ number_format($selectedDayStats['totalAmount'], 0) }}
-                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                                <span class="text-xs font-normal text-gray-400">{{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}</span>
                             </span>
                         </div>
 
@@ -220,7 +220,7 @@
                             </div>
                             <span class="text-sm font-bold text-green-600 dark:text-green-400">
                                 {{ number_format($selectedDayStats['totalPaid'], 0) }}
-                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                                <span class="text-xs font-normal text-gray-400">{{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}</span>
                             </span>
                         </div>
 
@@ -236,7 +236,7 @@
                             </div>
                             <span class="text-sm font-bold {{ $selectedDayStats['totalDue'] > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
                                 {{ number_format($selectedDayStats['totalDue'], 0) }}
-                                <span class="text-xs font-normal text-gray-400">MAD</span>
+                                <span class="text-xs font-normal text-gray-400">{{ app(\App\Settings\AppSettings::class)->getIsoCurrency() }}</span>
                             </span>
                         </div>
                     @endif

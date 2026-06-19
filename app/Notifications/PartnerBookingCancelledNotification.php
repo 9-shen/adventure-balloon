@@ -62,7 +62,7 @@ class PartnerBookingCancelledNotification extends Notification implements Should
             ->line("**Total PAX    :** {$totalPax}")
             ->line('')
             ->line('**💰 FINANCIALS**')
-            ->line("**Total Amount :** {$amount} MAD")
+            ->line("**Total Amount :** {$amount} " . app(AppSettings::class)->getIsoCurrency())
             ->line('')
             ->line('**❌ CANCELLATION REASON**')
             ->line($this->reason)

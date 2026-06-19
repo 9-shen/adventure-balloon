@@ -46,6 +46,8 @@ class TransportBillIssuedNotification extends Notification implements ShouldQueu
         $taxRate    = $bill->tax_rate;
         $itemCount  = $bill->items?->count() ?? 0;
 
+        $currency   = app(AppSettings::class)->getIsoCurrency();
+
         $subject = $this->isResend
             ? "Transport Bill {$bill->bill_ref} — Copy Requested | {$appName}"
             : "Transport Bill {$bill->bill_ref} from {$appName}";
@@ -66,9 +68,9 @@ class TransportBillIssuedNotification extends Notification implements ShouldQueu
             ->line("**Dispatches   :** {$itemCount} items")
             ->line('')
             ->line("**💰 FINANCIALS**")
-            ->line("**Subtotal     :** {$subtotal} MAD")
-            ->when($taxRate > 0, fn ($m) => $m->line("**Tax ({$taxRate}%)  :** " . number_format((float) $bill->tax_amount, 2) . " MAD"))
-            ->line("**TOTAL DUE    :** {$total} MAD")
+            ->line("**Subtotal     :** {$subtotal} {$currency}")
+            ->when($taxRate > 0, fn ($m) => $m->line("**Tax ({$taxRate}%)  :** " . number_format((float) $bill->tax_amount, 2) . " {$currency}"))
+            ->line("**TOTAL DUE    :** {$total} {$currency}")
             ->line('')
             ->when($bill->notes, fn ($m) => $m->line("**Notes:** {$bill->notes}")->line(''))
             ->line('---')

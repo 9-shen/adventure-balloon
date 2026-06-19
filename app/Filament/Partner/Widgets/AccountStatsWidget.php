@@ -38,17 +38,17 @@ class AccountStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-calendar-days')
                 ->color('primary'),
 
-            Stat::make('Total Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalBilled, 2) . '</span>'))
+            Stat::make('Total Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalBilled, 2) . '</span>'))
                 ->description('Across all sent & paid invoices')
                 ->descriptionIcon('heroicon-m-document-text')
                 ->color('info'),
 
-            Stat::make('Total Paid', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalPaid, 2) . '</span>'))
+            Stat::make('Total Paid', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalPaid, 2) . '</span>'))
                 ->description('Settled invoices')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color('success'),
 
-            Stat::make('Outstanding Due', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalDue, 2) . '</span>'))
+            Stat::make('Outstanding Due', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalDue, 2) . '</span>'))
                 ->description($overdue > 0
                     ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($overdue, 2) . ' overdue ⚠'
                     : 'No overdue invoices'

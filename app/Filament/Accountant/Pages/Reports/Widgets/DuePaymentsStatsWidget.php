@@ -19,7 +19,7 @@ class DuePaymentsStatsWidget extends BaseWidget
         $highestBalance   = (float) (clone $query)->max('balance_due');
 
         return [
-            Stat::make('Total Outstanding', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalOutstanding, 2) . '</span>'))
+            Stat::make('Total Outstanding', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalOutstanding, 2) . '</span>'))
                 ->description('Across all due bookings')
                 ->descriptionIcon('heroicon-m-exclamation-triangle')
                 ->color('danger'),
@@ -29,7 +29,7 @@ class DuePaymentsStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-document-duplicate')
                 ->color('warning'),
 
-            Stat::make('Highest Single Balance', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($highestBalance, 2) . '</span>'))
+            Stat::make('Highest Single Balance', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($highestBalance, 2) . '</span>'))
                 ->description('Max amount owed')
                 ->descriptionIcon('heroicon-m-arrow-trending-up')
                 ->color('danger'),

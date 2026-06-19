@@ -45,9 +45,10 @@ class PartnerSummaryExport implements FromCollection, WithHeadings, WithMapping,
 
     public function headings(): array
     {
+        $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
         return [
             'Partner', 'Email', 'Status', 'Total Bookings', 'Total PAX',
-            'Total Revenue (MAD)', 'Total Paid (MAD)', 'Outstanding (MAD)', 'Invoices Count',
+            "Total Revenue ({$currency})", "Total Paid ({$currency})", "Outstanding ({$currency})", 'Invoices Count',
         ];
     }
 

@@ -23,17 +23,17 @@ class TransportCostStatsWidget extends StatsOverviewWidget
                 ->icon('heroicon-o-truck')
                 ->color('info'),
 
-            Stat::make('Total Transport Cost', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalCost, 2) . '</span>'))
+            Stat::make('Total Transport Cost', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($totalCost, 2) . '</span>'))
                 ->description('Sum of all dispatch costs')
                 ->icon('heroicon-o-calculator')
                 ->color('primary'),
 
-            Stat::make('Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($billedCost, 2) . '</span>'))
+            Stat::make('Billed', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($billedCost, 2) . '</span>'))
                 ->description('Included in transport bills')
                 ->icon('heroicon-o-document-check')
                 ->color('success'),
 
-            Stat::make('Unbilled', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($unbilledCost, 2) . '</span>'))
+            Stat::make('Unbilled', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($unbilledCost, 2) . '</span>'))
                 ->description('Not yet billed')
                 ->icon('heroicon-o-exclamation-triangle')
                 ->color($unbilledCost > 0 ? 'danger' : 'success'),

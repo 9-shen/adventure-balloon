@@ -210,7 +210,8 @@ class BookingEditForm
                                 ->label('Final Amount')
                                 ->content(fn($record): HtmlString => $record
                                     ? new HtmlString(
-                                        '<span class="text-lg font-bold text-primary-600">MAD '
+                                        '<span class="text-lg font-bold text-primary-600">'
+                                            . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' '
                                             . number_format((float) $record->final_amount, 2)
                                             . '</span>'
                                     )

@@ -34,10 +34,11 @@ class TransportCostExport implements FromQuery, WithHeadings, WithMapping, Shoul
 
     public function headings(): array
     {
+        $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
         return [
             'Dispatch Ref', 'Booking Ref', 'Transport Company',
             'Flight Date', 'PAX', 'Vehicles',
-            'Transport Cost (MAD)', 'Status', 'Billed',
+            "Transport Cost ({$currency})", 'Status', 'Billed',
         ];
     }
 
