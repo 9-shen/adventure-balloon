@@ -70,7 +70,7 @@ class RevenueChartWidget extends ChartWidget
                 'y' => [
                     'beginAtZero' => true,
                     'ticks'       => [
-                        'callback' => 'function(value) { return "MAD " + value.toLocaleString(); }',
+                        'callback' => 'function(value) { return "' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' " + value.toLocaleString(); }',
                     ],
                 ],
             ],

@@ -185,7 +185,7 @@ class CreateGuideBooking extends CreateRecord
                                         $pricing = app(BookingService::class)
                                             ->calculatePricing($product, $adultPax, $childPax, 0, $partnerId);
                                         return sprintf(
-                                            "%d Adult(s) × %.2f MAD + %d Child(ren) × %.2f MAD = **%.2f MAD**",
+                                            "%d Adult(s) × %.2f " . app(\App\Settings\AppSettings::class)->getIsoCurrency() . " + %d Child(ren) × %.2f " . app(\App\Settings\AppSettings::class)->getIsoCurrency() . " = **%.2f " . app(\App\Settings\AppSettings::class)->getIsoCurrency() . "**",
                                             $adultPax, $pricing['base_adult_price'],
                                             $childPax, $pricing['base_child_price'],
                                             $pricing['final_amount'],

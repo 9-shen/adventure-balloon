@@ -35,6 +35,21 @@ class AppServiceProvider extends ServiceProvider
         Queue::before(function () {
             MailConfig::applyFromDatabase();
         });
+
+        // Dynamically override Filament default currency
+        try {
+            $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
+        } catch (\Throwable $e) {
+            $currency = 'MAD';
+        }
+
+        \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table) use ($currency): void {
+            $table->defaultCurrency($currency);
+        });
+
+        \Filament\Schemas\Schema::configureUsing(function (\Filament\Schemas\Schema $schema) use ($currency): void {
+            $schema->defaultCurrency($currency);
+        });
     }
 }
 

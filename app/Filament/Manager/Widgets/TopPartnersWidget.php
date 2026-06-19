@@ -44,7 +44,7 @@ class TopPartnersWidget extends BaseWidget
 
                 TextColumn::make('bookings_sum_final_amount')
                     ->label('Total Revenue Generated')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->weight('bold')
                     ->color('success'),

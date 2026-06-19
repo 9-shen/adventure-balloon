@@ -55,9 +55,9 @@ class ViewPartnerBooking extends ViewRecord
             Section::make('Financials')
                 ->columns(2)
                 ->schema([
-                    TextEntry::make('final_amount')->label('Total Amount')->money('MAD'),
-                    TextEntry::make('amount_paid')->label('Amount Paid')->money('MAD'),
-                    TextEntry::make('balance_due')->label('Balance Due')->money('MAD'),
+                    TextEntry::make('final_amount')->label('Total Amount')->money(),
+                    TextEntry::make('amount_paid')->label('Amount Paid')->money(),
+                    TextEntry::make('balance_due')->label('Balance Due')->money(),
                     TextEntry::make('payment_status')->label('Payment Status')->badge(),
                 ]),
         ]);

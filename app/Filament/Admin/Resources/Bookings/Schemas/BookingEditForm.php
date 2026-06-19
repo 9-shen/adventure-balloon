@@ -152,16 +152,16 @@ class BookingEditForm
                                     ->native(false),
 
                                 TextInput::make('amount_paid')
-                                    ->label('Amount Paid (MAD)')
+                                    ->label(fn() => 'Amount Paid (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                     ->numeric()
                                     ->minValue(0)
-                                    ->prefix('MAD'),
+                                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency()),
 
                                 TextInput::make('discount_amount')
-                                    ->label('Discount Amount (MAD)')
+                                    ->label(fn() => 'Discount Amount (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                     ->numeric()
                                     ->minValue(0)
-                                    ->prefix('MAD'),
+                                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency()),
 
                                 TextInput::make('discount_reason')
                                     ->label('Discount Reason')
@@ -179,31 +179,31 @@ class BookingEditForm
                             Placeholder::make('adult_price_display')
                                 ->label('Adult Price (each)')
                                 ->content(fn($record): string => $record
-                                    ? 'MAD ' . number_format((float) $record->base_adult_price, 2)
+                                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->base_adult_price, 2)
                                     : '—'),
 
                             Placeholder::make('child_price_display')
                                 ->label('Child Price (each)')
                                 ->content(fn($record): string => $record
-                                    ? 'MAD ' . number_format((float) $record->base_child_price, 2)
+                                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->base_child_price, 2)
                                     : '—'),
 
                             Placeholder::make('adult_total_display')
                                 ->label('Adult Total')
                                 ->content(fn($record): string => $record
-                                    ? 'MAD ' . number_format((float) $record->adult_total, 2)
+                                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->adult_total, 2)
                                     : '—'),
 
                             Placeholder::make('child_total_display')
                                 ->label('Child Total')
                                 ->content(fn($record): string => $record
-                                    ? 'MAD ' . number_format((float) $record->child_total, 2)
+                                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->child_total, 2)
                                     : '—'),
 
                             Placeholder::make('discount_display')
-                                ->label('Discount (MAD)')
+                                ->label(fn() => 'Discount (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                 ->content(fn($record): string => $record
-                                    ? 'MAD ' . number_format((float) $record->discount_amount, 2)
+                                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->discount_amount, 2)
                                     : '—'),
 
                             Placeholder::make('final_amount_display')

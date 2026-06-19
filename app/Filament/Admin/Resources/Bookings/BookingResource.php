@@ -192,27 +192,27 @@ class BookingResource extends Resource
                         ->components([
                             TextEntry::make('base_adult_price')
                                 ->label('Adult Price (each)')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('base_child_price')
                                 ->label('Child Price (each)')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('adult_total')
                                 ->label('Adult Total')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('child_total')
                                 ->label('Child Total')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('discount_amount')
-                                ->label('Discount (MAD)')
-                                ->money('MAD'),
+                                ->label(fn() => 'Discount (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                                ->money(),
 
                             TextEntry::make('final_amount')
                                 ->label('Final Amount')
-                                ->money('MAD'),
+                                ->money(),
                         ]),
 
                     Section::make('Payment')
@@ -246,11 +246,11 @@ class BookingResource extends Resource
 
                             TextEntry::make('amount_paid')
                                 ->label('Amount Paid')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('balance_due')
                                 ->label('Balance Due')
-                                ->money('MAD'),
+                                ->money(),
                         ]),
 
                     Section::make('Notes & Audit')

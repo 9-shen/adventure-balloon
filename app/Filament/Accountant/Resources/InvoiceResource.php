@@ -82,11 +82,11 @@ class InvoiceResource extends Resource
 
                 TextColumn::make('subtotal')
                     ->label('Subtotal')
-                    ->money('MAD'),
+                    ->money(),
 
                 TextColumn::make('total_amount')
                     ->label('Total')
-                    ->money('MAD')
+                    ->money()
                     ->weight('bold'),
 
                 TextColumn::make('status')

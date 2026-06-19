@@ -79,19 +79,19 @@ class TransporterBillingResource extends Resource
 
                 TextColumn::make('dispatches_sum_transport_cost')
                     ->label('Total Cost')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->default(0),
 
                 TextColumn::make('total_billed')
                     ->label('Total Billed')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->default(0),
 
                 TextColumn::make('total_paid')
                     ->label('Total Paid')
-                    ->money('MAD')
+                    ->money()
                     ->color('success')
                     ->sortable()
                     ->default(0),
@@ -101,7 +101,7 @@ class TransporterBillingResource extends Resource
                     ->getStateUsing(fn (TransportCompany $tc): float =>
                         (float) ($tc->total_billed ?? 0) - (float) ($tc->total_paid ?? 0)
                     )
-                    ->money('MAD')
+                    ->money()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
 

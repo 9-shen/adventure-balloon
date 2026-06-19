@@ -70,18 +70,18 @@ class TransportBillResource extends Resource
 
                 TextColumn::make('subtotal')
                     ->label('Subtotal')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('total_amount')
                     ->label('Total (Inc. Tax)')
-                    ->money('MAD')
+                    ->money()
                     ->weight('bold')
                     ->sortable(),
 
                 TextColumn::make('balance_due')
                     ->label('Balance Due')
-                    ->money('MAD')
+                    ->money()
                     ->color(fn ($state) => (float) $state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
 

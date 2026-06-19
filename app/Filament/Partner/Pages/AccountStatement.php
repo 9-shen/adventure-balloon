@@ -131,8 +131,8 @@ class AccountStatement extends Page implements HasTable
                     ->alignCenter(),
 
                 TextColumn::make('final_amount')
-                    ->label('Amount (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Amount (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable()
                     ->alignRight(),
 
@@ -241,17 +241,17 @@ class AccountStatement extends Page implements HasTable
 
                 TextColumn::make('subtotal')
                     ->label('Subtotal')
-                    ->money('MAD')
+                    ->money()
                     ->alignRight(),
 
                 TextColumn::make('tax_amount')
                     ->label('Tax')
-                    ->money('MAD')
+                    ->money()
                     ->alignRight(),
 
                 TextColumn::make('total_amount')
                     ->label('Total')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->alignRight()
                     ->weight('bold'),

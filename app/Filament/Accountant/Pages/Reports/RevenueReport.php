@@ -149,17 +149,17 @@ class RevenueReport extends Page implements HasTable
 
                 TextColumn::make('final_amount')
                     ->label('Total')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('amount_paid')
                     ->label('Paid')
-                    ->money('MAD')
+                    ->money()
                     ->color('success'),
 
                 TextColumn::make('balance_due')
                     ->label('Balance')
-                    ->money('MAD')
+                    ->money()
                     ->color(fn($state) => (float)$state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
 

@@ -68,10 +68,10 @@ class VehicleForm
                         ->suffix('seats'),
 
                     TextInput::make('price_per_trip')
-                        ->label('Price Per Trip (MAD)')
+                        ->label(fn() => 'Price Per Trip (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                         ->numeric()
                         ->minValue(0)
-                        ->prefix('MAD')
+                        ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                         ->default(0),
                 ]),
 

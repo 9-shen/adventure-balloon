@@ -149,20 +149,20 @@ class ViewInvoice extends ViewRecord
                 ->components([
                     TextEntry::make('subtotal')
                         ->label('Subtotal')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('tax_summary')
                         ->label('Tax')
                         ->getStateUsing(
                             fn($record) =>
                             $record->tax_rate > 0
-                                ? 'MAD ' . number_format($record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
+                                ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
                                 : '—'
                         ),
 
                     TextEntry::make('total_amount')
                         ->label('Total Due')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color('danger'),
 
@@ -230,11 +230,11 @@ class ViewInvoice extends ViewRecord
 
                             TextEntry::make('unit_price')
                                 ->label('Unit Price')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('line_total')
                                 ->label('Amount')
-                                ->money('MAD')
+                                ->money()
                                 ->weight('bold'),
                         ]),
                 ])->columnSpanFull(),

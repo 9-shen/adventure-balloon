@@ -79,18 +79,18 @@ class PartnerInvoiceResource extends Resource
 
                 TextColumn::make('total_billed')
                     ->label('Total Billed')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('total_paid')
                     ->label('Total Paid')
-                    ->money('MAD')
+                    ->money()
                     ->color('success')
                     ->sortable(),
 
                 TextColumn::make('total_outstanding')
                     ->label('Outstanding')
-                    ->money('MAD')
+                    ->money()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
                     ->weight('bold')
                     ->sortable(),

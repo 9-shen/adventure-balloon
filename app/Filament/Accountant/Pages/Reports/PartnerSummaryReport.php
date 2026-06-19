@@ -127,17 +127,17 @@ class PartnerSummaryReport extends Page implements HasTable
 
                 TextColumn::make('total_revenue')
                     ->label('Total Revenue')
-                    ->formatStateUsing(fn($state) => 'MAD ' . number_format((float)$state, 2))
+                    ->formatStateUsing(fn($state) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float)$state, 2))
                     ->sortable(),
 
                 TextColumn::make('total_paid')
                     ->label('Total Paid')
-                    ->formatStateUsing(fn($state) => 'MAD ' . number_format((float)$state, 2))
+                    ->formatStateUsing(fn($state) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float)$state, 2))
                     ->color('success'),
 
                 TextColumn::make('total_outstanding')
                     ->label('Outstanding')
-                    ->formatStateUsing(fn($state) => 'MAD ' . number_format((float)$state, 2))
+                    ->formatStateUsing(fn($state) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float)$state, 2))
                     ->color(fn($state) => (float)$state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
 

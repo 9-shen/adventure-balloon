@@ -144,26 +144,26 @@ class ViewTransportBill extends ViewRecord
                 ->components([
                     TextEntry::make('subtotal')
                         ->label('Subtotal')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('tax_summary')
                         ->label('Tax')
                         ->getStateUsing(
                             fn($record) =>
                             $record->tax_rate > 0
-                                ? 'MAD ' . number_format((float) $record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
+                                ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->tax_amount, 2) . ' (' . $record->tax_rate . '%)'
                                 : '—'
                         ),
 
                     TextEntry::make('total_amount')
                         ->label('Total To Pay')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color('danger'),
 
                     TextEntry::make('balance_due')
                         ->label('Balance Due')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color(fn($state) => (float) $state > 0 ? 'danger' : 'success'),
 
@@ -221,11 +221,11 @@ class ViewTransportBill extends ViewRecord
 
                             TextEntry::make('vehicle_cost')
                                 ->label('Vehicle Cost')
-                                ->money('MAD'),
+                                ->money(),
 
                             TextEntry::make('line_total')
                                 ->label('Line Total')
-                                ->money('MAD')
+                                ->money()
                                 ->weight('bold'),
                         ]),
                 ]),

@@ -37,13 +37,13 @@ class ProductsTable
                     ->sortable(),
 
                 TextColumn::make('base_adult_price')
-                    ->label('Adult (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Adult (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('base_child_price')
-                    ->label('Child (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Child (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('duration_minutes')

@@ -420,7 +420,7 @@
                     <th>Description</th>
                     <th class="right" style="width:10%">PAX</th>
                     <th class="right" style="width:10%">Vehicles</th>
-                    <th class="right" style="width:15%">Cost (MAD)</th>
+                    <th class="right" style="width:15%">Cost ({{ $settings->getIsoCurrency() }})</th>
                 </tr>
             </thead>
             <tbody>
@@ -431,7 +431,7 @@
                     <td>{{ $item->description }}</td>
                     <td class="right">{{ $item->dispatch?->total_pax ?? '—' }}</td>
                     <td class="right">{{ $item->vehicles_used }}</td>
-                    <td class="right"><strong>MAD {{ number_format((float) $item->line_total, 2) }}</strong></td>
+                    <td class="right"><strong>{{ $settings->getIsoCurrency() }} {{ number_format((float) $item->line_total, 2) }}</strong></td>
                 </tr>
                 @endforeach
             </tbody>
@@ -442,17 +442,17 @@
             <table>
                 <tr class="totals-subtotal">
                     <td>Subtotal</td>
-                    <td>MAD {{ number_format((float) $bill->subtotal, 2) }}</td>
+                    <td>{{ $settings->getIsoCurrency() }} {{ number_format((float) $bill->subtotal, 2) }}</td>
                 </tr>
                 @if($bill->tax_rate > 0)
                 <tr>
                     <td>Tax ({{ number_format($bill->tax_rate, 0) }}%)</td>
-                    <td>MAD {{ number_format((float) $bill->tax_amount, 2) }}</td>
+                    <td>{{ $settings->getIsoCurrency() }} {{ number_format((float) $bill->tax_amount, 2) }}</td>
                 </tr>
                 @endif
                 <tr class="totals-total">
                     <td>TOTAL TO PAY TTC</td>
-                    <td>MAD {{ number_format((float) $bill->total_amount, 2) }}</td>
+                    <td>{{ $settings->getIsoCurrency() }} {{ number_format((float) $bill->total_amount, 2) }}</td>
                 </tr>
             </table>
         </div>

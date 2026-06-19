@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Pages\Settings;
 use App\Settings\AppSettings;
 use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -51,6 +52,7 @@ class AppSettingsPage extends Page implements HasForms
             'company_email'   => $settings->company_email,
             'company_phone'   => $settings->company_phone,
             'company_address' => $settings->company_address,
+            'currency'        => $settings->currency ?? 'MAD',
         ]);
     }
 
@@ -78,6 +80,17 @@ class AppSettingsPage extends Page implements HasForms
                                 ->label('Phone Number')
                                 ->tel()
                                 ->maxLength(50),
+
+                            Select::make('currency')
+                                ->label('Currency')
+                                ->options([
+                                    'MAD' => 'MAD',
+                                    'EUR' => 'EUR',
+                                    'US' => 'US',
+                                    'Tunisia Dinar' => 'Tunisia Dinar',
+                                ])
+                                ->required()
+                                ->native(false),
                         ]),
 
                         Textarea::make('company_address')
@@ -108,6 +121,7 @@ class AppSettingsPage extends Page implements HasForms
         $settings->company_email   = $data['company_email'];
         $settings->company_phone   = $data['company_phone'] ?? '';
         $settings->company_address = $data['company_address'] ?? '';
+        $settings->currency        = $data['currency'];
         $settings->save();
 
         Notification::make()

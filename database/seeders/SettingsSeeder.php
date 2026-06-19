@@ -20,6 +20,7 @@ class SettingsSeeder extends Seeder
         $app->company_phone   = '+212707962826';
         $app->company_address = 'Marrakech, Morocco';
         $app->logo_path       = null;
+        $app->currency        = 'MAD';
         $app->save();
 
         // ── Legal Settings ────────────────────────────────────────────────────────

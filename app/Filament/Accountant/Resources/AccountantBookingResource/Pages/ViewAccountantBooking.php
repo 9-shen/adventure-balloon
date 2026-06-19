@@ -30,10 +30,10 @@ class ViewAccountantBooking extends ViewRecord
                 ->form([
                     \Filament\Forms\Components\Placeholder::make('total_paid')
                         ->label('Total Already Paid')
-                        ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->amount_paid, 2)),
+                        ->content(fn (Booking $record) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->amount_paid, 2)),
                     \Filament\Forms\Components\Placeholder::make('balance_due_display')
                         ->label('Balance Due')
-                        ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->balance_due, 2)),
+                        ->content(fn (Booking $record) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->balance_due, 2)),
                     Select::make('payment_status')
                         ->label('Payment Status')
                         ->options([
@@ -54,9 +54,9 @@ class ViewAccountantBooking extends ViewRecord
                         ])
                         ->required(),
                     TextInput::make('payment_amount')
-                        ->label('Amount to Pay (MAD)')
+                        ->label(fn() => 'Amount to Pay (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                         ->numeric()
-                        ->prefix('MAD')
+                        ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                         ->required()
                         ->rules(['min:0'])
                         ->maxValue(fn (Booking $record) => max(0, $record->balance_due)),
@@ -185,19 +185,19 @@ class ViewAccountantBooking extends ViewRecord
                 ->components([
                     TextEntry::make('final_amount')
                         ->label('Total Amount Due')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color('gray'),
 
                     TextEntry::make('amount_paid')
                         ->label('Amount Paid')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color('success'),
 
                     TextEntry::make('balance_due')
                         ->label('Balance Due')
-                        ->money('MAD')
+                        ->money()
                         ->weight('bold')
                         ->color(fn($state) => $state > 0 ? 'danger' : 'success'),
 
@@ -219,23 +219,23 @@ class ViewAccountantBooking extends ViewRecord
                 ->components([
                     TextEntry::make('base_adult_price')
                         ->label('Adult Unit Price')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('adult_total')
                         ->label('Adult Subtotal')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('base_child_price')
                         ->label('Child Unit Price')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('child_total')
                         ->label('Child Subtotal')
-                        ->money('MAD'),
+                        ->money(),
 
                     TextEntry::make('discount_amount')
                         ->label('Discount')
-                        ->money('MAD')
+                        ->money()
                         ->color('warning'),
 
                     TextEntry::make('discount_reason')

@@ -50,7 +50,7 @@ class AccountStatsWidget extends BaseWidget
 
             Stat::make('Outstanding Due', new \Illuminate\Support\HtmlString('<span style="font-size: 1.25rem; font-weight: 700;">MAD ' . number_format($totalDue, 2) . '</span>'))
                 ->description($overdue > 0
-                    ? 'MAD ' . number_format($overdue, 2) . ' overdue ⚠'
+                    ? app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($overdue, 2) . ' overdue ⚠'
                     : 'No overdue invoices'
                 )
                 ->descriptionIcon('heroicon-m-clock')

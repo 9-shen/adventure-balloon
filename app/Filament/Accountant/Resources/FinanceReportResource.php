@@ -88,18 +88,18 @@ class FinanceReportResource extends Resource
 
                 TextColumn::make('final_amount')
                     ->label('Final Amount')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('amount_paid')
                     ->label('Amount Paid')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('balance_due')
                     ->label('Balance Due')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
                     ->weight('bold'),

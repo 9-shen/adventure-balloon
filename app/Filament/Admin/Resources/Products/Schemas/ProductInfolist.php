@@ -39,11 +39,11 @@ class ProductInfolist
                             ->components([
                                 TextEntry::make('base_adult_price')
                                     ->label('Adult Price')
-                                    ->money('MAD'),
+                                    ->money(),
 
                                 TextEntry::make('base_child_price')
                                     ->label('Child Price')
-                                    ->money('MAD'),
+                                    ->money(),
                             ]),
                     ]),
 

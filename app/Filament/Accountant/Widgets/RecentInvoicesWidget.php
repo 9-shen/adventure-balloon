@@ -30,7 +30,7 @@ class RecentInvoicesWidget extends BaseWidget
                     ->label('Partner'),
                 Tables\Columns\TextColumn::make('total_amount')
                     ->label('Amount')
-                    ->money('MAD')
+                    ->money()
                     ->weight('bold'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')

@@ -30,7 +30,7 @@ class ViewGuideBooking extends ViewRecord
                     TextEntry::make('flight_date')->label('Date')->date('d/m/Y'),
                     TextEntry::make('adult_pax')->label('Adults'),
                     TextEntry::make('child_pax')->label('Children'),
-                    TextEntry::make('final_amount')->label('Total')->money('MAD'),
+                    TextEntry::make('final_amount')->label('Total')->money(),
                     TextEntry::make('partner_reference')->label('Your Ref')->placeholder('—'),
                     TextEntry::make('pickup_location')->label('Pick-up Location')->placeholder('—'),
                     TextEntry::make('pickup_map_link')

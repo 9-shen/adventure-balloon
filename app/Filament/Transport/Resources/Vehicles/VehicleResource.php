@@ -96,10 +96,10 @@ class VehicleResource extends Resource
                             ->required(),
 
                         TextInput::make('price_per_trip')
-                            ->label('Price per Trip (MAD)')
+                            ->label(fn() => 'Price per Trip (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                             ->numeric()
                             ->minValue(0)
-                            ->prefix('MAD')
+                            ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                             ->required(),
 
                         Toggle::make('is_active')
@@ -144,7 +144,7 @@ class VehicleResource extends Resource
 
                 TextColumn::make('price_per_trip')
                     ->label('Price/Trip')
-                    ->money('MAD'),
+                    ->money(),
 
                 TextColumn::make('drivers_count')
                     ->label('Drivers')

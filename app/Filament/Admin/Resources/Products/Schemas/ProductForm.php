@@ -74,20 +74,20 @@ class ProductForm
                         Grid::make(2)
                             ->components([
                                 TextInput::make('base_adult_price')
-                                    ->label('Adult Price (MAD)')
+                                    ->label(fn() => 'Adult Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                     ->numeric()
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->prefix('MAD')
+                                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                                     ->required()
                                     ->default(0.00),
 
                                 TextInput::make('base_child_price')
-                                    ->label('Child Price (MAD)')
+                                    ->label(fn() => 'Child Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                     ->numeric()
                                     ->minValue(0)
                                     ->step(0.01)
-                                    ->prefix('MAD')
+                                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                                     ->required()
                                     ->default(0.00),
                             ]),

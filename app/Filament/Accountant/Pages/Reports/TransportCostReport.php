@@ -127,8 +127,8 @@ class TransportCostReport extends Page implements HasTable
                     ->alignCenter(),
 
                 TextColumn::make('transport_cost')
-                    ->label('Cost (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Cost (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable()
                     ->weight('bold'),
 

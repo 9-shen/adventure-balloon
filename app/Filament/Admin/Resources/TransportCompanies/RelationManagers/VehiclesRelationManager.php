@@ -62,9 +62,9 @@ class VehiclesRelationManager extends RelationManager
                 ->required(),
 
             TextInput::make('price_per_trip')
-                ->label('Price Per Trip (MAD)')
+                ->label(fn() => 'Price Per Trip (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                 ->numeric()
-                ->prefix('MAD')
+                ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                 ->default(0),
 
             Toggle::make('is_active')
@@ -93,7 +93,7 @@ class VehiclesRelationManager extends RelationManager
                     ->suffix(' seats'),
                 TextColumn::make('price_per_trip')
                     ->label('Price/Trip')
-                    ->money('MAD'),
+                    ->money(),
                 IconColumn::make('is_active')
                     ->label('Active')
                     ->boolean(),

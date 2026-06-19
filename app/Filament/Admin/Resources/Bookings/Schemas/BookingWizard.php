@@ -279,12 +279,12 @@ class BookingWizard
                                 ->columnSpan(2),
 
                             TextInput::make('discount_amount')
-                                ->label('Discount Amount (MAD)')
+                                ->label(fn() => 'Discount Amount (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                 ->numeric()
                                 ->default(0)
                                 ->minValue(0)
                                 ->live()
-                                ->prefix('MAD'),
+                                ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency()),
 
                             TextInput::make('discount_reason')
                                 ->label('Discount Reason')
@@ -334,11 +334,11 @@ class BookingWizard
                                 ->live(),
 
                             TextInput::make('amount_paid')
-                                ->label('Amount Paid (MAD)')
+                                ->label(fn() => 'Amount Paid (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                                 ->numeric()
                                 ->default(0)
                                 ->minValue(0)
-                                ->prefix('MAD')
+                                ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                                 ->live(),
 
                             Placeholder::make('balance_due_display')
@@ -525,7 +525,7 @@ class BookingWizard
 
     private static function formatCurrency(float $amount): string
     {
-        return 'MAD ' . number_format($amount, 2);
+        return app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format($amount, 2);
     }
 
     private static function paxHint(Get $get): string

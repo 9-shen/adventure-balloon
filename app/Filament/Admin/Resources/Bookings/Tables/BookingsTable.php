@@ -73,8 +73,8 @@ class BookingsTable
                     ->alignCenter(),
 
                 TextColumn::make('final_amount')
-                    ->label('Total (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Total (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('payment_status')

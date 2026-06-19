@@ -33,20 +33,20 @@ class PartnerProductsRelationManager extends RelationManager
         return $form
             ->components([
                 TextInput::make('partner_adult_price')
-                    ->label('Adult Price (MAD)')
+                    ->label(fn() => 'Adult Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                     ->numeric()
                     ->minValue(0)
                     ->step(0.01)
-                    ->prefix('MAD')
+                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                     ->required()
                     ->default(0.00),
 
                 TextInput::make('partner_child_price')
-                    ->label('Child Price (MAD)')
+                    ->label(fn() => 'Child Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                     ->numeric()
                     ->minValue(0)
                     ->step(0.01)
-                    ->prefix('MAD')
+                    ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                     ->required()
                     ->default(0.00),
 
@@ -67,22 +67,22 @@ class PartnerProductsRelationManager extends RelationManager
                     ->sortable(),
 
                 TextColumn::make('base_adult_price')
-                    ->label('Base Adult (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Base Adult (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->color('gray'),
 
                 TextColumn::make('pivot.partner_adult_price')
-                    ->label('Partner Adult (MAD)')
-                    ->money('MAD'),
+                    ->label(fn() => 'Partner Adult (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money(),
 
                 TextColumn::make('base_child_price')
-                    ->label('Base Child (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Base Child (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->color('gray'),
 
                 TextColumn::make('pivot.partner_child_price')
-                    ->label('Partner Child (MAD)')
-                    ->money('MAD'),
+                    ->label(fn() => 'Partner Child (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money(),
 
                 IconColumn::make('pivot.is_active')
                     ->label('Active')
@@ -105,20 +105,20 @@ class PartnerProductsRelationManager extends RelationManager
                             ->preload(),
 
                         TextInput::make('partner_adult_price')
-                            ->label('Adult Price (MAD)')
+                            ->label(fn() => 'Adult Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                             ->numeric()
                             ->minValue(0)
                             ->step(0.01)
-                            ->prefix('MAD')
+                            ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                             ->required()
                             ->default(0.00),
 
                         TextInput::make('partner_child_price')
-                            ->label('Child Price (MAD)')
+                            ->label(fn() => 'Child Price (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                             ->numeric()
                             ->minValue(0)
                             ->step(0.01)
-                            ->prefix('MAD')
+                            ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                             ->required()
                             ->default(0.00),
 

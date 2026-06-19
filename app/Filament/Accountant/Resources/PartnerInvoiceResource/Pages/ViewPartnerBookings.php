@@ -84,7 +84,7 @@ class ViewPartnerBookings extends ManageRelatedRecords
 
                     Notification::make()
                         ->title('✅ Invoice ' . $invoice->invoice_ref . ' created!')
-                        ->body($invoice->items->count() . ' booking(s) — MAD ' . number_format((float) $invoice->total_amount, 2))
+                        ->body($invoice->items->count() . ' booking(s) — ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $invoice->total_amount, 2))
                         ->success()
                         ->send();
 
@@ -130,18 +130,18 @@ class ViewPartnerBookings extends ManageRelatedRecords
 
                 TextColumn::make('final_amount')
                     ->label('Total')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('amount_paid')
                     ->label('Paid')
-                    ->money('MAD')
+                    ->money()
                     ->color('success'),
 
                 TextColumn::make('balance_due')
                     ->label('Balance')
-                    ->money('MAD')
+                    ->money()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
 
@@ -236,7 +236,7 @@ class ViewPartnerBookings extends ManageRelatedRecords
 
                         Notification::make()
                             ->title(count($ids) . ' booking(s) added to invoice basket')
-                            ->body('Total basket: ' . count($this->selectedForInvoice) . ' bookings — MAD ' . number_format((float) Booking::whereIn('id', $this->selectedForInvoice)->sum('final_amount'), 2))
+                            ->body('Total basket: ' . count($this->selectedForInvoice) . ' bookings — ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) Booking::whereIn('id', $this->selectedForInvoice)->sum('final_amount'), 2))
                             ->success()->send();
                     })
                     ->deselectRecordsAfterCompletion(),

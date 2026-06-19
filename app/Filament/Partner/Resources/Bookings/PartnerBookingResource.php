@@ -93,7 +93,7 @@ class PartnerBookingResource extends Resource
 
                 TextColumn::make('final_amount')
                     ->label('Amount')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('payment_status')

@@ -132,17 +132,17 @@ class DuePaymentsReport extends Page implements HasTable
 
                 TextColumn::make('final_amount')
                     ->label('Total')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('amount_paid')
                     ->label('Paid')
-                    ->money('MAD')
+                    ->money()
                     ->color('success'),
 
                 TextColumn::make('balance_due')
                     ->label('Balance Due')
-                    ->money('MAD')
+                    ->money()
                     ->color('danger')
                     ->weight('bold')
                     ->sortable(),

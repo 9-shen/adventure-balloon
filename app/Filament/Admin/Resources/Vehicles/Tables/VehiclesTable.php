@@ -63,7 +63,7 @@ class VehiclesTable
 
                 TextColumn::make('price_per_trip')
                     ->label('Price/Trip')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('drivers_count')

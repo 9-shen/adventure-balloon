@@ -90,18 +90,18 @@ class AccountantBookingResource extends Resource
 
                 TextColumn::make('final_amount')
                     ->label('Final Amount')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->weight('bold'),
 
                 TextColumn::make('amount_paid')
                     ->label('Amount Paid')
-                    ->money('MAD')
+                    ->money()
                     ->sortable(),
 
                 TextColumn::make('balance_due')
                     ->label('Balance Due')
-                    ->money('MAD')
+                    ->money()
                     ->sortable()
                     ->color(fn ($state) => $state > 0 ? 'danger' : 'success')
                     ->weight('bold'),
@@ -199,10 +199,10 @@ class AccountantBookingResource extends Resource
                     ->form([
                         \Filament\Forms\Components\Placeholder::make('total_paid')
                             ->label('Total Already Paid')
-                            ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->amount_paid, 2)),
+                            ->content(fn (Booking $record) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->amount_paid, 2)),
                         \Filament\Forms\Components\Placeholder::make('balance_due_display')
                             ->label('Balance Due')
-                            ->content(fn (Booking $record) => 'MAD ' . number_format((float) $record->balance_due, 2)),
+                            ->content(fn (Booking $record) => app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) $record->balance_due, 2)),
                         Select::make('payment_status')
                             ->label('Payment Status')
                             ->options([
@@ -223,9 +223,9 @@ class AccountantBookingResource extends Resource
                             ])
                             ->required(),
                         TextInput::make('payment_amount')
-                            ->label('Amount to Pay (MAD)')
+                            ->label(fn() => 'Amount to Pay (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                             ->numeric()
-                            ->prefix('MAD')
+                            ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency())
                             ->required()
                             ->rules(['min:0'])
                             ->maxValue(fn (Booking $record) => max(0, (float) $record->balance_due)),

@@ -57,7 +57,7 @@ class ViewTransporterDispatches extends ManageRelatedRecords
                         ->default(fn () => count($this->selectedForBill)),
 
                     TextInput::make('estimated_total')
-                        ->label('Estimated Total (MAD)')
+                        ->label(fn() => 'Estimated Total (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
                         ->disabled()
                         ->dehydrated(false)
                         ->default(fn () => number_format(
@@ -140,8 +140,8 @@ class ViewTransporterDispatches extends ManageRelatedRecords
                     ->alignCenter(),
 
                 TextColumn::make('transport_cost')
-                    ->label('Cost (MAD)')
-                    ->money('MAD')
+                    ->label(fn() => 'Cost (' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ')')
+                    ->money()
                     ->sortable()
                     ->weight('bold')
                     ->default(0),
@@ -228,7 +228,7 @@ class ViewTransporterDispatches extends ManageRelatedRecords
 
                         Notification::make()
                             ->title(count($ids) . ' dispatch(es) added to bill basket')
-                            ->body('Total basket: ' . count($this->selectedForBill) . ' dispatches — MAD ' . number_format((float) Dispatch::whereIn('id', $this->selectedForBill)->sum('transport_cost'), 2))
+                            ->body('Total basket: ' . count($this->selectedForBill) . ' dispatches — ' . app(\App\Settings\AppSettings::class)->getIsoCurrency() . ' ' . number_format((float) Dispatch::whereIn('id', $this->selectedForBill)->sum('transport_cost'), 2))
                             ->success()->send();
                     })
                     ->deselectRecordsAfterCompletion(),
