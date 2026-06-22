@@ -215,4 +215,43 @@ class SalesPortalTest extends TestCase
 
         Excel::assertDownloaded('my_bookings_report.csv');
     }
+
+    public function test_sales_booking_wizard_with_zero_child_pax_saves_successfully(): void
+    {
+        // Boot the sales panel so Filament route resolution works in tests
+        $panel = filament()->getPanel('sales');
+        filament()->setCurrentPanel($panel);
+
+        Livewire::actingAs($this->salesUser)
+            ->test(\App\Filament\Sales\Resources\Bookings\Pages\CreateSalesBooking::class)
+            ->set('data.product_id', $this->product->id)
+            ->set('data.flight_date', now()->addDays(2)->format('Y-m-d'))
+            ->set('data.adult_pax', 2)
+            ->set('data.child_pax', 0)
+            ->set('data.pickup_location', 'Test Hotel')
+            ->set('data.booking_customers', [
+                [
+                    'full_name' => 'Passenger 1',
+                    'type' => 'adult',
+                    'is_primary' => true,
+                    'phone' => '+212600000010',
+                ],
+                [
+                    'full_name' => 'Passenger 2',
+                    'type' => 'adult',
+                    'is_primary' => false,
+                ]
+            ])
+            ->set('data.base_adult_price', 1800.00)
+            ->set('data.discount_amount', 0.00)
+            ->call('create')
+            ->assertHasNoErrors();
+
+        $booking = Booking::latest()->first();
+        $this->assertNotNull($booking);
+        $this->assertEquals(2, $booking->adult_pax);
+        $this->assertEquals(0, $booking->child_pax);
+        $this->assertEquals(1800.00, $booking->base_adult_price);
+        $this->assertEquals(3600.00, $booking->final_amount);
+    }
 }

@@ -171,6 +171,17 @@ class CreateSalesBooking extends CreateRecord
                         Section::make('Pricing Configuration')
                             ->components([
                                 Grid::make(2)->components([
+                                    Placeholder::make('pax_reminder')
+                                        ->label('Selected Passengers')
+                                        ->content(function (Get $get) {
+                                            $adultPax = (int) ($get('adult_pax') ?? 1);
+                                            $childPax = (int) ($get('child_pax') ?? 0);
+                                            return new HtmlString(
+                                                "<strong>{$adultPax} Adult(s)</strong>, <strong>{$childPax} Child(ren)</strong>"
+                                            );
+                                        })
+                                        ->columnSpanFull(),
+
                                     Placeholder::make('system_default_pricing')
                                         ->label('System Default Pricing')
                                         ->content(function (Get $get) {
@@ -193,14 +204,16 @@ class CreateSalesBooking extends CreateRecord
                                     TextInput::make('base_adult_price')
                                         ->label('Custom Adult Unit Price')
                                         ->numeric()
-                                        ->required()
+                                        ->required(fn (Get $get) => (int) $get('adult_pax') > 0)
+                                        ->disabled(fn (Get $get) => (int) $get('adult_pax') === 0)
                                         ->live()
                                         ->prefix(fn() => app(AppSettings::class)->getIsoCurrency()),
 
                                     TextInput::make('base_child_price')
                                         ->label('Custom Child Unit Price')
                                         ->numeric()
-                                        ->required()
+                                        ->required(fn (Get $get) => (int) $get('child_pax') > 0)
+                                        ->disabled(fn (Get $get) => (int) $get('child_pax') === 0)
                                         ->live()
                                         ->prefix(fn() => app(AppSettings::class)->getIsoCurrency()),
 
