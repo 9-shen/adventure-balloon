@@ -85,13 +85,20 @@ class CreateBooking extends CreateRecord
         // Resolve prices — partner pivot if partner booking, else base product price
         $service       = app(BookingService::class);
         $pricing       = $service->calculatePricing($product, $adultPax, $childPax, $discount, $partnerId);
-        $balanceDue    = max(0, round($pricing['final_amount'] - $amountPaid, 2));
 
-        $data['base_adult_price'] = $pricing['base_adult_price'];
-        $data['base_child_price'] = $pricing['base_child_price'];
-        $data['adult_total']      = $pricing['adult_total'];
-        $data['child_total']      = $pricing['child_total'];
-        $data['final_amount']     = $pricing['final_amount'];
+        $baseAdult = isset($data['base_adult_price']) ? (float) $data['base_adult_price'] : $pricing['base_adult_price'];
+        $baseChild = isset($data['base_child_price']) ? (float) $data['base_child_price'] : $pricing['base_child_price'];
+
+        $adultTotal  = round($baseAdult * $adultPax, 2);
+        $childTotal  = round($baseChild * $childPax, 2);
+        $finalAmount = max(0, round($adultTotal + $childTotal - $discount, 2));
+        $balanceDue  = max(0, round($finalAmount - $amountPaid, 2));
+
+        $data['base_adult_price'] = $baseAdult;
+        $data['base_child_price'] = $baseChild;
+        $data['adult_total']      = $adultTotal;
+        $data['child_total']      = $childTotal;
+        $data['final_amount']     = $finalAmount;
         $data['balance_due']      = $balanceDue;
         $data['created_by']       = Auth::id();
         $data['type']             = $isPartner ? 'partner' : 'regular';

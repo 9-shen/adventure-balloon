@@ -16,12 +16,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\HtmlString;
 
 class BookingWizard
 {
@@ -46,6 +48,7 @@ class BookingWizard
                             ->default('regular')
                             ->required()
                             ->live()
+                            ->afterStateUpdated(fn(Get $get, Set $set) => self::updateBasePrices($get, $set))
                             ->columnSpanFull(),
 
                         // ── Partner Select (partner bookings only) ───────
@@ -60,6 +63,7 @@ class BookingWizard
                             ->live()
                             ->required(fn(Get $get): bool => $get('booking_type') === 'partner')
                             ->visible(fn(Get $get): bool => $get('booking_type') === 'partner')
+                            ->afterStateUpdated(fn(Get $get, Set $set) => self::updateBasePrices($get, $set))
                             ->placeholder('Search for a partner…')
                             ->columnSpanFull(),
 
@@ -101,6 +105,7 @@ class BookingWizard
                                 ->required()
                                 ->native(false)
                                 ->live()
+                                ->afterStateUpdated(fn(Get $get, Set $set) => self::updateBasePrices($get, $set))
                                 ->columnSpan(2),
 
                             DatePicker::make('flight_date')
@@ -259,17 +264,51 @@ class BookingWizard
                     ->schema([
                         Grid::make(2)->components([
 
-                            Placeholder::make('adult_total_display')
-                                ->label('Adult Total')
-                                ->content(fn(Get $get): string => self::formatCurrency(
-                                    self::calcAdultTotal($get)
-                                )),
+                            Placeholder::make('pax_reminder')
+                                ->label('Selected Passengers')
+                                ->content(function (Get $get) {
+                                    $adultPax = (int) ($get('adult_pax') ?? 1);
+                                    $childPax = (int) ($get('child_pax') ?? 0);
+                                    return new HtmlString(
+                                        "<strong>{$adultPax} Adult(s)</strong>, <strong>{$childPax} Child(ren)</strong>"
+                                    );
+                                })
+                                ->columnSpanFull(),
 
-                            Placeholder::make('child_total_display')
-                                ->label('Child Total')
-                                ->content(fn(Get $get): string => self::formatCurrency(
-                                    self::calcChildTotal($get)
-                                )),
+                            Placeholder::make('system_default_pricing')
+                                ->label('System Default Pricing')
+                                ->content(function (Get $get) {
+                                    $productId = $get('product_id');
+                                    $adultPax  = (int) ($get('adult_pax') ?? 1);
+                                    $childPax  = (int) ($get('child_pax') ?? 0);
+                                    if (!$productId) return 'Please select a product in Step 1.';
+                                    $product = Product::find($productId);
+                                    if (!$product) return '—';
+
+                                    $defAdult = self::resolveAdultPrice($get);
+                                    $defChild = self::resolveChildPrice($get);
+                                    $defTotal = ($defAdult * $adultPax) + ($defChild * $childPax);
+
+                                    $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
+                                    return "Adult: {$currency} " . number_format($defAdult, 2) . " | Child: {$currency} " . number_format($defChild, 2) . " | Calculated Subtotal: {$currency} " . number_format($defTotal, 2);
+                                })
+                                ->columnSpanFull(),
+
+                            TextInput::make('base_adult_price')
+                                ->label('Custom Adult Unit Price')
+                                ->numeric()
+                                ->required(fn (Get $get) => (int) $get('adult_pax') > 0)
+                                ->disabled(fn (Get $get) => (int) $get('adult_pax') === 0)
+                                ->live()
+                                ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency()),
+
+                            TextInput::make('base_child_price')
+                                ->label('Custom Child Unit Price')
+                                ->numeric()
+                                ->required(fn (Get $get) => (int) $get('child_pax') > 0)
+                                ->disabled(fn (Get $get) => (int) $get('child_pax') === 0)
+                                ->live()
+                                ->prefix(fn() => app(\App\Settings\AppSettings::class)->getIsoCurrency()),
 
                             // Partner price info badge
                             Placeholder::make('partner_price_info')
@@ -288,8 +327,10 @@ class BookingWizard
 
                             TextInput::make('discount_reason')
                                 ->label('Discount Reason')
-                                ->nullable()
-                                ->maxLength(255),
+                                ->required(fn (Get $get) => (float) $get('discount_amount') > 0)
+                                ->maxLength(255)
+                                ->placeholder('Enter reason (mandatory for discounts)')
+                                ->hint('Mandatory if discount is configured'),
 
                             Placeholder::make('final_amount_display')
                                 ->label('Final Amount')
@@ -505,16 +546,36 @@ class BookingWizard
         return (float) $product->base_child_price;
     }
 
+    public static function updateBasePrices(Get $get, Set $set): void
+    {
+        $set('base_adult_price', self::resolveAdultPrice($get));
+        $set('base_child_price', self::resolveChildPrice($get));
+    }
+
+    private static function getAdultPrice(Get $get): float
+    {
+        return $get('base_adult_price') !== null
+            ? (float) $get('base_adult_price')
+            : self::resolveAdultPrice($get);
+    }
+
+    private static function getChildPrice(Get $get): float
+    {
+        return $get('base_child_price') !== null
+            ? (float) $get('base_child_price')
+            : self::resolveChildPrice($get);
+    }
+
     private static function calcAdultTotal(Get $get): float
     {
         $adultPax = (int) ($get('adult_pax') ?? 0);
-        return round(self::resolveAdultPrice($get) * $adultPax, 2);
+        return round(self::getAdultPrice($get) * $adultPax, 2);
     }
 
     private static function calcChildTotal(Get $get): float
     {
         $childPax = (int) ($get('child_pax') ?? 0);
-        return round(self::resolveChildPrice($get) * $childPax, 2);
+        return round(self::getChildPrice($get) * $childPax, 2);
     }
 
     private static function calcFinalAmount(Get $get): float
