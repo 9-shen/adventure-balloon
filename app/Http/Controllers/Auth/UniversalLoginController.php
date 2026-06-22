@@ -80,6 +80,7 @@ class UniversalLoginController extends Controller
             $user->hasRole('partner')                   => '/partner',
             $user->hasRole('guide')                     => '/guide',
             $user->hasRole('balloon_dispatcher')        => '/balloon-dispatcher',
+            $user->hasRole('sales')                     => '/sales',
             default                                     => abort(403, 'Unauthorized access or unassigned role.'),
         };
     }

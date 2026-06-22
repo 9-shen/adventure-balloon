@@ -104,6 +104,7 @@ class User extends Authenticatable implements FilamentUser, HasMedia, HasAvatar
             'greeter'             => $this->hasRole('greeter'),
             'dispatcher'          => $this->hasRole('dispatcher'),
             'balloon-dispatcher'  => $this->hasRole('balloon_dispatcher'),
+            'sales'               => $this->hasRole('sales'),
 
             default      => false,  // explicit deny-all
         };

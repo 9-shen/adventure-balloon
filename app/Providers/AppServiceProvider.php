@@ -36,11 +36,15 @@ class AppServiceProvider extends ServiceProvider
             MailConfig::applyFromDatabase();
         });
 
-        // Dynamically override Filament default currency
-        try {
-            $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
-        } catch (\Throwable $e) {
+        // Dynamically override Filament default currency (HTTP requests only — skip during CLI/artisan to avoid DB connection hangs)
+        if ($this->app->runningInConsole()) {
             $currency = 'MAD';
+        } else {
+            try {
+                $currency = app(\App\Settings\AppSettings::class)->getIsoCurrency();
+            } catch (\Throwable $e) {
+                $currency = 'MAD';
+            }
         }
 
         \Filament\Tables\Table::configureUsing(function (\Filament\Tables\Table $table) use ($currency): void {

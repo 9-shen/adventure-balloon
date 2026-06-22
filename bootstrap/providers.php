@@ -11,6 +11,7 @@ return [
     App\Providers\Filament\GuidePanelProvider::class,
     App\Providers\Filament\ManagerPanelProvider::class,
     App\Providers\Filament\PartnerPanelProvider::class,
+    App\Providers\Filament\SalesPanelProvider::class,
     App\Providers\Filament\TransportPanelProvider::class,
     App\Providers\PwaServiceProvider::class,
 ];

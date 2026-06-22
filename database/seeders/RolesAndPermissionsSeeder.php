@@ -119,6 +119,12 @@ class RolesAndPermissionsSeeder extends Seeder
                 'view_customers',
             ],
 
+            // ── Sales — belongs to main app, creates regular bookings with overrides
+            'sales' => [
+                'view_bookings', 'create_bookings', 'edit_bookings', 'cancel_bookings',
+                'view_customers',
+            ],
+
             // ── Dispatcher — manages dispatches for assigned partners
             'dispatcher' => [
                 'view_bookings', 'edit_bookings',
